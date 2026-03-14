@@ -58,3 +58,8 @@ isOrdMult ? mult.gt(1) : mult > 1
 NOTE: The army chain buttons use applyEffect() which was updated to handle
 OrdinalNumber. But economy chain (farm/plantation/colony) has inline effectFns
 that were never updated.
+
+DECISION NEEDED:
+- Fix these bugs in current layer-based system? OR
+- Wait for Task 25 (arbitrary hierarchy redesign) which may supersede this?
+- Current bugs are blocking gameplay, so probably fix first, then redesign.

@@ -1,6 +1,8 @@
 Set up version control for html-game project
 ============================================
 
+STATUS: Local git DONE, remote still TODO
+
 PROBLEM: No version control. Risky changes can break things with no easy rollback.
 
 REQUIREMENTS:
@@ -8,7 +10,16 @@ REQUIREMENTS:
 - Need ability to commit, rollback, see history
 - Should be simple to use
 
-OPTIONS:
+COMPLETED:
+- [x] Local git initialized in /home/jjsclaude/Desktop/fun/
+- [x] Initial commit with all files (134 files, commit c21e319)
+- [x] Updated MEMORY.md with version control instructions
+
+TODO:
+- [ ] Set up remote (GitLab, Bitbucket, or other)
+- [ ] Configure SSH key or token for remote
+
+OPTIONS FOR REMOTE:
 
 1. **Local Git (no remote)** - SIMPLEST
    ```bash

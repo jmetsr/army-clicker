@@ -1,0 +1,96 @@
+Redesign OrdinalNumber to handle arbitrary fast-growing hierarchy levels
+========================================================================
+
+PROBLEM:
+Current OrdinalNumber has hardcoded layers:
+- Layer 0: Number (up to 10^12)
+- Layer 1: {mantissa, exponent} - scientific notation (up to 10^308)
+- Layer 2: {tower: [a]} - tower notation (10^10^a)
+
+Each layer requires ~200 lines of custom code for add/mul/compare/format.
+The game naturally produces ARBITRARY layers via auto-upgrader chains:
+- auto_train → tower grows (layer 2)
+- auto_auto_train → tower growth accelerates (layer 2-3)
+- auto_auto_auto_train → approaches layer 3-4
+- Each new auto tier = next level in fast-growing hierarchy
+
+INSIGHT - FAST GROWING HIERARCHY:
+f0(n) = n+1
+f1(n) = 2n (addition iterated)
+f2(n) = 2^n (multiplication iterated) ← our layer 1
+f3(n) = 2^^n = 2^2^...^2 (exponentiation iterated) ← our layer 2
+f4(n) = 2^^^n (tetration iterated)
+f5(n) = ...
+
+Game auto-upgrader chains naturally climb this hierarchy!
+
+SCOPE:
+- Handle arbitrary FINITE arrow counts (arrows can itself be OrdinalNumber)
+- This covers everything the game can currently produce
+- ω-level (infinite ordinals) is a FUTURE goal when game mechanics support it
+- We accept that ω will require another research/redesign phase
+
+PROPOSED SOLUTION - KNUTH ARROW NOTATION:
+
+Unified representation:
+```javascript
+{
+  arrows: OrdinalNumber,  // can itself be huge (10↑↑100 arrows)
+  base: 10,               // always 10 for our purposes
+  height: OrdinalNumber   // the "argument"
+}
+```
+
+Meaning: 10 ↑^arrows height
+- arrows=1, height=6 → 10^6 = million
+- arrows=2, height=3 → 10↑↑3 = 10^10^10
+- arrows=3, height=2 → 10↑↑↑2 = 10↑↑10 = 10^10^10^...^10 (10 times)
+- arrows=10↑↑5, height=10 → 10 ↑^(10↑↑5) 10 (arrow count is huge)
+
+RECURSIVE OPERATIONS:
+
+Comparison (most important for game):
+1. Compare arrow count first
+2. If equal, recursively compare height
+3. Accept approximation at high levels
+
+Addition:
+- If arrows differ by >1, return larger
+- If arrows equal, result is roughly max(a,b) (like now)
+- May need to promote arrow count
+
+Multiplication:
+- 10↑k(a) × 10↑k(b) ≈ 10↑k(a+b) for same arrow count
+- Different arrow counts: return larger
+
+Display:
+- arrows=1: scientific "1.23e45"
+- arrows=2: "10^^123" or "10^10^...^10 (123)"
+- arrows=3: "10^^^45"
+- Or use ordinal names: ε₀, ω, etc. for very high
+
+CHALLENGES:
+1. Both arrows AND height can be OrdinalNumbers (recursive structure)
+2. Operations become approximate at high levels - need good heuristics
+3. Comparison is critical for game mechanics - must be reliable
+4. Display needs to be readable (arrow notation? names?)
+5. Bootstrap problem: how do we represent arrows=10↑↑5 without circular dependency?
+   - Maybe: arrows stored as {layer, value} tuple, height as full OrdinalNumber
+   - Or: arrows maxes out at some reasonable cap before ω redesign
+
+PHASES:
+1. Research/design the representation thoroughly
+2. Implement basic structure with arrows field
+3. Port existing layer 0/1/2 operations to new system
+4. Add layer 3+ support (should be mostly automatic)
+5. Test with game's auto-upgrader chains
+
+REFERENCES:
+- Knuth up-arrow notation
+- Fast-growing hierarchy (Hardy hierarchy)
+- Googology Wiki
+- Ordinal arithmetic
+
+RELATED TASKS:
+- Task 22 (OrdinalNumber operator bugs) - fix current bugs first?
+- Task 01/01a/01b (original large number tasks)

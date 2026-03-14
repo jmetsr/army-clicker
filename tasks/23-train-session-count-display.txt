@@ -41,4 +41,6 @@ POTENTIAL FIXES:
    ```
 3. Fix bug #22 first - may resolve this issue
 
-RELATED: Task 22 (OrdinalNumber operator bugs) - same root cause
+RELATED:
+- Task 22 (OrdinalNumber operator bugs) - same root cause
+- Task 25 (arbitrary hierarchy redesign) - longer term fix
