@@ -1,0 +1,50 @@
+Set up version control for html-game project
+============================================
+
+PROBLEM: No version control. Risky changes can break things with no easy rollback.
+
+REQUIREMENTS:
+- Don't use GitHub (want to keep auth token separate for work)
+- Need ability to commit, rollback, see history
+- Should be simple to use
+
+OPTIONS:
+
+1. **Local Git (no remote)** - SIMPLEST
+   ```bash
+   cd /home/jjsclaude/Desktop/fun/html-game
+   git init
+   git add .
+   git commit -m "Initial commit"
+   ```
+   Pros: No account needed, no auth, full git features
+   Cons: No offsite backup (but can manually copy .git folder)
+
+2. **GitLab.com** (free tier)
+   - Separate account from GitHub
+   - Free private repos
+   - Could use different SSH key
+
+3. **Bitbucket** (free tier)
+   - Atlassian's git hosting
+   - Free private repos for small teams
+
+4. **Local git + periodic tar backups**
+   - Git locally for version control
+   - Cron job or manual tar of project for backup
+   ```bash
+   tar -czf ~/backups/html-game-$(date +%Y%m%d).tar.gz /home/jjsclaude/Desktop/fun/html-game
+   ```
+
+RECOMMENDATION: Start with local git (#1). It's immediate, no setup, gives
+full version control. Can add remote later if needed.
+
+WORKFLOW AFTER SETUP:
+- Before risky changes: `git status` to check state, `git stash` if needed
+- After changes work: `git add -A && git commit -m "description"`
+- If changes break things: `git checkout .` or `git reset --hard HEAD`
+- To see history: `git log --oneline`
+
+ALSO UPDATE MEMORY.md:
+- Add rule: "Always commit before making risky changes"
+- Add rule: "After major feature works, commit it"

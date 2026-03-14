@@ -1,0 +1,6 @@
+14 - it logs AI uses Train Ratio 1:1 strategy.
+it shouldnt log that. first of all, we dont need to tell user eneme's strategy. second of all, its not even true. we changed AI's straegy many times and that message is still unchained. so we should get rid of that message and any other messages that tell u enemee's strategy
+
+STATUS: COMPLETE
+================
+Message removed. No "Train Ratio" or strategy messages exist in current code.

@@ -1,0 +1,38 @@
+Fix Auto-Upgrade Eligibility Bug
+=================================
+
+STATUS: COMPLETE
+================
+Fixed in events.js openAutoUpgraderModal() lines 86-87:
+The function iterates over Object.keys(G.upgradeLevels), which includes
+auto-upgrader IDs like "auto_farm". So if auto_farm has 3+ upgrades,
+it appears in the modal and can have an auto-auto-upgrader installed.
+
+---
+
+Bug:
+Can't auto-upgrade a button that has been upgraded.
+Error message: "No eligible buttons. Need 3+ upgrades and no existing auto-upgrader."
+
+The "no existing auto-upgrader" check is wrong.
+
+Root Cause:
+The logic for allowing auto-upgrading of auto-upgraders exists, but it was put
+in the wrong place - it's in the upgrade logic instead of the auto-upgrade logic.
+
+Correct Flow:
+1. Pay 1 magic to upgrade farm
+2. Pay 1 magic to upgrade farm
+3. Pay 1 magic to upgrade farm (3 upgrades total)
+4. Pay 10 magic to install auto-upgrade on farm
+5. Pay 1 magic to upgrade auto-upgrade-farm
+6. Pay 1 magic to upgrade auto-upgrade-farm
+7. Pay 1 magic to upgrade auto-upgrade-farm (3 upgrades on auto-upgrader)
+8. Pay 10 magic to install auto-auto-upgrade on farm
+
+The logic for step 8 (installing auto-upgrade on an auto-upgrader) already exists
+and is correct. It just needs to be moved to the auto-upgrade eligibility check
+instead of the upgrade eligibility check.
+
+Fix:
+Move the auto-upgrader eligibility logic from upgrade code to auto-upgrade code.

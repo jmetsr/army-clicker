@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Farm Threshold Comparison</title>
+  <style>
+    body {
+      font-family: 'Consolas', 'Monaco', monospace;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 20px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    h1 { color: #00d4ff; text-align: center; }
+    h2 { color: #ff6b6b; margin-top: 40px; border-bottom: 2px solid #ff6b6b; padding-bottom: 10px; }
+    h3 { color: #ffd93d; margin-top: 30px; }
+    .config {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .config p { margin: 5px 0; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 15px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px 12px;
+      text-align: right;
+    }
+    th {
+      background: #2d2d44;
+      color: #00d4ff;
+    }
+    td:first-child {
+      text-align: left;
+      font-weight: bold;
+    }
+    tr:nth-child(even) { background: #252538; }
+    tr:nth-child(odd) { background: #1e1e30; }
+    tr:hover { background: #3a3a55; }
+    .winner { background: #1a4a1a !important; }
+    .broken { background: #4a1a1a !important; color: #ff6b6b; }
+    .starving { background: #4a3a1a !important; }
+    .summary {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .summary table { margin: 0; }
+    .summary th { background: #3d3d55; }
+  </style>
+</head>
+<body>
+  <h1>Farm Threshold Comparison</h1>
+
+  <div class="config">
+    <p><strong>Configuration:</strong></p>
+    <p>VAL_SL = 5 (fixed)</p>
+    <p>trainMult = 0.01 (fixed low value)</p>
+    <p>pptScaling = true</p>
+    <p>CPS = 25</p>
+    <p><strong>Formula:</strong></p>
+    <p>urgency = MIN(daysOfFood, recruitsUntil1DayStarve)</p>
+    <p>VAL_FARM = VAL_SL × (THRESHOLD / urgency)</p>
+  </div>
+
+  <h2>Day 100</h2>
+  <table>
+    <tr>
+      <th>Threshold</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve Days</th>
+      <th>Max Streak</th>
+    </tr>
+    <tr class="starving">
+      <td>1</td>
+      <td>2.34e+8</td>
+      <td>579,586</td>
+      <td>403.4</td>
+      <td>603</td>
+      <td>6,177</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>7,215</td>
+      <td>23</td>
+      <td>4</td>
+      <td>498</td>
+      <td>3</td>
+    </tr>
+    <tr class="starving">
+      <td>2</td>
+      <td>2.75e+8</td>
+      <td>587,275</td>
+      <td>468.4</td>
+      <td>618</td>
+      <td>5,523</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5,886</td>
+      <td>23</td>
+      <td>4</td>
+      <td>409</td>
+      <td>3</td>
+    </tr>
+    <tr class="starving">
+      <td>3</td>
+      <td>4.92e+8</td>
+      <td>795,168</td>
+      <td>618.9</td>
+      <td>646</td>
+      <td>4,515</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>7,955</td>
+      <td>23</td>
+      <td>4</td>
+      <td>330</td>
+      <td>4</td>
+    </tr>
+    <tr class="starving">
+      <td>4</td>
+      <td>6.16e+8</td>
+      <td>938,296</td>
+      <td>657.0</td>
+      <td>652</td>
+      <td>3,571</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>9,389</td>
+      <td>23</td>
+      <td>4</td>
+      <td>310</td>
+      <td>4</td>
+    </tr>
+    <tr class="starving">
+      <td>5</td>
+      <td>9.84e+8</td>
+      <td>1,144,496</td>
+      <td>859.4</td>
+      <td>679</td>
+      <td>3,571</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,469</td>
+      <td>23</td>
+      <td>4</td>
+      <td>22</td>
+      <td>4</td>
+    </tr>
+    <tr class="">
+      <td>6</td>
+      <td>9.88e+8</td>
+      <td>1,149,274</td>
+      <td>859.4</td>
+      <td>679</td>
+      <td>3,571</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,504</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="winner">
+      <td>7</td>
+      <td>9.91e+8</td>
+      <td>1,153,073</td>
+      <td>859.4</td>
+      <td>679</td>
+      <td>3,571</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,490</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>8</td>
+      <td>9.88e+8</td>
+      <td>1,149,315</td>
+      <td>859.4</td>
+      <td>679</td>
+      <td>3,571</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,471</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>9</td>
+      <td>9.85e+8</td>
+      <td>1,145,775</td>
+      <td>859.4</td>
+      <td>679</td>
+      <td>3,571</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,495</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10</td>
+      <td>9.88e+8</td>
+      <td>1,149,347</td>
+      <td>859.4</td>
+      <td>679</td>
+      <td>3,571</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,471</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>11</td>
+      <td>9.85e+8</td>
+      <td>1,145,775</td>
+      <td>859.4</td>
+      <td>679</td>
+      <td>3,571</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,495</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+  </table>
+
+  <h2>Day 200</h2>
+  <table>
+    <tr>
+      <th>Threshold</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve Days</th>
+      <th>Max Streak</th>
+    </tr>
+    <tr class="starving">
+      <td>1</td>
+      <td>1.92e+9</td>
+      <td>1,638,984</td>
+      <td>1170.0</td>
+      <td>710</td>
+      <td>7,473</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>17,055</td>
+      <td>23</td>
+      <td>4</td>
+      <td>498</td>
+      <td>3</td>
+    </tr>
+    <tr class="starving">
+      <td>2</td>
+      <td>1.68e+9</td>
+      <td>1,497,451</td>
+      <td>1124.3</td>
+      <td>706</td>
+      <td>7,475</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>15,822</td>
+      <td>23</td>
+      <td>4</td>
+      <td>409</td>
+      <td>3</td>
+    </tr>
+    <tr class="starving">
+      <td>3</td>
+      <td>1.85e+9</td>
+      <td>1,538,308</td>
+      <td>1205.4</td>
+      <td>713</td>
+      <td>7,587</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>18,179</td>
+      <td>23</td>
+      <td>4</td>
+      <td>330</td>
+      <td>4</td>
+    </tr>
+    <tr class="starving">
+      <td>4</td>
+      <td>2.15e+9</td>
+      <td>1,678,844</td>
+      <td>1279.6</td>
+      <td>719</td>
+      <td>7,651</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>18,605</td>
+      <td>23</td>
+      <td>4</td>
+      <td>310</td>
+      <td>4</td>
+    </tr>
+    <tr class="starving">
+      <td>5</td>
+      <td>2.63e+9</td>
+      <td>1,861,952</td>
+      <td>1413.5</td>
+      <td>729</td>
+      <td>7,763</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>21,957</td>
+      <td>23</td>
+      <td>4</td>
+      <td>22</td>
+      <td>4</td>
+    </tr>
+    <tr class="winner">
+      <td>6</td>
+      <td>2.63e+9</td>
+      <td>1,864,166</td>
+      <td>1413.5</td>
+      <td>729</td>
+      <td>7,779</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,040</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>7</td>
+      <td>2.62e+9</td>
+      <td>1,854,693</td>
+      <td>1413.5</td>
+      <td>729</td>
+      <td>7,779</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,074</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>8</td>
+      <td>2.63e+9</td>
+      <td>1,861,679</td>
+      <td>1413.5</td>
+      <td>729</td>
+      <td>7,763</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,079</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>9</td>
+      <td>2.62e+9</td>
+      <td>1,854,475</td>
+      <td>1413.5</td>
+      <td>729</td>
+      <td>7,779</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,079</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10</td>
+      <td>2.63e+9</td>
+      <td>1,862,015</td>
+      <td>1413.5</td>
+      <td>729</td>
+      <td>7,763</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,079</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>11</td>
+      <td>2.63e+9</td>
+      <td>1,863,215</td>
+      <td>1413.5</td>
+      <td>729</td>
+      <td>7,763</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,079</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+  </table>
+
+  <h2>Day 300</h2>
+  <table>
+    <tr>
+      <th>Threshold</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve Days</th>
+      <th>Max Streak</th>
+    </tr>
+    <tr class="starving">
+      <td>1</td>
+      <td>3.90e+9</td>
+      <td>2,174,050</td>
+      <td>1794.7</td>
+      <td>753</td>
+      <td>8,033</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>18,711</td>
+      <td>23</td>
+      <td>4</td>
+      <td>498</td>
+      <td>3</td>
+    </tr>
+    <tr class="starving">
+      <td>2</td>
+      <td>3.53e+9</td>
+      <td>2,024,091</td>
+      <td>1741.9</td>
+      <td>750</td>
+      <td>8,019</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>17,454</td>
+      <td>23</td>
+      <td>4</td>
+      <td>409</td>
+      <td>3</td>
+    </tr>
+    <tr class="starving">
+      <td>3</td>
+      <td>3.60e+9</td>
+      <td>2,007,284</td>
+      <td>1794.7</td>
+      <td>753</td>
+      <td>8,067</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>19,667</td>
+      <td>23</td>
+      <td>4</td>
+      <td>330</td>
+      <td>4</td>
+    </tr>
+    <tr class="starving">
+      <td>4</td>
+      <td>4.04e+9</td>
+      <td>2,143,688</td>
+      <td>1886.3</td>
+      <td>758</td>
+      <td>8,131</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>19,997</td>
+      <td>23</td>
+      <td>4</td>
+      <td>310</td>
+      <td>4</td>
+    </tr>
+    <tr class="starving">
+      <td>5</td>
+      <td>4.64e+9</td>
+      <td>2,293,224</td>
+      <td>2022.3</td>
+      <td>765</td>
+      <td>8,211</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,253</td>
+      <td>23</td>
+      <td>4</td>
+      <td>22</td>
+      <td>4</td>
+    </tr>
+    <tr class="winner">
+      <td>6</td>
+      <td>4.64e+9</td>
+      <td>2,295,502</td>
+      <td>2022.3</td>
+      <td>765</td>
+      <td>8,211</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,360</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>7</td>
+      <td>4.64e+9</td>
+      <td>2,293,793</td>
+      <td>2022.3</td>
+      <td>765</td>
+      <td>8,211</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,370</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>8</td>
+      <td>4.64e+9</td>
+      <td>2,293,031</td>
+      <td>2022.3</td>
+      <td>765</td>
+      <td>8,195</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,375</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>9</td>
+      <td>4.64e+9</td>
+      <td>2,293,543</td>
+      <td>2022.3</td>
+      <td>765</td>
+      <td>8,211</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,375</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10</td>
+      <td>4.64e+9</td>
+      <td>2,293,351</td>
+      <td>2022.3</td>
+      <td>765</td>
+      <td>8,211</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,375</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>11</td>
+      <td>4.64e+9</td>
+      <td>2,294,551</td>
+      <td>2022.3</td>
+      <td>765</td>
+      <td>8,211</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,375</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+  </table>
+
+  <h2>Day 400</h2>
+  <table>
+    <tr>
+      <th>Threshold</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve Days</th>
+      <th>Max Streak</th>
+    </tr>
+    <tr class="starving">
+      <td>1</td>
+      <td>3.88e+9</td>
+      <td>1,719,408</td>
+      <td>2256.2</td>
+      <td>776</td>
+      <td>8,321</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>19,575</td>
+      <td>23</td>
+      <td>4</td>
+      <td>501</td>
+      <td>3</td>
+    </tr>
+    <tr class="starving">
+      <td>2</td>
+      <td>3.58e+9</td>
+      <td>1,619,496</td>
+      <td>2211.8</td>
+      <td>774</td>
+      <td>8,307</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>18,366</td>
+      <td>23</td>
+      <td>4</td>
+      <td>412</td>
+      <td>3</td>
+    </tr>
+    <tr class="starving">
+      <td>3</td>
+      <td>5.41e+9</td>
+      <td>2,327,856</td>
+      <td>2324.6</td>
+      <td>779</td>
+      <td>8,387</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>20,579</td>
+      <td>23</td>
+      <td>4</td>
+      <td>330</td>
+      <td>4</td>
+    </tr>
+    <tr class="starving">
+      <td>4</td>
+      <td>5.95e+9</td>
+      <td>2,458,048</td>
+      <td>2419.0</td>
+      <td>783</td>
+      <td>8,435</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>20,909</td>
+      <td>23</td>
+      <td>4</td>
+      <td>310</td>
+      <td>4</td>
+    </tr>
+    <tr class="starving">
+      <td>5</td>
+      <td>6.57e+9</td>
+      <td>2,585,396</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,141</td>
+      <td>23</td>
+      <td>4</td>
+      <td>22</td>
+      <td>4</td>
+    </tr>
+    <tr class="winner">
+      <td>6</td>
+      <td>6.60e+9</td>
+      <td>2,596,318</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,200</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>7</td>
+      <td>6.57e+9</td>
+      <td>2,586,013</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,234</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>8</td>
+      <td>6.59e+9</td>
+      <td>2,593,719</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,215</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>9</td>
+      <td>6.57e+9</td>
+      <td>2,585,731</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,239</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10</td>
+      <td>6.57e+9</td>
+      <td>2,585,539</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,239</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>11</td>
+      <td>6.58e+9</td>
+      <td>2,586,803</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,239</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+  </table>
+
+  <h2>Day 500</h2>
+  <table>
+    <tr>
+      <th>Threshold</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve Days</th>
+      <th>Max Streak</th>
+    </tr>
+    <tr class="starving">
+      <td>1</td>
+      <td>5.06e+9</td>
+      <td>1,912,990</td>
+      <td>2645.6</td>
+      <td>792</td>
+      <td>8,497</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>20,103</td>
+      <td>23</td>
+      <td>4</td>
+      <td>501</td>
+      <td>3</td>
+    </tr>
+    <tr class="starving">
+      <td>2</td>
+      <td>4.66e+9</td>
+      <td>1,812,868</td>
+      <td>2567.8</td>
+      <td>789</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>18,894</td>
+      <td>23</td>
+      <td>4</td>
+      <td>412</td>
+      <td>3</td>
+    </tr>
+    <tr class="starving">
+      <td>3</td>
+      <td>4.89e+9</td>
+      <td>1,757,599</td>
+      <td>2780.6</td>
+      <td>797</td>
+      <td>8,611</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>21,275</td>
+      <td>23</td>
+      <td>4</td>
+      <td>333</td>
+      <td>4</td>
+    </tr>
+    <tr class="starving">
+      <td>4</td>
+      <td>5.09e+9</td>
+      <td>1,848,864</td>
+      <td>2753.0</td>
+      <td>796</td>
+      <td>8,595</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>21,413</td>
+      <td>23</td>
+      <td>4</td>
+      <td>313</td>
+      <td>4</td>
+    </tr>
+    <tr class="starving">
+      <td>5</td>
+      <td>8.54e+9</td>
+      <td>2,808,940</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,765</td>
+      <td>23</td>
+      <td>4</td>
+      <td>22</td>
+      <td>4</td>
+    </tr>
+    <tr class="winner">
+      <td>6</td>
+      <td>8.58e+9</td>
+      <td>2,820,086</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,848</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>7</td>
+      <td>8.54e+9</td>
+      <td>2,809,573</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,858</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>8</td>
+      <td>8.46e+9</td>
+      <td>2,808,811</td>
+      <td>3011.0</td>
+      <td>805</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,887</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>9</td>
+      <td>8.54e+9</td>
+      <td>2,809,291</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,863</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10</td>
+      <td>8.54e+9</td>
+      <td>2,809,099</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,863</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>11</td>
+      <td>8.55e+9</td>
+      <td>2,810,299</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,863</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+  </table>
+
+  <h2>Power Rankings Summary</h2>
+  <div class="summary">
+    <table>
+      <tr><th>Day</th><th>Winner</th><th>Power</th></tr>
+      <tr><td>100</td><td>Threshold=7</td><td>9.91e+8</td></tr>
+      <tr><td>200</td><td>Threshold=6</td><td>2.63e+9</td></tr>
+      <tr><td>300</td><td>Threshold=6</td><td>4.64e+9</td></tr>
+      <tr><td>400</td><td>Threshold=6</td><td>6.60e+9</td></tr>
+      <tr><td>500</td><td>Threshold=6</td><td>8.58e+9</td></tr>
+    </table>
+  </div>
+
+  <div class="summary">
+    <h3>Legend</h3>
+    <p><span style="background: #1a4a1a; padding: 2px 8px;">Green</span> = Winner for that day</p>
+    <p><span style="background: #4a1a1a; padding: 2px 8px;">Red</span> = Broken (stuck at 1 troop)</p>
+    <p><span style="background: #4a3a1a; padding: 2px 8px;">Orange</span> = Starving (max streak >= 3 days)</p>
+  </div>
+
+</body>
+</html>

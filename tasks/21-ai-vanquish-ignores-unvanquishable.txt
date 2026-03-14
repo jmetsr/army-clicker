@@ -1,0 +1,36 @@
+AI vanquish logic ignores G.enemyUnvanquishable and dragonCohorts
+================================================================
+
+BUG: In core.js lines 362-366, the AI vanquish check:
+- Does NOT check G.enemyUnvanquishable (unlike non-AI at line 354)
+- Does NOT check if dragonCohorts exist (unlike non-AI at line 349)
+- Sets G.enemyVanquished = true unconditionally when AI troops < 1
+
+RESULT:
+- AI can be "vanquished" even after dark ritual (when enemy should be unvanquishable)
+- Dragons still spawn from dark rituals but G.enemyPower is never recalculated
+- Display shows "Power: 0" despite 20K+ dragons existing
+
+CURRENT CODE (core.js:362-366):
+```javascript
+if (isAIMode() && G.ai && G.ai.troops.lt(1) && (G.ai.counts["recruit"] || 0) > 0) {
+  G.ai.troops = ON(0);
+  G.enemyVanquished = true;
+  log("...", "milestone");
+}
+```
+
+FIX: Should match non-AI logic:
+```javascript
+if (isAIMode() && G.ai && G.ai.troops.lt(1) && G.dragonCohorts.length === 0 && (G.ai.counts["recruit"] || 0) > 0) {
+  G.ai.troops = ON(0);
+  if (!G.enemyUnvanquishable) {
+    G.enemyVanquished = true;
+    log("TOTAL VICTORY! The AI opponent has been vanquished!", "milestone");
+  } else {
+    log("VICTORY! AI forces destroyed... but darkness will bring them back.", "milestone");
+  }
+}
+```
+
+ALSO: Need to ensure G.enemyPower is recalculated even when hasEnemy=false but dragons exist.

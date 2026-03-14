@@ -1,0 +1,10 @@
+Upgrade Cost Change
+===================
+
+STATUS: COMPLETE
+================
+Implemented in events.js openUpgradeModal() line 66: G.magic -= 1
+
+---
+
+Simple change: Upgrade should cost 1 magic (instead of current cost).

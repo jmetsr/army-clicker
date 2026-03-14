@@ -1,0 +1,84 @@
+AI: Project Future Income When Evaluating Expensive Buildings
+=============================================================
+
+Problem:
+--------
+After buying dark rituals, the AI spawns dragons that generate income. However,
+the AI's scoring system only considers CURRENT income when deciding "how long
+until I can afford X". This causes it to undervalue expensive buildings like
+Barracks/Military Base because it thinks they'll take 100+ turns to afford.
+
+In reality, dragon income grows polynomially, so actual time-to-afford is much
+shorter. The AI should account for this when deciding whether to save.
+
+Current Code (ai-strategy.js):
+------------------------------
+```javascript
+var incomePerDay = (troopCount * ppt * 4) + clicks;
+// ...
+if (costPct > 1) {
+  var coinsNeeded = cost - currentCoins;
+  var daysToWait = coinsNeeded / Math.max(incomePerDay, 1);
+  baseScore *= Math.pow(WAIT_DECAY, daysToWait);
+}
+```
+
+This uses flat `incomePerDay` - doesn't account for growing dragon income.
+
+Proposed Solution:
+------------------
+Create a function to project future income considering dragon growth.
+
+Dragon spawning math:
+- Ritual #i (0-indexed) spawns day^(i+1) total dragons by day N
+- Daily increment: (i+1) * day^i new dragons
+- Dragon ppt starts at 60000 but can grow with training
+
+Approaches (in order of simplicity):
+
+1. **Simple average projection** (recommended):
+   - Calculate income today and income in ~10 days
+   - Use average of current + projected as "effective income"
+   - daysToWait = coinsNeeded / avgIncome
+   - Very cheap to compute
+
+2. **Polynomial closed-form**:
+   - Sum of future income is integral of polynomial
+   - For day^n growth: sum(d^n, d=1 to N) ≈ N^(n+1)/(n+1)
+   - More accurate but more complex
+
+3. **Geometric approximation**:
+   - Calculate "income doubles every X days" rate
+   - Use geometric series: total = income * (2^(days/X) - 1) / ln(2)
+
+Implementation Notes:
+---------------------
+- Only matters when G.darkRitualDays.length > 0 (AI has dragons)
+- Should recalculate dragon projection each tick (dragon count changes)
+- Keep it simple - option 1 is probably good enough
+- Test by watching AI behavior post-magic: should save for bigger buildings
+
+Example projection function:
+```javascript
+function projectIncomeIn(days, ai) {
+  // Current dragon income
+  var currentDragonIncome = getDragonPower().toNumber() * 4;
+
+  // Project dragons in N days (simplified)
+  var futureDragons = 0;
+  for (var i = 0; i < G.darkRitualDays.length; i++) {
+    var futureDaysSince = (G.day + days) - G.darkRitualDays[i];
+    if (futureDaysSince > 0) {
+      futureDragons += Math.pow(futureDaysSince, i + 1);
+    }
+  }
+  var futureDragonIncome = futureDragons * 60000 * 4; // Assumes base ppt
+
+  return (currentDragonIncome + futureDragonIncome) / 2; // Simple average
+}
+```
+
+Computational Cost:
+-------------------
+Negligible. Just a few arithmetic operations per AI decision. No simulation
+needed - we can compute future dragon counts directly from the polynomial.

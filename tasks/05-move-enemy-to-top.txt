@@ -1,0 +1,17 @@
+Move Enemy Display to Top
+=========================
+
+STATUS: COMPLETE
+================
+Enemy column moved into the main columns div (alongside army, economy, training)
+instead of being below them. See index.html line 87: enemyCol is now inside
+div class="columns".
+
+---
+
+Simple Layout Change:
+- Currently: 3 rows at top, enemy at bottom
+- New: 4 rows at top (including enemy), enemy NOT at bottom
+
+Just a UI reorganization to put enemy info at the top of the screen instead
+of the bottom.

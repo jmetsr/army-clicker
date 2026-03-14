@@ -1,0 +1,3480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Army Clicker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Playfair+Display:wght@400;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.5;background:var(--bg);color:var(--text);transition:background .8s,color .8s}
+.game{width:900px;margin:0 auto;padding:16px}
+header{text-align:center;padding:14px 0 10px;margin-bottom:12px}
+header h1{font-family:'Playfair Display',serif;font-weight:400;font-size:1.5em;letter-spacing:.06em}
+header .sub{font-size:.9em;margin-top:3px;opacity:.6}
+header .timer{font-size:.85em;margin-top:5px;color:var(--dim);font-family:'IBM Plex Mono',monospace}
+.resources{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:12px}
+.resource-box{border-radius:5px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);transition:all .5s}
+.resource-box.hidden{display:none}
+.res-label{font-size:.8em;text-transform:uppercase;letter-spacing:.12em;color:var(--dim)}
+.res-value{font-size:1.3em;font-weight:600;margin-top:2px;word-break:break-all}
+.res-sub{font-size:.8em;color:var(--dim);margin-top:2px}
+.group-label{font-size:.75em;text-transform:uppercase;letter-spacing:.2em;color:var(--dim)}
+.troop-line{font-size:1.3em;font-weight:600;margin-top:2px;color:var(--troop)}
+.beg-btn{width:100%;margin-bottom:8px;border-color:#886;background:linear-gradient(135deg,#1a1a15,#151510);color:#aa9}
+.beg-btn:hover{border-color:#aa8}
+.recruit-btn{width:100%;margin-bottom:8px}
+.main-btn{flex:1;padding:9px 14px;font:500 .82em 'IBM Plex Mono',monospace;cursor:pointer;border-radius:4px;transition:all .12s;text-align:center;border:1px solid var(--accent);background:var(--surface);color:var(--text)}
+.main-btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.main-btn:active{transform:scale(.97)}
+.main-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;filter:none}
+.main-btn .btn-sub{font-family:'Playfair Display',Georgia,serif;font-size:1em;font-weight:400;display:block;margin-top:3px;color:var(--text)}
+.main-btn.upgraded{border-color:#ffd700;box-shadow:0 0 5px rgba(255,215,0,0.3)}
+.columns{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.columns>div{min-width:0}
+.columns>div.can-expand{min-width:fit-content}
+.resource-box,.res-value,.res-label,.res-sub,.enemy-name,#aiStats{overflow-wrap:break-word;word-wrap:break-word;word-break:break-word}
+@media(max-width:900px){.columns{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.columns{grid-template-columns:1fr}}
+.section-title{font-size:.85em;text-transform:uppercase;letter-spacing:.15em;padding-bottom:5px;margin-bottom:7px;color:var(--dim);border-bottom:1px solid var(--border)}
+.btn-row{display:none;margin-bottom:5px;gap:8px;align-items:stretch}.btn-row.visible{display:flex}.btn-row .game-btn:first-child{flex:1}
+.game-btn{width:100%;border-radius:4px;padding:7px 10px;cursor:pointer;text-align:left;font:400 .76em/1.35 'IBM Plex Mono',monospace;transition:all .12s;position:relative;border:1px solid var(--border);background:var(--surface);color:var(--text)}
+.game-btn:not(:disabled):hover{border-color:var(--accent);background:var(--surface2)}
+.game-btn:disabled{opacity:.35;cursor:not-allowed}
+.game-btn .btn-name{font-weight:500;color:var(--accent)}
+.game-btn .btn-desc{font-size:.88em;color:var(--dim)}
+.game-btn .btn-cost{font-size:.88em;margin-top:2px}
+.game-btn .btn-count{font-size:1.15em;font-weight:600;float:right;color:var(--text)}
+.game-btn.magic-btn{border-color:var(--magic)}.game-btn.magic-btn .btn-name{color:var(--magic)}
+.game-btn.ritual-btn{border-color:#6a2090;background:#2a1040;color:#f0e8ff}.game-btn.ritual-btn .btn-name{color:#d080ff}.game-btn.ritual-btn .btn-desc,.game-btn.ritual-btn .btn-cost{color:#c8b8e0}
+.game-btn.auto-upgrade-btn{display:inline-block;width:auto;min-width:120px;margin-left:8px;border-color:#ffd700;background:linear-gradient(135deg,#2a2000,#1a1500)}.game-btn.auto-upgrade-btn .btn-name{color:#ffd700;font-size:.9em}.game-btn.auto-upgrade-btn .btn-cost{color:#aa9000}
+.game-btn.upgraded{border-color:#ffd700;box-shadow:0 0 5px rgba(255,215,0,0.3)}.game-btn.upgraded .btn-name::after{content:" ⚡";color:#ffd700}
+.main-btn.auto-upgrade-btn{min-width:80px;padding:9px 12px;border-color:#ffd700;background:linear-gradient(135deg,#2a2000,#1a1500);color:#ffd700}
+.magic-sections{display:none;margin-bottom:14px}.magic-sections.visible{display:block}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:100;justify-content:center;align-items:center}
+.modal-overlay.visible{display:flex}
+.modal{background:var(--surface);border:2px solid var(--magic);border-radius:8px;padding:20px;max-width:400px;max-height:80vh;overflow-y:auto}
+.modal h3{margin:0 0 15px;color:var(--magic);font-family:'Playfair Display',serif}
+.modal-btn{display:block;width:100%;margin:5px 0;padding:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:4px;cursor:pointer;text-align:left;font:400 .85em 'IBM Plex Mono',monospace}
+.modal-btn:hover{border-color:var(--magic);background:var(--surface)}
+.modal-btn.upgraded{border-color:var(--growth);background:#1a2a1a;color:#c8e8c8}
+.modal-btn .upgrade-level{float:right;color:var(--growth);font-weight:600}
+.modal-close{margin-top:15px;padding:8px 20px;background:var(--magic);color:#fff;border:none;border-radius:4px;cursor:pointer}
+.entropy-warn{font-size:.8em;padding:8px 12px;border-radius:4px;margin-bottom:10px;display:none;text-align:center;font-weight:600;background:#cc2020;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
+.entropy-warn.visible{display:block}
+.log{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}
+.log-title{font-size:.8em;text-transform:uppercase;letter-spacing:.15em;margin-bottom:5px;color:var(--dim)}
+#logEntries{max-height:140px;overflow-y:auto}
+.log-entry{font-size:.85em;padding:3px 0;color:var(--dim);animation:fadeIn .3s}
+.log-entry.milestone{color:var(--accent);font-weight:500}
+.log-entry.magic-msg{color:var(--magic);font-weight:500}
+.log-entry.danger-msg{color:var(--danger);font-weight:500}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@media(max-width:500px){.auto-grid{grid-template-columns:1fr}}
+/* Difficulty selection */
+.difficulty-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg);z-index:200;display:flex;justify-content:center;align-items:center;flex-direction:column}
+.difficulty-overlay.hidden{display:none}
+.difficulty-overlay h1{font-family:'Playfair Display',serif;font-size:2.5em;margin-bottom:30px;color:var(--accent)}
+.difficulty-overlay .subtitle{color:var(--dim);margin-bottom:40px;font-size:1.1em}
+.difficulty-btn{display:block;width:200px;margin:8px;padding:15px;font:600 1.1em 'IBM Plex Mono',monospace;cursor:pointer;border-radius:8px;border:2px solid var(--border);background:var(--surface);color:var(--text);transition:all .2s}
+.difficulty-btn:hover{border-color:var(--accent);transform:scale(1.02)}
+.difficulty-btn .diff-desc{font-size:.65em;font-weight:400;color:var(--dim);margin-top:5px}
+.difficulty-btn.practice{border-color:#4a9;width:420px;margin-bottom:20px}
+.difficulty-btn.easy{border-color:#6a6}
+.difficulty-btn.medium{border-color:#da4}
+.difficulty-btn.hard{border-color:#d44}
+.difficulty-btn.ai{border-color:#f0f}
+.difficulty-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+/* Enemy display */
+.enemy-box{background:linear-gradient(135deg,#2a1515,#1a0a0a);border-color:#600}
+.enemy-box .res-label{color:#f66;white-space:normal;line-height:1.3}
+.enemy-box .res-value{color:#faa}
+.enemy-box .enemy-name{font-size:.9em;color:#f88;font-weight:600;margin-bottom:5px}
+/* Battle flash effects */
+.battle-flash{position:fixed;top:0;left:0;width:100%;height:100%;z-index:150;display:flex;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .15s}
+.battle-flash.active{opacity:1;pointer-events:auto}
+.battle-flash.battle{background:rgba(200,0,0,0.85)}
+.battle-flash.victory{background:rgba(0,150,0,0.85)}
+.battle-flash.defeat{background:rgba(0,0,0,0.9)}
+.battle-flash.stalemate{background:rgba(180,150,0,0.85)}
+.battle-flash .battle-text{font-family:'Playfair Display',serif;font-size:3em;color:#fff;text-align:center;text-shadow:0 0 20px rgba(0,0,0,0.5)}
+.battle-flash .battle-sub{font-size:.4em;margin-top:10px;font-family:'IBM Plex Mono',monospace}
+</style>
+</head>
+<body>
+<!-- Difficulty Selection -->
+<div class="difficulty-overlay" id="difficultyOverlay">
+  <h1>Army Clicker</h1>
+  <div class="subtitle">Choose Your Challenge</div>
+  <button class="difficulty-btn practice" data-mode="practice">Practice<div class="diff-desc">No enemies - learn the game</div></button>
+  <div class="difficulty-grid">
+    <button class="difficulty-btn easy" data-mode="easy">Easy<div class="diff-desc">1 Pikeman/day</div></button>
+    <button class="difficulty-btn medium" data-mode="medium">Medium<div class="diff-desc">X Knights on day X</div></button>
+    <button class="difficulty-btn hard" data-mode="hard">Hard<div class="diff-desc">X² Dragons on day X</div></button>
+    <button class="difficulty-btn ai" data-mode="ai4">AI (4 cps)<div class="diff-desc">Casual AI opponent</div></button>
+    <button class="difficulty-btn ai" data-mode="ai8">AI (8 cps)<div class="diff-desc">Normal AI opponent</div></button>
+    <button class="difficulty-btn ai" data-mode="ai25">AI (25 cps)<div class="diff-desc">Fast AI opponent</div></button>
+  </div>
+</div>
+<!-- Battle Flash -->
+<div class="battle-flash" id="battleFlash"><div class="battle-text" id="battleText"></div></div>
+<div class="game">
+  <header><h1>Army Clicker</h1><div class="sub">Build. Train. Transcend.</div><div class="timer" id="gameTimer">0:00</div><div id="logStatus" style="font-size:.7em;margin-top:5px;color:#888">📊 <span id="logCount">0</span> clicks <button id="exportLogBtn" style="font-size:1em;padding:2px 8px;margin-left:5px;cursor:pointer">Download Log</button></div></header>
+  <div class="resources">
+    <div class="resource-box"><div class="res-label">Coins</div><div class="res-value" style="color:var(--accent)" id="coinCount">0</div><div class="res-sub" id="coinSub">+0/sec</div></div>
+    <div class="resource-box" style="display:flex;align-items:center;gap:10px"><img id="farmIcon" src="icons/Farm.png" style="width:48px;height:48px;object-fit:contain"><div><div class="res-label">Food</div><div class="res-value" style="color:var(--growth)" id="foodCount">100</div><div class="res-sub" id="foodSub">+0/day</div></div></div>
+    <div class="resource-box" style="display:flex;align-items:center;gap:10px"><img id="troopIcon" src="icons/Thug.png" style="width:48px;height:48px;object-fit:contain"><div><div class="group-label" id="groupName">CREW</div><div class="troop-line" id="troopLine">1 Thug</div></div></div>
+    <div class="resource-box"><div class="res-label">Power / Troop</div><div class="res-value" style="color:var(--power)" id="powerPerTroop">1.00</div></div>
+    <div class="resource-box"><div class="res-label">Total Power</div><div class="res-value" style="color:var(--power)" id="totalPower">1</div></div>
+    <div class="resource-box hidden" id="magicBox"><div class="res-label">Magic</div><div class="res-value" style="color:var(--magic)" id="magicCount">0</div><div class="res-sub">Lifetime: <span id="lifetimeMagic">0</span></div></div>
+  </div>
+  <div class="entropy-warn" id="entropyWarn"></div>
+  <div class="columns">
+    <div id="armyCol">
+      <div class="section-title">Army</div>
+      <button class="main-btn beg-btn" id="begBtn">&#129330; Beg<span class="btn-sub">+1 coin</span></button>
+      <button class="main-btn recruit-btn" id="recruitBtn" disabled>&#128737; Recruit<span class="btn-sub" id="recruitSub">1 thug - 10 coins</span></button>
+      <div id="armyButtons"></div>
+    </div>
+    <div id="economyCol"><div class="section-title">Economy</div><div id="economyButtons"></div></div>
+    <div id="trainingCol" style="display:none"><div class="section-title">Training</div><div id="trainingButtons"></div></div>
+    <div id="enemyCol" style="display:none">
+      <div class="section-title" style="color:#f66">Enemy Forces</div>
+      <div class="resource-box enemy-box">
+        <div class="enemy-name" id="enemyName">Town Police Force</div>
+        <div class="res-label" id="enemyTroopType">Pikemen</div>
+        <div class="res-value" id="enemyTroops">0</div>
+        <div class="res-sub" style="color:#faa">Power: <span id="enemyPower">0</span></div>
+      </div>
+      <!-- AI stats for Super Hard mode -->
+      <div id="aiStats" style="display:none;margin-top:8px;font-size:.8em;color:#faa">
+        <div>Coins: <span id="aiCoins">0</span></div>
+        <div>Food: <span id="aiFood">0</span> (<span id="aiFoodRate">+0</span>/day)</div>
+        <div id="aiFarmsRow">Farms: <span id="aiFarms">0</span></div>
+        <div id="aiPlantRow">Plantations: <span id="aiPlant">0</span></div>
+        <div id="aiColonyRow">Colonies: <span id="aiColony">0</span></div>
+        <div>Power/Troop: <span id="aiPpt">1.00</span></div>
+        <div id="aiSLRow">Squad Leaders: <span id="aiSL">0</span></div>
+        <div id="aiBarRow">Barracks: <span id="aiBar">0</span></div>
+        <div id="aiMBRow">Military Bases: <span id="aiMB">0</span></div>
+        <div id="aiKingRow">Kingdoms: <span id="aiKing">0</span></div>
+      </div>
+      <div style="margin-top:10px;font-size:.85em;color:var(--dim)">
+        <div>Day: <span id="dayCounter">0</span></div>
+        <div>Battle chance: <span id="battleChance">0</span>%/day</div>
+      </div>
+    </div>
+  </div>
+  <div class="magic-sections" id="magicSections">
+    <div class="section-title">Dark Magic</div><div id="magicButtons"></div>
+  </div>
+  <div class="log"><div class="log-title">Events</div><div id="logEntries"></div></div>
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3 id="modalTitle">Select Button</h3>
+      <div id="modalButtons"></div>
+      <button class="modal-close" id="modalClose">Cancel</button>
+    </div>
+  </div>
+</div>
+<script>
+// ================================================================
+//  ORDINAL NUMBER ENGINE — handles numbers across regimes
+// ================================================================
+class OrdinalNumber {
+  // Layer 0: BigInt (exact) — up to ~10^10000
+  // Layer 1: {mantissa, exponent} where exponent is BigInt — "scientific"
+  // Layer 2: {tower: [a,b,c,...]} meaning 10^10^10^...^a — tetration
+
+  constructor(val) {
+    if (val instanceof OrdinalNumber) {
+      this.layer = val.layer;
+      this.value = this._cloneValue(val);
+    } else if (typeof val === 'bigint') {
+      this.layer = 0;
+      this.value = val < 0n ? 0n : val;
+    } else if (typeof val === 'number') {
+      // Handle Infinity and NaN - promote to layer 1 with huge exponent
+      if (!isFinite(val) || isNaN(val)) {
+        this.layer = 1;
+        this.value = { mantissa: 9.999, exponent: 999999999999n };
+      } else {
+        this.layer = 0;
+        this.value = BigInt(Math.max(0, Math.floor(val)));
+      }
+    } else {
+      this.layer = 0;
+      this.value = 0n;
+    }
+  }
+
+  _cloneValue(other) {
+    if (other.layer === 0) return other.value;
+    if (other.layer === 1) return { mantissa: other.value.mantissa, exponent: other.value.exponent };
+    if (other.layer === 2) return { tower: [...other.value.tower] };
+    return JSON.parse(JSON.stringify(other.value));
+  }
+
+  static fromBigInt(n) { return new OrdinalNumber(n); }
+  static fromNumber(n) { return new OrdinalNumber(n); }
+  static fromSci(mantissa, exponent) {
+    const r = new OrdinalNumber(0);
+    r.layer = 1;
+    r.value = { mantissa, exponent: typeof exponent === 'bigint' ? exponent : BigInt(exponent) };
+    return r.normalize();
+  }
+  static fromTower(levels) {
+    const r = new OrdinalNumber(0);
+    r.layer = 2;
+    r.value = { tower: levels };
+    return r;
+  }
+
+  clone() {
+    const r = new OrdinalNumber(0);
+    r.layer = this.layer;
+    r.value = this._cloneValue(this);
+    return r;
+  }
+
+  // Promote to next layer if needed
+  normalize() {
+    if (this.layer === 0) {
+      const s = this.value.toString();
+      if (s.length > 100) {  // Promote at 10^100 (a googol)
+        const exp = BigInt(s.length - 1);
+        const mant = parseFloat(s.slice(0, 16)) / Math.pow(10, 15);
+        this.layer = 1;
+        this.value = { mantissa: mant, exponent: exp };
+      }
+    }
+    if (this.layer === 1) {
+      if (this.value.mantissa >= 10) {
+        this.value.mantissa /= 10;
+        this.value.exponent += 1n;
+      }
+      while (this.value.mantissa < 1 && this.value.mantissa > 0 && this.value.exponent > 0n) {
+        this.value.mantissa *= 10;
+        this.value.exponent -= 1n;
+      }
+      if (this.value.exponent > 10000000000n) {
+        this.layer = 2;
+        this.value = { tower: [Number(this.value.exponent % 1000000n), 2] };
+      }
+    }
+    return this;
+  }
+
+  // === COMPARISON ===
+  gte(other) {
+    other = OrdinalNumber._wrap(other);
+    if (this.layer !== other.layer) return this.layer > other.layer;
+    if (this.layer === 0) return this.value >= other.value;
+    if (this.layer === 1) {
+      if (this.value.exponent !== other.value.exponent) return this.value.exponent > other.value.exponent;
+      return this.value.mantissa >= other.value.mantissa;
+    }
+    if (this.layer === 2) return this.value.tower.length >= other.value.tower.length;
+    return true;
+  }
+  gt(other) { other = OrdinalNumber._wrap(other); return this.gte(other) && !this.eq(other); }
+  lte(other) { return !this.gt(other); }
+  lt(other) { return !this.gte(other); }
+  eq(other) {
+    other = OrdinalNumber._wrap(other);
+    if (this.layer !== other.layer) return false;
+    if (this.layer === 0) return this.value === other.value;
+    if (this.layer === 1) return this.value.exponent === other.value.exponent && Math.abs(this.value.mantissa - other.value.mantissa) < 0.0001;
+    return false;
+  }
+  isZero() { return this.layer === 0 && this.value === 0n; }
+
+  static _wrap(x) {
+    if (x instanceof OrdinalNumber) return x;
+    return new OrdinalNumber(x);
+  }
+
+  // === ARITHMETIC ===
+  add(other) {
+    other = OrdinalNumber._wrap(other);
+    if (this.layer === 0 && other.layer === 0) {
+      return new OrdinalNumber(this.value + other.value).normalize();
+    }
+    if (this.layer > other.layer) return this.clone();
+    if (other.layer > this.layer) return other.clone();
+    if (this.layer === 1) {
+      if (this.value.exponent > other.value.exponent + 2n) return this.clone();
+      if (other.value.exponent > this.value.exponent + 2n) return other.clone();
+      const r = this.clone();
+      r.value.mantissa += other.value.mantissa;
+      return r.normalize();
+    }
+    return this.clone();
+  }
+
+  sub(other) {
+    other = OrdinalNumber._wrap(other);
+    if (this.layer === 0 && other.layer === 0) {
+      const v = this.value - other.value;
+      return new OrdinalNumber(v < 0n ? 0n : v);
+    }
+    if (this.layer > other.layer) return this.clone();
+    if (this.layer === 1 && other.layer === 1) {
+      if (this.value.exponent > other.value.exponent + 2n) return this.clone();
+      const r = this.clone();
+      r.value.mantissa -= other.value.mantissa;
+      if (r.value.mantissa <= 0) return new OrdinalNumber(0n);
+      return r.normalize();
+    }
+    return this.clone();
+  }
+
+  mul(other) {
+    // Handle plain numbers (floats) without wrapping to preserve decimals
+    if (typeof other === 'number') {
+      if (this.layer === 0 && this.value < 9007199254740991n) {
+        // Safe to use Number math for small BigInts
+        return new OrdinalNumber(Math.floor(Number(this.value) * other)).normalize();
+      }
+      // Large BigInt - use scientific notation path
+      const a = this.toSci();
+      let mant = a.mantissa * other;
+      let exp = a.exponent;
+      while (mant >= 10) { mant /= 10; exp += 1n; }
+      while (mant < 1 && mant > 0) { mant *= 10; exp -= 1n; }
+      return OrdinalNumber.fromSci(mant, exp).normalize();
+    }
+    other = OrdinalNumber._wrap(other);
+    if (this.layer === 0 && other.layer === 0) {
+      return new OrdinalNumber(this.value * other.value).normalize();
+    }
+    const a = this.toSci();
+    const b = other.toSci();
+    let mant = a.mantissa * b.mantissa;
+    let exp = a.exponent + b.exponent;
+    if (mant >= 10) { mant /= 10; exp += 1n; }
+    if (mant < 1 && mant > 0) { mant *= 10; exp -= 1n; }
+    return OrdinalNumber.fromSci(mant, exp).normalize();
+  }
+
+  div(other) {
+    other = OrdinalNumber._wrap(other);
+    if (other.isZero()) return new OrdinalNumber(0n);
+    if (this.layer === 0 && other.layer === 0) {
+      return new OrdinalNumber(this.value / other.value);
+    }
+    const a = this.toSci();
+    const b = other.toSci();
+    let mant = a.mantissa / b.mantissa;
+    let exp = a.exponent - b.exponent;
+    while (mant >= 10) { mant /= 10; exp += 1n; }
+    while (mant < 1 && mant > 0 && exp > 0n) { mant *= 10; exp -= 1n; }
+    if (exp < 0n) return new OrdinalNumber(0n);
+    return OrdinalNumber.fromSci(mant, exp).normalize();
+  }
+
+  // Multiply by fraction (for drain)
+  mulFraction(numerator, denominator) {
+    if (this.layer === 0) {
+      return new OrdinalNumber(this.value * BigInt(numerator) / BigInt(denominator)).normalize();
+    }
+    if (this.layer === 1) {
+      const r = this.clone();
+      r.value.mantissa *= (numerator / denominator);
+      return r.normalize();
+    }
+    return this.clone();
+  }
+
+  toSci() {
+    if (this.layer === 0) {
+      const s = this.value.toString();
+      return {
+        mantissa: parseFloat(s.slice(0, 16)) / Math.pow(10, Math.min(15, s.length - 1)),
+        exponent: BigInt(s.length - 1)
+      };
+    }
+    if (this.layer === 1) return { mantissa: this.value.mantissa, exponent: this.value.exponent };
+    return { mantissa: 1, exponent: 999999999999n };
+  }
+
+  toNumber() {
+    if (this.layer === 0) {
+      if (this.value > 9007199254740991n) return Number(this.value);
+      return Number(this.value);
+    }
+    if (this.layer === 1) {
+      if (this.value.exponent > 308n) return Infinity;
+      return this.value.mantissa * Math.pow(10, Number(this.value.exponent));
+    }
+    return Infinity;
+  }
+
+  floor() {
+    if (this.layer === 0) return this.clone();
+    return this.clone(); // higher layers are already "integers" conceptually
+  }
+
+  // === DISPLAY ===
+  format() {
+    if (this.layer === 0) {
+      const n = this.value;
+      if (n < 1000n) return n.toLocaleString('en-US');
+      const s = n.toString();
+      if (s.length <= 6) return n.toLocaleString('en-US');
+      // Use word format for readability
+      const words = [[33,'decillion'],[30,'nonillion'],[27,'octillion'],[24,'septillion'],
+                     [21,'sextillion'],[18,'quintillion'],[15,'quadrillion'],[12,'trillion'],
+                     [9,'billion'],[6,'million'],[3,'thousand']];
+      for (const [exp, word] of words) {
+        if (s.length > exp) {
+          const div = 10n ** BigInt(exp);
+          const whole = n / div;
+          const frac = Number((n % div) * 10n / div);
+          if (whole < 100n) return whole + '.' + frac + ' ' + word;
+          return whole.toLocaleString('en-US') + ' ' + word;
+        }
+      }
+      // Scientific for very large
+      const exp = s.length - 1;
+      const mant = s[0] + '.' + s.slice(1, 4);
+      return mant + 'e' + exp;
+    }
+    if (this.layer === 1) {
+      const exp = this.value.exponent;
+      const mant = this.value.mantissa;
+      // Use word names for exponents up to decillion (1e33)
+      if (exp <= 33n) {
+        const words = [[33,'decillion'],[30,'nonillion'],[27,'octillion'],[24,'septillion'],
+                       [21,'sextillion'],[18,'quintillion'],[15,'quadrillion'],[12,'trillion'],
+                       [9,'billion'],[6,'million'],[3,'thousand']];
+        for (const [wordExp, word] of words) {
+          if (exp >= wordExp) {
+            const displayExp = Number(exp) - wordExp;
+            const displayVal = mant * Math.pow(10, displayExp);
+            if (displayVal < 10) return displayVal.toFixed(2) + ' ' + word;
+            if (displayVal < 100) return displayVal.toFixed(1) + ' ' + word;
+            return Math.floor(displayVal).toLocaleString('en-US') + ' ' + word;
+          }
+        }
+        // Below thousand - just show as number
+        const val = mant * Math.pow(10, Number(exp));
+        return val < 10 ? val.toFixed(2) : Math.floor(val).toLocaleString('en-US');
+      }
+      // Scientific for larger exponents
+      const expStr = exp.toString();
+      if (expStr.length <= 6) return mant.toFixed(3) + 'e' + expStr;
+      const eExp = expStr.length - 1;
+      const eMant = expStr[0] + '.' + expStr.slice(1, 4);
+      return '10^(' + eMant + 'e' + eExp + ')';
+    }
+    if (this.layer === 2) {
+      const t = this.value.tower;
+      if (t.length <= 4) return '10' + '^10'.repeat(t.length - 1) + '^' + t[0];
+      return '10↑↑' + t.length + '(' + t[0] + ')';
+    }
+    return '???';
+  }
+
+  notationName() {
+    if (this.layer === 0) {
+      const s = this.value.toString();
+      if (s.length <= 6) return 'Standard';
+      if (s.length <= 15) return 'Named';
+      return 'Scientific';
+    }
+    if (this.layer === 1) {
+      const expStr = this.value.exponent.toString();
+      if (expStr.length <= 6) return 'Scientific';
+      return 'Double Exponential';
+    }
+    if (this.layer === 2) return 'Tetration';
+    return 'Beyond';
+  }
+}
+
+// Helper to create OrdinalNumber easily
+function ON(val) { return new OrdinalNumber(val); }
+
+// ================================================================
+//  TUNING CONSTANTS - Edit in console: C.recruitCost=5; updateUI()
+// ================================================================
+var C = window.C = {
+  lootBase: 1, recruitCost: 20, recruitPower: 1,
+  // Base costs for exponential scaling: cost = base * 1.04^count
+  squadLeader_baseCost: 400,
+  barracks_baseCost: 1600,
+  militaryBase_baseCost: 30000,
+  kingdom_baseCost: 400000,
+  empire_baseCost: 40000000,
+  barracks_unlock: 3, militaryBase_unlock: 3, kingdom_unlock: 3, empire_unlock: 3,
+  // Commander chain (auto-loot) - uses own cost pool
+  commander_baseCost: 10000,
+  general_baseCost: 200000,
+  general_unlock: 3,
+  train_baseCost: 160, train_multiplier: 1.01,
+  train_unlockTroops: 5,
+  // Food system
+  food_perTroopDay: 1,     // food consumed per troop per day
+  farm_baseCost: 1000,     // base cost of a farm
+  farm_production: 100,    // food per farm per day (sustains ~100 troops)
+  plantation_baseCost: 5000,   // base cost of a plantation (boosts farms per click)
+  colony_baseCost: 25000,      // base cost of a colony (boosts plantations per click)
+  magic_unlockTP: 1e12,  // 1 trillion coins to unlock magic
+  entropy_max: 99,  // Max entropy percentage (1 magic = 1%)
+  // Color schemes keyed by power/troop threshold (powers of 10)
+  // Contrast requirement: text vs bg should be 5+ points apart on 0-100 luminance scale
+  colorSchemes: [
+    // ppt=1: Warm earth (thugs) - bg:#f5f1ea(L93) vs text:#2a2520(L15) = 78pt diff
+    [1, {"--bg":"#f5f1ea","--surface":"#fff","--surface2":"#ece8df","--border":"#d4cfc4","--text":"#2a2520","--dim":"#6e655a","--accent":"#b86e1a","--troop":"#5a4020","--power":"#2a6a9e","--magic":"#7b2d8e","--danger":"#c03028","--growth":"#27763a"}],
+    // ppt=10: Steel blue (soldiers) - bg:#eaeff5(L93) vs text:#1a2530(L16) = 77pt diff
+    [10, {"--bg":"#eaeff5","--surface":"#f5f8fc","--surface2":"#dde4ee","--border":"#b8c4d4","--text":"#1a2530","--dim":"#5a6878","--accent":"#3468a0","--troop":"#1a3560","--power":"#2a6a9e","--magic":"#6a3090","--danger":"#b82828","--growth":"#1a6830"}],
+    // ppt=100: Dark crimson (swordsmen) - bg:#f5eaea(L92) vs text:#301a1a(L13) = 79pt diff
+    [100, {"--bg":"#f5eaea","--surface":"#fcf5f5","--surface2":"#eedede","--border":"#d4b8b8","--text":"#301a1a","--dim":"#785a5a","--accent":"#a03030","--troop":"#601a1a","--power":"#8a3030","--magic":"#6a2080","--danger":"#cc2020","--growth":"#306018"}],
+    // ppt=1000: Swamp green (ogres) - bg:#eaf0e8(L93) vs text:#1a2518(L15) = 78pt diff
+    [1000, {"--bg":"#eaf0e8","--surface":"#f2f8f0","--surface2":"#dbe6d8","--border":"#a8bea4","--text":"#1a2518","--dim":"#4a5a48","--accent":"#3a6a20","--troop":"#2a4a10","--power":"#306818","--magic":"#5a2878","--danger":"#a83020","--growth":"#2a5a10"}],
+    // ppt=10000: Mountain purple (giants) - bg:#edeaf2(L92) vs text:#201a30(L14) = 78pt diff
+    [10000, {"--bg":"#edeaf2","--surface":"#f5f2fa","--surface2":"#ddd8e8","--border":"#b8b0c8","--text":"#201a30","--dim":"#605878","--accent":"#5a3a90","--troop":"#3a2060","--power":"#5a3a90","--magic":"#8020a0","--danger":"#a02848","--growth":"#305880"}],
+    // ppt=100000: Dark fire (dragons) - bg:#1a1210(L8) vs text:#e8d8c8(L86) = 78pt diff
+    [100000, {"--bg":"#1a1210","--surface":"#2a1e18","--surface2":"#3a2820","--border":"#5a4030","--text":"#e8d8c8","--dim":"#9a8068","--accent":"#e87020","--troop":"#ff9030","--power":"#e86830","--magic":"#c040ff","--danger":"#ff3030","--growth":"#e8a020"}],
+    // ppt=1e6: Void purple (demons) - bg:#0e0818(L4) vs text:#d8c8f0(L81) = 77pt diff
+    [1e6, {"--bg":"#0e0818","--surface":"#1a1028","--surface2":"#281838","--border":"#402858","--text":"#d8c8f0","--dim":"#8060a0","--accent":"#b040ff","--troop":"#d060ff","--power":"#9040d0","--magic":"#ff40c0","--danger":"#ff2060","--growth":"#a060ff"}],
+    // ppt=1e7: Hellscape red (elder gods) - bg:#180808(L4) vs text:#f0c8b8(L82) = 78pt diff
+    [1e7, {"--bg":"#180808","--surface":"#280e0e","--surface2":"#381414","--border":"#582020","--text":"#f0c8b8","--dim":"#a06050","--accent":"#ff4020","--troop":"#ff6030","--power":"#ff3020","--magic":"#ff20a0","--danger":"#ff1020","--growth":"#ff8020"}],
+    // ppt=1e8: Cosmic blue (cosmic entities) - bg:#060610(L3) vs text:#c8c8f0(L80) = 77pt diff
+    [1e8, {"--bg":"#060610","--surface":"#0e0e20","--surface2":"#161630","--border":"#2a2a50","--text":"#c8c8f0","--dim":"#6060a0","--accent":"#4080ff","--troop":"#60a0ff","--power":"#4080ff","--magic":"#c060ff","--danger":"#ff4060","--growth":"#40ffa0"}],
+    // ppt=1e9: Abstract void (abstract forces) - bg:#030308(L2) vs text:#e0e0f8(L89) = 87pt diff
+    [1e9, {"--bg":"#030308","--surface":"#080810","--surface2":"#101020","--border":"#202040","--text":"#e0e0f8","--dim":"#8080c0","--accent":"#80c0ff","--troop":"#a0d0ff","--power":"#60a0ff","--magic":"#e080ff","--danger":"#ff6080","--growth":"#80ffc0"}]
+  ]
+};
+
+// FORMATTING
+var WORDS=[
+  [1e33,"decillion"],[1e30,"nonillion"],[1e27,"octillion"],[1e24,"septillion"],
+  [1e21,"sextillion"],[1e18,"quintillion"],[1e15,"quadrillion"],[1e12,"trillion"],
+  [1e9,"billion"],[1e6,"million"],[1e3,"thousand"]
+];
+function fmt(n){
+  // Handle OrdinalNumber
+  if(n instanceof OrdinalNumber) return n.format();
+  if(typeof n==="bigint")n=Number(n);if(!isFinite(n)||isNaN(n))return"???";if(n<0)return"0";
+  if(n>=1e36)return n.toExponential(2);  // Beyond decillion, use scientific
+  if(n<1000)return n%1===0?Math.floor(n).toLocaleString("en-US"):n.toFixed(1);
+  // Use words for thousands and above
+  for(var i=0;i<WORDS.length;i++){
+    var t=WORDS[i][0],w=WORDS[i][1];
+    if(n>=t){
+      var v=n/t;
+      if(v<10)return v.toFixed(2)+" "+w;
+      if(v<100)return v.toFixed(1)+" "+w;
+      return Math.floor(v).toLocaleString("en-US")+" "+w;
+    }
+  }
+  return Math.floor(n).toLocaleString("en-US");
+}
+function fmtP(n){
+  if(n instanceof OrdinalNumber){
+    var num=n.toNumber();
+    if(!isFinite(num))return n.format();
+    n = num; // Convert to number for formatting
+  }
+  if(!isFinite(n)||isNaN(n))return"???";
+  return n<10?n.toFixed(2):n<1000?n.toFixed(1):fmt(n);
+}
+function fmtPct(n){return n>=0.01?(n*100).toFixed(1)+"%":n>=0.001?(n*100).toFixed(2)+"%":(n*100).toExponential(1)+"%"}
+
+// NAMING
+var TROOP_NAMES=[
+  [1e18,"Chuck Norrises"],
+  [1e15,"Ultra Macro Agentic Galaxies"],
+  [1e13,"Dyson Sphere Powered Planet Sized Tornadoes"],
+  [1e11,"Celestial Forces"],
+  [1e10,"Elder Gods"],
+  [4.5e8,"Titans"],
+  [1e8,"Fallen Angels"],
+  [5e7,"Demon Lords"],
+  [2e7,"Balrogs"],
+  [5e6,"Archdemons"],
+  [2e5,"Elder Dragons"],
+  [6e4,"Dragons"],
+  [5e4,"Wyrms"],
+  [12000,"Giant Knights on Giant Horses"],
+  [3600,"Giants With Nunchucks"],
+  [1800,"Giant Pikemen"],
+  [600,"Giants"],
+  [200,"Ogres"],
+  [100,"Trolls"],
+  [75,"War Orcs"],
+  [60,"Orcs"],
+  [20,"Knights on Horseback"],
+  [18,"Armored Swordsmen"],
+  [16,"Swordsmen"],
+  [13,"Archers"],
+  [8,"Soldiers with Katanas"],
+  [6,"Soldiers with Nunchucks"],
+  [3,"Pikemen"],
+  [2,"Soldiers with Daggers"],
+  [1.5,"Thugs with Knives"],
+  [0,"Thugs"]
+];
+var TROOP_ICONS={
+  "Thugs":"icons/Thug.png",
+  "Thugs with Knives":"icons/Thug with Knife.png",
+  "Soldiers with Daggers":"icons/Soldiers with Dagger.png",
+  "Pikemen":"icons/Pikeman.png",
+  "Soldiers with Nunchucks":"icons/Soldiers with Nunchucks.png",
+  "Soldiers with Katanas":"icons/Soldiers with Katanas.png",
+  "Archers":"icons/Archers.png",
+  "Swordsmen":"icons/Swordsmen.png",
+  "Armored Swordsmen":"icons/Armored Swordsmen.png",
+  "Knights on Horseback":"icons/Knights on Horseback.png",
+  "Orcs":"icons/Orcs.png",
+  "War Orcs":"icons/War Orcs.png",
+  "Trolls":"icons/Trolls.png",
+  "Ogres":"icons/Ogres.png",
+  "Giants":"icons/Giants.png"
+};
+function getTroopIcon(troopName){
+  if(TROOP_ICONS[troopName]) return TROOP_ICONS[troopName];
+  // For higher tiers without icons, use Ogres (highest we have)
+  return "icons/Ogres.png";
+}
+var GROUP_NAMES=[[1e15,"Tide"],[1e12,"Swarm"],[1e9,"Horde"],[1e6,"Army"],[1e5,"Legion"],[1e4,"Regiment"],[1000,"Battalion"],[200,"Company"],[50,"Band"],[10,"Gang"],[0,"Crew"]];
+function getTN(pptOverride){
+  var ppt = pptOverride !== undefined ? pptOverride : (typeof G.ppt === 'number' ? G.ppt : G.ppt.toNumber());
+  if(typeof ppt !== 'number') ppt = ppt.toNumber ? ppt.toNumber() : Number(ppt);
+  for(var i=0;i<TROOP_NAMES.length;i++)if(ppt>=TROOP_NAMES[i][0])return TROOP_NAMES[i][1];
+  return"Thugs";
+}
+function plural(n,singular,pluralForm){
+  if(n instanceof OrdinalNumber)n=n.toNumber();
+  if(!pluralForm)pluralForm=singular+"s";
+  return n===1?singular:pluralForm;
+}
+function singularize(name){
+  // Handle special cases and compound names
+  var irregulars={
+    "Thugs":"Thug","Dragons":"Dragon","Giants":"Giant","Ogres":"Ogre","Trolls":"Troll",
+    "Orcs":"Orc","Swordsmen":"Swordsman","Archers":"Archer","Pikemen":"Pikeman",
+    "War Orcs":"War Orc","Knights on Horseback":"Knight on Horseback",
+    "Armored Swordsmen":"Armored Swordsman","Soldiers with Katanas":"Soldier with Katana",
+    "Soldiers with Nunchucks":"Soldier with Nunchucks","Soldiers with Daggers":"Soldier with Dagger",
+    "Giant Pikemen":"Giant Pikeman","Giants With Nunchucks":"Giant With Nunchucks",
+    "Giant Knights on Giant Horses":"Giant Knight on Giant Horse",
+    "Wyrms":"Wyrm","Elder Dragons":"Elder Dragon","Archdemons":"Archdemon",
+    "Balrogs":"Balrog","Demon Lords":"Demon Lord","Fallen Angels":"Fallen Angel",
+    "Titans":"Titan","Elder Gods":"Elder God","Celestial Forces":"Celestial Force",
+    "Dyson Sphere Powered Planet Sized Tornadoes":"Dyson Sphere Powered Planet Sized Tornado",
+    "Ultra Macro Agentic Galaxies":"Ultra Macro Agentic Galaxy",
+    "Chuck Norrises":"Chuck Norris"
+  };
+  if(irregulars[name])return irregulars[name];
+  if(name.endsWith("s"))return name.slice(0,-1);
+  return name;
+}
+function troopName(n,name){
+  if(n instanceof OrdinalNumber)n=n.toNumber();
+  return n===1?singularize(name):name;
+}
+function getGN(){for(var i=0;i<GROUP_NAMES.length;i++)if(G.troops.gte(GROUP_NAMES[i][0]))return GROUP_NAMES[i][1];return"Crew"}
+
+// ================================================================
+//  GAME STATE
+//  G = global state object, exposed to window for console debugging
+// ================================================================
+var G = window.G = {
+  // Core resources (OrdinalNumber for large value support)
+  coins: ON(0),
+  troops: ON(0),  // Start with 0 - must beg for coins to recruit first troop
+  food: ON(500),  // Start with enough to survive until first farm
+
+  // Power stats
+  ppt: 1,                           // Power per troop (regular number until very large)
+  rp: 1,                            // Recruits per click (troops gained when recruiting)
+  fp: 1,                            // Farms per click (farms gained when building farms)
+  pp: 1,                            // Plantations per click (plantations gained when building plantations)
+
+  // Army upgrade chain powers (accumulation model: each tier boosts the button below)
+  // Empire → Kingdom → Military Base → Barracks → Squad Leader
+  squadLeaderPower: 1,              // Squad leaders gained per click
+  barracksPower: 1,                 // Barracks gained per click (also adds to squadLeaderPower)
+  militaryBasePower: 1,             // Military bases gained per click (also adds to barracksPower)
+  kingdomPower: 1,                  // Kingdoms gained per click (also adds to militaryBasePower)
+  empirePower: 1,                   // Empires gained per click (also adds to kingdomPower)
+
+  // Astronomical tier powers
+  planetPower: 1,
+  solarSystemPower: 1,
+  galaxyPower: 1,
+  galaxyClusterPower: 1,
+  superclusterPower: 1,
+
+  // Multiversal tier powers
+  observableUniversePower: 1,
+  fullUniversePower: 1,
+  quantumMultiversePower: 1,
+  cosmologicalMultiversePower: 1,
+  mathematicalMultiversePower: 1,
+
+  // Mystical gem tier powers
+  sapphirePower: 1,
+  emeraldPower: 1,
+  rubyPower: 1,
+  diamondPower: 1,
+
+  // Training multipliers
+  trainMult: C.train_multiplier,    // Multiplier applied to ppt each train session
+
+  // Enemy system
+  difficulty: null,                 // 'practice', 'easy', 'medium', 'hard'
+  enemyTroops: ON(0),               // Enemy troop count (non-dragon)
+  enemyPower: ON(0),                // Enemy total power
+  enemyDragons: ON(0),              // Enemy dragon count - DEPRECATED, use dragonCohorts
+  enemyDragonPpt: 60000,            // DEPRECATED, use dragonCohorts
+  dragonCohorts: [],                // Array of {count: ON, ppt: number} - dragons at different power levels
+  day: 0,                           // Current day (each second = 1 day)
+  gameStarted: false,               // Whether difficulty has been selected
+  winStreak: 0,                     // Consecutive victories
+  lossStreak: 0,                    // Consecutive defeats
+  starvationStreak: 0,              // Consecutive days starving (escalates desertion)
+  enemyVanquished: false,           // Whether enemy has been completely defeated
+  enemyUnvanquishable: false,       // After first dark ritual, enemy can always respawn
+  darkRitualDays: [],               // Days when dark rituals were bought
+  enemyNoStarve: false,             // After first dark ritual, enemy doesn't need food
+
+  // AI state for Super Hard mode
+  ai: null,                         // AI state object (null if not super hard)
+  playerClicks: 0,                  // Track player clicks per day for AI to match
+
+  // Gameplay logging
+  clickLog: [],                     // Array of {time, day, action, state} objects
+  logStartTime: null,               // When logging started
+
+  // Upgrade counts (how many of each upgrade purchased)
+  counts: {},
+  _buttonClicks: {},                // Track clicks per button (for separateCosts)
+
+  // Magic system
+  magic: 0,                         // Current magic (spendable)
+  ltMagic: 0,                       // Lifetime magic (determines entropy, never decreases)
+  magicOn: false,                   // Whether magic section is unlocked
+
+  // New magic upgrades
+  upgradeLevels: {},                // Button upgrade levels (0=none, 1=10x, 2=100x, etc.)
+  astronomicalUnlocked: false,      // Whether astronomical tier is unlocked
+  multiversalUnlocked: false,       // Whether multiversal tier is unlocked
+  mysticalUnlocked: false,          // Whether mystical gem tier is unlocked
+  costsFrozen: false,               // Whether all costs are frozen
+  separateCosts: false,             // Whether each button has separate cost (no tier sharing)
+  eternalFeast: false,              // Whether troops need food (magic ability)
+  autoUpgraders: {},                // Which buttons have auto-upgraders
+
+
+  // Timer
+  startTime: Date.now(),            // When game started
+  _lastEventTime: 0,                // Last time a flavor event was shown
+  _shownEvents: new Set(),          // Track shown events to avoid repeats
+
+  // UI state tracking (prefixed with _ to indicate internal)
+  _milestones: new Set(),           // Shown milestones (prevent duplicates)
+  _troopName: "Thugs",              // Current troop name (detect changes)
+  _groupName: "Crew",               // Current group name (detect changes)
+  _colorScheme: 0,                  // Current color scheme index
+  _notation: "Standard"             // Current notation type
+};
+function tp(){
+  if(typeof G.ppt === 'number') return G.troops.mul(G.ppt);
+  return G.troops.mul(G.ppt);
+}
+function rCost(){return recruitCost()}
+function cnt(id){return G.counts[id]||0}
+function isAIMode(){return G.difficulty && G.difficulty.startsWith('ai')}
+function getAICps(){if(!isAIMode())return 0;return parseInt(G.difficulty.substring(2))||0}
+
+// Gameplay logging
+G.gameLog = []; // Combined log for all events
+function logClick(action){
+  if(!G.logStartTime) G.logStartTime = Date.now();
+  var elapsed = Date.now() - G.logStartTime;
+  G.clickLog.push({
+    t: elapsed,           // milliseconds since start
+    day: G.day,
+    action: action,
+    coins: G.coins.toNumber(),
+    troops: G.troops.toNumber(),
+    ppt: G.ppt,
+    rp: G.rp,
+    sl: cnt("squad_leader"),
+    bar: cnt("barracks"),
+    mb: cnt("military_base"),
+    king: cnt("kingdom"),
+    train: cnt("train"),
+    armyClicks: G._armyClicks || 0
+  });
+}
+function logAI(action){
+  if(!G.ai) return;
+  G.gameLog.push({
+    type: "ai",
+    day: G.day,
+    action: action,
+    coins: G.ai.coins.toNumber(),
+    troops: G.ai.troops.toNumber(),
+    ppt: G.ai.ppt,
+    food: G.ai.food.toNumber(),
+    farms: G.ai.counts["farm"] || 0
+  });
+}
+function logSnapshot(){
+  var snap = { type: "snapshot", day: G.day };
+  snap.player = {
+    troops: G.troops.toNumber(),
+    ppt: G.ppt,
+    power: tp().toNumber(),
+    coins: G.coins.toNumber(),
+    food: G.food.toNumber(),
+    farms: cnt("farm")
+  };
+  if(G.ai){
+    snap.ai = {
+      troops: G.ai.troops.toNumber(),
+      ppt: G.ai.ppt,
+      power: G.ai.troops.mul(G.ai.ppt).toNumber(),
+      coins: G.ai.coins.toNumber(),
+      food: G.ai.food.toNumber(),
+      farms: G.ai.counts["farm"] || 0
+    };
+  }
+  G.gameLog.push(snap);
+}
+function logBattle(result, playerPower, enemyPower){
+  G.gameLog.push({
+    type: "battle",
+    day: G.day,
+    result: result, // "win", "lose", "tie"
+    playerPower: playerPower.toNumber(),
+    enemyPower: enemyPower.toNumber()
+  });
+}
+function exportLog(){
+  var exportData = {
+    playerClicks: G.clickLog,
+    gameEvents: G.gameLog
+  };
+  var data = JSON.stringify(exportData, null, 2);
+  // Download as file
+  var blob = new Blob([data], {type: "application/json"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "army-clicker-log-" + new Date().toISOString().slice(0,19).replace(/:/g,"-") + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  console.log("Downloaded log with " + G.clickLog.length + " clicks");
+  return G.clickLog;
+}
+function clearLog(){
+  G.clickLog = [];
+  G.logStartTime = null;
+  console.log("Log cleared.");
+}
+// Make available globally
+window.exportLog = exportLog;
+window.clearLog = clearLog;
+
+// Total army upgrades (for shared exponential cost) - counts CLICKS not units gained
+function armyTotal(){
+  return (G._armyClicks||0);
+}
+// Army cost: base × 1.04^(total army upgrades) - preserves ratios between tiers
+// When separateCosts is true, uses individual button clicks instead of pool
+function armyCost(base, id){
+  var total = G.separateCosts && id ? (G._buttonClicks[id] || 0) : armyTotal();
+  return Math.floor(base * Math.pow(1.04, total));
+}
+// Recruit cost: separate exponential
+function recruitCost(){
+  return Math.floor(C.recruitCost * Math.pow(1.02, cnt("recruit")));
+}
+// Economy pool (farms + colonies share costs, like army chain)
+function economyTotal(){
+  return (G._economyClicks||0);
+}
+// When separateCosts is true, uses individual button clicks instead of pool
+function economyCost(base, id){
+  var total = G.separateCosts && id ? (G._buttonClicks[id] || 0) : economyTotal();
+  return Math.floor(base * Math.pow(1.02, total));
+}
+function farmCost(){
+  return economyCost(C.farm_baseCost, "farm");
+}
+function plantationCost(){
+  return economyCost(C.plantation_baseCost, "plantation");
+}
+function colonyCost(){
+  return economyCost(C.colony_baseCost, "colony");
+}
+function inc(id){G.counts[id]=(G.counts[id]||0)+1}
+
+
+// Training pool total - counts CLICKS not sessions
+function trainTotal(){
+  return (G._trainClicks||0);
+}
+
+// Exponential cost: 2% per purchase, then 3% after pikemen (train #111)
+// When separateCosts is true, uses individual button clicks instead of pool
+function expCost(base, id) {
+  var total = G.separateCosts && id ? (G._buttonClicks[id] || 0) : trainTotal();
+  if (total >= 111) {
+    // First 111 at 1.02, then 1.03 after
+    return Math.floor(base * Math.pow(1.02, 111) * Math.pow(1.03, total - 111));
+  }
+  return Math.floor(base * Math.pow(1.02, total));
+}
+
+// COLOR SCHEME
+function applyScheme(){
+  var ppt = typeof G.ppt === 'number' ? G.ppt : G.ppt.toNumber();
+  var idx=0;for(var j=C.colorSchemes.length-1;j>=0;j--)if(ppt>=C.colorSchemes[j][0]){idx=j;break}
+  if(idx!==G._colorScheme){G._colorScheme=idx;var vars=C.colorSchemes[idx][1];for(var k in vars)document.documentElement.style.setProperty(k,vars[k]);if(idx>0)log("The world shifts. Your power transforms reality.","milestone")}
+}
+(function(){var vars=C.colorSchemes[0][1];for(var k in vars)document.documentElement.style.setProperty(k,vars[k])})();
+
+function ePct(){return Math.min(G.ltMagic, C.entropy_max)}
+
+// Calculate total power from all dragon cohorts
+function getDragonPower() {
+  var total = ON(0);
+  for(var i = 0; i < G.dragonCohorts.length; i++) {
+    var cohort = G.dragonCohorts[i];
+    total = total.add(cohort.count.mul(cohort.ppt));
+  }
+  return total;
+}
+
+// DRY helper: apply multiplied effect for any button
+// opts: { countId, gainVar, boostVar, clickPool, updateRp, trainMult, trainMultBoost }
+// mult: how many times this effect is being applied (from button upgrade level)
+function applyEffect(opts, mult) {
+  mult = mult || 1;
+  var gain = (opts.gainVar ? G[opts.gainVar] : 1) * mult;
+
+  // Add to count
+  if (opts.countId) {
+    G.counts[opts.countId] = (G.counts[opts.countId] || 0) + gain;
+    // Track clicks separately (for separateCosts feature)
+    G._buttonClicks[opts.countId] = (G._buttonClicks[opts.countId] || 0) + mult;
+  }
+  // Boost a power variable
+  if (opts.boostVar) {
+    G[opts.boostVar] += gain;
+  }
+  // Increment click pool
+  if (opts.clickPool) {
+    G[opts.clickPool] = (G[opts.clickPool] || 0) + mult;
+  }
+  // Update recruits per click (for squad_leader)
+  if (opts.updateRp) {
+    G.rp = 1 + cnt("squad_leader");
+  }
+  // Training: multiply ppt by trainMult^mult
+  if (opts.trainMult) {
+    var factor = Math.pow(G.trainMult, mult);
+    if (typeof G.ppt === 'number') {
+      G.ppt *= factor;
+      if (G.ppt > 1e15) G.ppt = ON(G.ppt);
+    } else {
+      G.ppt = G.ppt.mul(factor);
+    }
+  }
+  // Boost trainMult (for sapphire)
+  if (opts.trainMultBoost) {
+    G.trainMult += opts.trainMultBoost * gain;
+  }
+  return gain; // Return for logging if needed
+}
+
+// BUTTONS
+var BUTTONS=[];
+function def(o){BUTTONS.push(o)}
+
+// DRY helper: define a chain button from data
+// b: {id, name, cw, base, unlock, boosts, gainVar, desc, firstMsg, unlockWarn}
+// section: "army", "training", "command"
+// clickPool: "_armyClicks", "_trainClicks", "_cmdClicks"
+// costFn: function(base) that returns cost
+// unlockCheck: optional function() for show condition
+function defChain(b, section, clickPool, costFnGen, unlockCheck) {
+  var gainVar = b.gainVar || b.id.replace(/_/g,'')+"Power"; // e.g. "squad_leader" -> "squadleaderPower"
+  // Fix camelCase for gainVar
+  if(b.id==="squad_leader")gainVar="squadLeaderPower";
+  else if(b.id==="solar_system")gainVar="solarSystemPower";
+  else if(b.id==="galaxy_cluster")gainVar="galaxyClusterPower";
+  else gainVar=b.id.replace(/_([a-z])/g,function(m,c){return c.toUpperCase();})+"Power";
+
+  def({
+    id: b.id,
+    name: b.name,
+    s: section,
+    cw: b.cw,
+    descFn: function(){
+      var power = G[gainVar];
+      if(b.descFn) return b.descFn(power);
+      if(b.desc) return b.desc;
+      if(b.boosts) return "+"+power+" to "+b.boosts.replace(/Power$/,"").replace(/([A-Z])/g," $1").trim()+" power";
+      return "+"+power+" per click";
+    },
+    costFn: function(){ return costFnGen(b.base, b.id); },
+    showFn: function(){
+      if(unlockCheck && !unlockCheck()) return false;
+      if(b.unlock) return cnt(b.unlock)>=3 || cnt(b.id)>0;
+      if(b.showFn) return b.showFn();
+      return cnt(b.id)>0;
+    },
+    effectFn: function(mult){
+      var first = (cnt(b.id)===0);
+      var wasUnlock = b.unlock ? (cnt(b.id)<3) : false;
+      var opts = {countId:b.id, gainVar:gainVar, clickPool:clickPool};
+      if(b.boosts) opts.boostVar = b.boosts;
+      if(b.updateRp) opts.updateRp = true;
+      if(b.trainMult) opts.trainMult = true;
+      if(b.trainMultBoost) opts.trainMultBoost = b.trainMultBoost;
+      applyEffect(opts, mult);
+      if(first && b.firstMsg) log(b.firstMsg, "milestone");
+      // Warn about army cost increase:
+      // - Items with unlock (like barracks): warn on 1st purchase
+      // - Items without unlock (like SL): warn on 4th purchase (after unlocking next tier)
+      if(b.unlockWarn){
+        if(b.unlock && first) log(b.unlockWarn, "danger-msg");
+        if(!b.unlock && cnt(b.id)===4) log(b.unlockWarn, "danger-msg");
+      }
+    }
+  });
+}
+
+// ARMY CHAIN
+var ARMY_WARN = "\u26a0 WARNING: All army costs just rose! Every upgrade makes EVERYTHING more expensive.";
+[
+  {id:"squad_leader", name:"Squad Leader", cw:"owned", base:C.squadLeader_baseCost,
+   showFn:function(){return G.troops.gte(2)||cnt("squad_leader")>0}, updateRp:true,
+   firstMsg:"Squad Leader recruited.", unlockWarn:ARMY_WARN},
+  {id:"barracks", name:"Barracks", cw:"built", base:C.barracks_baseCost, unlock:"squad_leader", boosts:"squadLeaderPower",
+   firstMsg:"Barracks built.", unlockWarn:ARMY_WARN},
+  {id:"military_base", name:"Military Base", cw:"established", base:C.militaryBase_baseCost, unlock:"barracks", boosts:"barracksPower",
+   firstMsg:"Military base established."},
+  {id:"kingdom", name:"Kingdom", cw:"united", base:C.kingdom_baseCost, unlock:"military_base", boosts:"militaryBasePower",
+   firstMsg:"A kingdom rises."},
+  {id:"empire", name:"Empire", cw:"forged", base:C.empire_baseCost, unlock:"kingdom", boosts:"kingdomPower",
+   firstMsg:"An empire forged."}
+].forEach(function(b){ defChain(b, "army", "_armyClicks", armyCost); });
+
+// ECONOMY CHAIN
+var ECON_WARN = "\u26a0 WARNING: All economy costs just rose! Every upgrade makes farms, plantations & colonies more expensive.";
+
+// FARM (produces food passively)
+def({id:"farm", name:"Farm", s:"economy", cw:"built",
+  descFn:function(){return G.fp + " farm" + (G.fp > 1 ? "s" : "") + " × " + C.farm_production + " food/day"},
+  costFn:function(){return farmCost()},
+  showFn:function(){return true},  // Always visible
+  effectFn:function(mult){
+    mult = mult || 1;
+    var first=(cnt("farm")===0);
+    G.counts["farm"] = (G.counts["farm"] || 0) + G.fp * mult;
+    G._buttonClicks["farm"] = (G._buttonClicks["farm"] || 0) + mult;
+    G._economyClicks = (G._economyClicks || 0) + mult;
+    if(first)log("Farm built. Your people can eat.","milestone");
+    // Warn on 4th farm (after unlocking plantation)
+    if(cnt("farm")>=4 && cnt("farm")-G.fp*mult<4) log(ECON_WARN,"danger-msg");
+  }});
+
+// PLANTATION (boosts farms per click, like squad leaders boost recruits)
+def({id:"plantation", name:"Plantation", s:"economy", cw:"established",
+  descFn:function(){return G.pp + " plantation" + (G.pp > 1 ? "s" : "") + ", +1 farm/click each"},
+  costFn:function(){return plantationCost()},
+  showFn:function(){return cnt("farm") >= 3 || cnt("plantation") > 0},  // Unlock after 3 farms
+  effectFn:function(mult){
+    mult = mult || 1;
+    var first=(cnt("plantation")===0);
+    G.counts["plantation"] = (G.counts["plantation"] || 0) + G.pp * mult;
+    G._buttonClicks["plantation"] = (G._buttonClicks["plantation"] || 0) + mult;
+    G._economyClicks = (G._economyClicks || 0) + mult;
+    G.fp = 1 + cnt("plantation");
+    if(first){
+      log("Plantation established. Farm production boosted.","milestone");
+      log(ECON_WARN,"danger-msg");
+    }
+  }});
+
+// COLONY (boosts plantations per click, like barracks boost squad leaders)
+def({id:"colony", name:"Colony", s:"economy", cw:"founded",
+  descFn:function(){return "+1 plantation per click"},
+  costFn:function(){return colonyCost()},
+  showFn:function(){return cnt("plantation") >= 3 || cnt("colony") > 0},  // Unlock after 3 plantations
+  effectFn:function(mult){
+    mult = mult || 1;
+    var first=(cnt("colony")===0);
+    G.counts["colony"] = (G.counts["colony"] || 0) + mult;
+    G._buttonClicks["colony"] = (G._buttonClicks["colony"] || 0) + mult;
+    G._economyClicks = (G._economyClicks || 0) + mult;
+    G.pp = 1 + cnt("colony");
+    if(first){
+      log("Colony founded. Plantation growth boosted.","milestone");
+      log(ECON_WARN,"danger-msg");
+    }
+  }});
+
+// ASTRONOMICAL TIER (army extension)
+[
+  {id:"planet", name:"Planet", cw:"colonized", base:1e9, unlock:"empire", boosts:"empirePower"},
+  {id:"solar_system", name:"Solar System", cw:"unified", base:1e11, unlock:"planet", boosts:"planetPower"},
+  {id:"galaxy", name:"Galaxy", cw:"conquered", base:1e13, unlock:"solar_system", boosts:"solarSystemPower"},
+  {id:"galaxy_cluster", name:"Galaxy Cluster", cw:"absorbed", base:1e15, unlock:"galaxy", boosts:"galaxyPower"},
+  {id:"supercluster", name:"Supercluster", cw:"dominated", base:1e17, unlock:"galaxy_cluster", boosts:"galaxyClusterPower"}
+].forEach(function(b){ defChain(b, "army", "_armyClicks", armyCost, function(){return G.astronomicalUnlocked}); });
+
+// MULTIVERSAL TIER (army extension beyond astronomical)
+[
+  {id:"observable_universe", name:"Observable Universe", cw:"encompassed", base:1e19, unlock:"supercluster", boosts:"superclusterPower"},
+  {id:"full_universe", name:"Full Universe", cw:"transcended", base:1e21, unlock:"observable_universe", boosts:"observableUniversePower"},
+  {id:"quantum_multiverse", name:"Quantum Multiverse", cw:"collapsed", base:1e23, unlock:"full_universe", boosts:"fullUniversePower"},
+  {id:"cosmological_multiverse", name:"Cosmological Multiverse", cw:"unified", base:1e25, unlock:"quantum_multiverse", boosts:"quantumMultiversePower"},
+  {id:"mathematical_multiverse", name:"Mathematical Multiverse", cw:"realized", base:1e27, unlock:"cosmological_multiverse", boosts:"cosmologicalMultiversePower"}
+].forEach(function(b){ defChain(b, "army", "_armyClicks", armyCost, function(){return G.multiversalUnlocked}); });
+
+
+// TRAIN (special - not a chain)
+def({id:"train", name:"Train", s:"training", cw:"sessions",
+  descFn:function(){return"Power/troop ×"+G.trainMult.toFixed(3)},
+  costFn:function(){return expCost(C.train_baseCost,"train")},
+  showFn:function(){return G.troops.gte(C.train_unlockTroops)||cnt("train")>0},
+  effectFn:function(mult){
+    var first=(cnt("train")===0);
+    applyEffect({countId:"train",trainMult:true,clickPool:"_trainClicks"},mult);
+    if(first)log("Training begins.","milestone");
+  }});
+
+// POWER GEM TIER (training boosters)
+[
+  {id:"sapphire", name:"Power Sapphire", cw:"attuned", base:1e8,
+   showFn:function(){return G.mysticalUnlocked&&(cnt("train")>=50||cnt("sapphire")>0)},
+   trainMultBoost:0.005, descFn:function(power){return "Train mult +"+(0.005*power).toFixed(4)+" per click"}},
+  {id:"emerald", name:"Power Emerald", cw:"channeled", base:1e10, unlock:"sapphire", boosts:"sapphirePower"},
+  {id:"ruby", name:"Power Ruby", cw:"infused", base:1e12, unlock:"emerald", boosts:"emeraldPower"},
+  {id:"diamond", name:"Power Diamond", cw:"perfected", base:1e14, unlock:"ruby", boosts:"rubyPower"}
+].forEach(function(b){
+  defChain(b, "training", "_trainClicks", function(base, id){return expCost(base, id)}, function(){return G.mysticalUnlocked});
+});
+
+def({id:"dark_ritual",name:"\u2620 Dark Ritual",s:"magic",isMagic:false,isRitual:true,
+  desc:"Pay coins for 1 magic. WARNING: Helps enemies!",cw:"performed",
+  descFn:function(){
+    var cost = ON(1e12).mul(Math.pow(5, cnt("dark_ritual"))); // 1T, 5T, 25T, ...
+    var warn = G.darkRitualDays.length === 0 ? " ⚠ EMPOWERS YOUR ENEMIES" : "";
+    return"Cost: " + fmt(cost) + " coins → +1 magic" + warn;
+  },
+  costFn:function(){
+    var cost = ON(1e12).mul(Math.pow(5, cnt("dark_ritual")));
+    return G.coins.gte(cost) ? 0 : Infinity;
+  },
+  showFn:function(){return G.magicOn},
+  effectFn:function(){
+    var cost = ON(1e12).mul(Math.pow(5, cnt("dark_ritual")));
+    G.coins=G.coins.sub(cost);
+    G.magic+=1;G.ltMagic+=1;inc("dark_ritual");
+
+    // Track the day this ritual was bought
+    G.darkRitualDays.push(G.day);
+
+    // First dark ritual effects
+    if(G.darkRitualDays.length === 1) {
+      log("⚠ The enemy stirs! They no longer need food and will spawn dragons!","danger-msg");
+      G.enemyUnvanquishable = true;
+      G.enemyNoStarve = true;
+      // Un-vanquish enemy if vanquished
+      if(G.enemyVanquished) {
+        G.enemyVanquished = false;
+        log("The vanquished enemy rises again!","danger-msg");
+      }
+      // Practice mode now has an enemy
+      if(G.difficulty === 'practice') {
+        document.getElementById("enemyCol").style.display = "";
+        document.getElementById("enemyName").textContent = "Dark Ritual Dragons";
+        document.getElementById("enemyTroopType").textContent = "Dragons";
+        document.getElementById("battleChance").textContent = "3";
+        log("Dark forces give form to a new enemy!","danger-msg");
+      }
+    } else {
+      log("\u2620 Another ritual completed. Enemy dragons grow stronger!","danger-msg");
+      // Un-vanquish if vanquished (can always respawn after first ritual)
+      if(G.enemyVanquished) {
+        G.enemyVanquished = false;
+        log("The enemy rises once more!","danger-msg");
+      }
+    }
+  }});
+
+// Magic upgrade button (1 magic) - opens modal to pick a button to upgrade
+// Cost is 0 to open modal; magic deducted when selection made
+def({id:"upgrade_button",name:"⬆ Upgrade Button",s:"magic",isMagic:true,
+  desc:"Make any button 10x more powerful (stacks multiplicatively)",cw:"purchased",
+  descFn:function(){return"Pick a button → 10x effect (costs 10x too)"},
+  costFn:function(){return 0},
+  displayCost:1,  // Show 1 magic in UI, actual cost deducted in modal
+  showFn:function(){return G.magicOn},
+  effectFn:function(){openUpgradeModal()}});
+
+// Astronomical tier (4 magic) - one-time unlock
+def({id:"astronomical_tier",name:"★ Astronomical Tier",s:"magic",isMagic:true,
+  desc:"Unlock 5 cosmic army levels: Planet, Solar System, Galaxy...",cw:"unlocked",
+  descFn:function(){return G.astronomicalUnlocked?"UNLOCKED":"Unlock cosmic army chain"},
+  costFn:function(){return 4},
+  showFn:function(){return G.magicOn&&!G.astronomicalUnlocked},
+  effectFn:function(){
+    G.astronomicalUnlocked=true;
+    log("★ The cosmos opens. Astronomical tier unlocked!","magic-msg");
+  }});
+
+// Multiversal tier (4 magic) - one-time unlock, requires astronomical
+def({id:"multiversal_tier",name:"🌌 Multiversal Tier",s:"magic",isMagic:true,
+  desc:"Unlock 5 multiverse levels: Observable Universe, Full Universe, Quantum Multiverse...",cw:"unlocked",
+  descFn:function(){return G.multiversalUnlocked?"UNLOCKED":"Unlock multiversal army chain"},
+  costFn:function(){return 4},
+  showFn:function(){return G.magicOn&&G.astronomicalUnlocked&&!G.multiversalUnlocked},
+  effectFn:function(){
+    G.multiversalUnlocked=true;
+    log("🌌 Reality fractures. The multiverse reveals itself!","magic-msg");
+  }});
+
+// Power Gem tier (4 magic) - one-time unlock
+def({id:"mystical_tier",name:"💎 Power Gem Tier",s:"magic",isMagic:true,
+  desc:"Unlock gem-powered training: Power Sapphires, Power Emeralds, Power Rubies...",cw:"unlocked",
+  descFn:function(){return G.mysticalUnlocked?"UNLOCKED":"Unlock power gem training chain"},
+  costFn:function(){return 4},
+  showFn:function(){return G.magicOn&&!G.mysticalUnlocked},
+  effectFn:function(){
+    G.mysticalUnlocked=true;
+    log("💎 Ancient gems resonate. Mystical tier unlocked!","magic-msg");
+  }});
+
+// Separate Cost Tiers (2 magic) - each button has its own cost progression
+def({id:"separate_costs",name:"⚔ Separate Cost Tiers",s:"magic",isMagic:true,
+  desc:"Each button's cost only increases from its own clicks, not tier siblings",cw:"activated",
+  descFn:function(){return G.separateCosts?"COSTS SEPARATED":"Break tier cost sharing"},
+  costFn:function(){return 2},
+  showFn:function(){return G.magicOn&&!G.separateCosts},
+  effectFn:function(){
+    // Initialize each button's click count to current pool total so costs don't change
+    var armyPool = G._armyClicks || 0;
+    var econPool = G._economyClicks || 0;
+    var trainPool = G._trainClicks || 0;
+    // Army buttons
+    ["squad_leader","barracks","military_base","kingdom","empire",
+     "planet","solar_system","galaxy","galaxy_cluster","supercluster",
+     "observable_universe","full_universe","quantum_multiverse","cosmological_multiverse","mathematical_multiverse"
+    ].forEach(function(id){ G._buttonClicks[id] = armyPool; });
+    // Economy buttons
+    ["farm","plantation","colony"].forEach(function(id){ G._buttonClicks[id] = econPool; });
+    // Training buttons
+    ["train","sapphire","emerald","ruby","diamond"].forEach(function(id){ G._buttonClicks[id] = trainPool; });
+
+    G.separateCosts=true;
+    log("⚔ The chains break. Each button now controls its own destiny.","magic-msg");
+  }});
+
+// Freeze costs (3 magic) - one-time permanent effect, requires separate costs
+def({id:"freeze_costs",name:"❄ Freeze All Costs",s:"magic",isMagic:true,
+  desc:"Permanently freeze all button costs at current values (except Dark Ritual)",cw:"activated",
+  descFn:function(){return G.costsFrozen?"COSTS FROZEN":"Stop exponential cost growth forever"},
+  costFn:function(){return 3},
+  showFn:function(){return G.magicOn&&G.separateCosts&&!G.costsFrozen},
+  effectFn:function(){
+    G.costsFrozen=true;
+    G._frozenCosts={};
+    // Snapshot all current costs (except dark_ritual)
+    BUTTONS.forEach(function(btn){
+      if(btn.id !== 'dark_ritual') G._frozenCosts[btn.id]=btn.costFn();
+    });
+    G._frozenCosts['recruit']=rCost(); // Recruit is separate from BUTTONS
+    log("❄ Time freezes. Costs will never rise again (except Dark Ritual).","magic-msg");
+  }});
+
+// Eternal Feast - troops don't need food (also hides economy tier)
+def({id:"eternal_feast",name:"🍖 Eternal Feast",s:"magic",isMagic:true,
+  desc:"Troops no longer consume food. Economy tier disappears.",cw:"cast",
+  descFn:function(){return G.eternalFeast?"HUNGER BANISHED":"End starvation & hide economy tier"},
+  costFn:function(){return 1},
+  showFn:function(){return G.magicOn&&!G.eternalFeast},
+  effectFn:function(){
+    G.eternalFeast=true;
+    G.starvationStreak=0;
+    log("🍖 The Eternal Feast begins. Your armies shall never hunger again.","magic-msg");
+  }});
+
+// Auto-upgrader (10 magic) - opens modal to pick a button
+// Cost is 0 to open modal; magic deducted when selection made
+def({id:"auto_upgrader",name:"⚡ Auto-Upgrader",s:"magic",isMagic:true,
+  desc:"Auto-upgrade a button each click (requires 3 upgrades first)",cw:"installed",
+  descFn:function(){return"Pick a button → auto-upgrades when clicked [10 magic]"},
+  costFn:function(){return 0},
+  displayCost:10,  // Show 10 magic in UI, actual cost deducted in modal
+  showFn:function(){return G.magicOn && G.magic >= 10 && Object.keys(G.upgradeLevels).some(function(k){return G.upgradeLevels[k]>=3})},
+  effectFn:function(){openAutoUpgraderModal()}});
+
+// BUILD UI
+var btnEls={};
+function buildButtons(){
+  var containers={army:document.getElementById("armyButtons"),economy:document.getElementById("economyButtons"),training:document.getElementById("trainingButtons"),command:document.getElementById("commandButtons"),magic:document.getElementById("magicButtons")};
+  BUTTONS.forEach(function(btn){
+    var c=containers[btn.s];if(!c)return;
+    var row=document.createElement("div");row.className="btn-row";row.id="row_"+btn.id;
+    var el=document.createElement("button");
+    el.className="game-btn"+(btn.id==="dark_ritual"?" ritual-btn":"");
+    el.innerHTML='<span class="btn-count" id="cnt_'+btn.id+'"></span><span class="btn-name">'+btn.name+'</span><div class="btn-desc"></div><div class="btn-cost"></div>';
+    el.addEventListener("click",function(){
+      var mult = getUpgradeMult(btn.id);
+      var baseCost = btn.costFn();
+      // Use frozen cost if applicable
+      if(G.costsFrozen&&G._frozenCosts&&G._frozenCosts[btn.id]!==undefined){
+        baseCost = G._frozenCosts[btn.id];
+      }
+      var cost;
+      if (btn.isMagic) {
+        cost = baseCost;
+      } else if (G.costsFrozen) {
+        // Frozen: simple multiplication (no compounding)
+        cost = baseCost instanceof OrdinalNumber ? baseCost.mul(mult) : baseCost * mult;
+      } else if (mult <= 1) {
+        cost = baseCost;
+      } else {
+        // Not frozen: use compounded cost (geometric series)
+        // Army uses 1.04, others use 1.02
+        var rate = (btn.s === "army") ? 1.04 : 1.02;
+        cost = compoundedCost(baseCost instanceof OrdinalNumber ? baseCost.toNumber() : baseCost, rate, mult);
+      }
+
+      if(btn.isMagic){
+        if(G.magic>=cost){logClick(btn.id);G.magic-=cost;btn.effectFn()}
+      }else{
+        if(G.coins.gte(cost)){
+          console.log('Button:', btn.id, '| Cost:', fmt(cost), '| Coins before:', fmt(G.coins));
+          logClick(btn.id);
+          G.coins=G.coins.sub(cost);
+          console.log('Coins after:', fmt(G.coins));
+          btn.effectFn(mult);
+        }
+      }
+      updateUI();
+    });
+    row.appendChild(el);
+
+    // Create auto-upgrader button (hidden by default, shown when installed)
+    var autoBtn = document.createElement("button");
+    autoBtn.className = "game-btn auto-upgrade-btn";
+    autoBtn.id = "auto_" + btn.id;
+    autoBtn.style.display = "none";
+    autoBtn.innerHTML = '<span class="btn-name">⚡ Auto-Upgrade</span><div class="btn-cost">1 Googol</div>';
+    autoBtn.addEventListener("click", function(){
+      if(G.coins.gte(googol())){
+        G.coins = G.coins.sub(googol());
+        var autoMult = getUpgradeMult('auto_' + btn.id);
+        G.upgradeLevels[btn.id] = (G.upgradeLevels[btn.id]||0) + autoMult;
+        log("⚡ " + btn.name + " upgraded to " + fmtMult(G.upgradeLevels[btn.id]) + "x!" + (autoMult > 1 ? " (+" + autoMult + " levels)" : ""), "magic-msg");
+        updateUI();
+      }
+    });
+    row.appendChild(autoBtn);
+
+    // Create auto² button (upgrades the auto-upgrader, shown when auto-upgrader for auto-upgrader is installed)
+    var auto2Btn = document.createElement("button");
+    auto2Btn.className = "game-btn auto-upgrade-btn";
+    auto2Btn.id = "auto2_" + btn.id;
+    auto2Btn.style.display = "none";
+    auto2Btn.innerHTML = '<span class="btn-name">⚡²</span><div class="btn-cost">1 Googol</div>';
+    auto2Btn.addEventListener("click", function(){
+      if(G.coins.gte(googol())){
+        G.coins = G.coins.sub(googol());
+        var auto2Mult = getUpgradeMult('auto_auto_' + btn.id);
+        G.upgradeLevels['auto_' + btn.id] = (G.upgradeLevels['auto_' + btn.id]||0) + auto2Mult;
+        log("⚡² Auto-" + btn.name + " upgraded to " + fmtMult(G.upgradeLevels['auto_' + btn.id]) + "x!" + (auto2Mult > 1 ? " (+" + auto2Mult + " levels)" : ""), "magic-msg");
+        updateUI();
+      }
+    });
+    row.appendChild(auto2Btn);
+
+    c.appendChild(row);
+    btnEls[btn.id]={row:row,el:el,autoBtn:autoBtn,auto2Btn:auto2Btn,autoTiers:{}};
+  });
+}
+
+// Create auto-tier button dynamically (for auto³, auto⁴, etc.)
+function ensureAutoTierButton(btnId, tier) {
+  var r = btnEls[btnId];
+  if (!r) return;
+
+  var tierId = 'auto' + tier + '_' + btnId;
+  if (r.autoTiers[tier]) return; // Already exists
+
+  var superscripts = ['', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+  var sup = tier < 10 ? superscripts[tier] : '^' + tier;
+
+  var autoBtn = document.createElement("button");
+  autoBtn.className = "game-btn auto-upgrade-btn";
+  autoBtn.id = tierId;
+  autoBtn.style.display = "none";
+  autoBtn.innerHTML = '<span class="btn-name">⚡' + sup + '</span><div class="btn-cost">1 Googol</div>';
+
+  // Build the target ID (what this button upgrades)
+  var targetId = btnId;
+  for (var i = 1; i < tier; i++) targetId = 'auto_' + targetId;
+
+  // Build the next tier ID (for multiplier)
+  var nextTierId = 'auto_' + targetId;
+
+  autoBtn.addEventListener("click", function(){
+    if(G.coins.gte(googol())){
+      G.coins = G.coins.sub(googol());
+      var tierMult = getUpgradeMult(nextTierId);
+      G.upgradeLevels[targetId] = (G.upgradeLevels[targetId]||0) + tierMult;
+      log("⚡" + sup + " upgraded to " + fmtMult(G.upgradeLevels[targetId]) + "x!" + (tierMult > 1 ? " (+" + tierMult + " levels)" : ""), "magic-msg");
+      updateUI();
+    }
+  });
+
+  r.row.appendChild(autoBtn);
+  r.autoTiers[tier] = autoBtn;
+}
+
+// UPDATE UI
+function updateUI(){
+  window.updateUI=updateUI;
+  var tn=getTN(),gn=getGN(),tpow=tp();
+  if(tn!==G._troopName){log("Your troops evolve into "+tn+".","milestone");G._troopName=tn;document.getElementById("troopIcon").src=getTroopIcon(tn)}
+  if(gn!==G._groupName){log("Your force becomes a "+gn+".","milestone");G._groupName=gn}
+  var notation=G.coins.notationName();
+  if(notation!==G._notation){
+    log("Notation shifts to "+notation+". Numbers strain against comprehension.","milestone");
+    G._notation=notation;
+  }
+  applyScheme();
+  document.getElementById("coinCount").textContent=fmt(G.coins);
+  // Food display
+  document.getElementById("foodCount").textContent=fmt(G.food);
+  var farmProduction = cnt("farm") * C.farm_production;
+  if(G.eternalFeast) {
+    document.getElementById("foodSub").textContent = "+" + fmt(farmProduction) + "/day (no consumption)";
+    document.getElementById("foodSub").style.color = "var(--magic)";
+    document.getElementById("economyCol").style.display = "none";
+  } else {
+    document.getElementById("economyCol").style.display = "";
+    var troopConsumption = G.troops.toNumber() * C.food_perTroopDay;
+    var foodBalance = farmProduction - troopConsumption;
+    var balanceStr = (foodBalance >= 0 ? "+" : "-") + fmt(Math.abs(Math.floor(foodBalance))) + "/day";
+    document.getElementById("foodSub").textContent = balanceStr;
+    document.getElementById("foodSub").style.color = foodBalance >= 0 ? "var(--growth)" : "var(--danger)";
+  }
+  document.getElementById("groupName").textContent=gn.toUpperCase();
+  document.getElementById("troopLine").textContent=fmt(G.troops.floor())+" "+troopName(G.troops,tn);
+  document.getElementById("powerPerTroop").textContent=fmtP(G.ppt);
+  document.getElementById("totalPower").textContent=fmt(tpow.floor());
+  var lootPerTick=tpow.mul(C.lootBase).floor();
+  if(lootPerTick.lt(1))lootPerTick=ON(1);
+  var lootMult = getUpgradeMult('loot');
+  var lootPerSec = lootPerTick.mul(lootMult).mul(4); // 4 ticks per second
+  document.getElementById("coinSub").textContent = G.troops.lt(1) ? "No troops!" : "+" + fmt(lootPerSec) + "/sec";
+  var recruitMult = getUpgradeMult('recruit');
+  var recruitBaseCost=G.costsFrozen&&G._frozenCosts&&G._frozenCosts['recruit']?G._frozenCosts['recruit']:rCost();
+  var recruitDisplayCost;
+  if(recruitMult <= 1){
+    recruitDisplayCost = recruitBaseCost;
+  } else if(G.costsFrozen){
+    recruitDisplayCost = recruitBaseCost * recruitMult;
+  } else {
+    recruitDisplayCost = compoundedCost(recruitBaseCost, 1.02, recruitMult);
+  }
+  var recruitBtn = document.getElementById("recruitBtn");
+  recruitBtn.disabled=G.coins.lt(recruitDisplayCost);
+  recruitBtn.classList.toggle("upgraded", recruitMult > 1);
+  var recruitCount = G.rp * recruitMult;
+  var recruitSubText = (recruitMult > 1 ? recruitMult + "x: " : "") + fmt(recruitCount) + " " + troopName(recruitCount, tn).toLowerCase() + " · " + fmt(recruitDisplayCost) + " coins";
+  document.getElementById("recruitSub").textContent=recruitSubText;
+  if(!G.magicOn&&G.coins.gte(C.magic_unlockTP)){G.magicOn=true;G._autosDirty=true;log("Dark forces stir. Magic whispers...","magic-msg")}
+  document.getElementById("magicBox").classList.toggle("hidden",!G.magicOn);
+  document.getElementById("magicSections").classList.toggle("visible",G.magicOn);
+  if(G.magicOn){document.getElementById("magicCount").textContent=fmt(G.magic);document.getElementById("lifetimeMagic").textContent=fmt(G.ltMagic)}
+  // Entropy warning hidden for now (logic kept for later use)
+  // var ew=document.getElementById("entropyWarn");
+  // if(G.ltMagic>0){var p=ePct();ew.classList.add("visible");ew.textContent="\u26a0 Entropy: "+p.toFixed(2)+"% troop decay / second";ew.style.opacity=Math.min(1,0.3+p/100)}else{ew.classList.remove("visible")}
+  var tVis=BUTTONS.some(function(b){return b.s==="training"&&b.showFn()});
+  document.getElementById("trainingCol").style.display=tVis?"":"none";
+
+  // Update enemy display (including practice mode after dark ritual)
+  var showEnemy = G.difficulty && (G.difficulty !== 'practice' || G.darkRitualDays.length > 0);
+  if(showEnemy){
+    // Get enemy troop type name
+    var enemyTroopName = "Troops";
+    if(isAIMode() && G.ai) {
+      enemyTroopName = getTN(G.ai.ppt);
+    } else {
+      var modeNames = {easy: "Pikemen", medium: "Knights", hard: "Dragons", practice: "Troops"};
+      enemyTroopName = modeNames[G.difficulty] || "Troops";
+    }
+
+    // Build troop display string
+    var troopStr = fmt(G.enemyTroops) + " " + enemyTroopName;
+    // Show dragon cohorts grouped by troop type name
+    if(G.dragonCohorts.length > 0) {
+      // Group cohorts by troop type name
+      var typeGroups = {};
+      for(var c = 0; c < G.dragonCohorts.length; c++) {
+        var cohort = G.dragonCohorts[c];
+        if(cohort.count.gte(1)) {
+          var typeName = getTN(cohort.ppt);
+          if(!typeGroups[typeName]) {
+            typeGroups[typeName] = {count: ON(0), maxPpt: cohort.ppt};
+          }
+          typeGroups[typeName].count = typeGroups[typeName].count.add(cohort.count);
+          if(cohort.ppt > typeGroups[typeName].maxPpt) {
+            typeGroups[typeName].maxPpt = cohort.ppt;
+          }
+        }
+      }
+      // Sort by max ppt descending and display
+      var typeNames = Object.keys(typeGroups).sort(function(a, b) {
+        return typeGroups[b].maxPpt - typeGroups[a].maxPpt;
+      });
+      for(var t = 0; t < typeNames.length; t++) {
+        var typeName = typeNames[t];
+        troopStr += "\nand " + fmt(typeGroups[typeName].count) + " " + typeName;
+      }
+    }
+    document.getElementById("enemyTroops").textContent = troopStr;
+    document.getElementById("enemyTroops").style.whiteSpace = "pre-line";
+    document.getElementById("enemyTroopType").style.display = "none"; // Hidden - type now shown with count
+    document.getElementById("enemyPower").textContent=fmt(G.enemyPower);
+    document.getElementById("dayCounter").textContent=G.day;
+
+    // Show AI stats in AI modes
+    var aiStatsDiv = document.getElementById("aiStats");
+    if(isAIMode() && G.ai){
+      aiStatsDiv.style.display = "block";
+      document.getElementById("aiCoins").textContent = fmt(G.ai.coins);
+      // Food display
+      var aiFarms = G.ai.counts["farm"] || 0;
+      var aiTroopCount = G.ai.troops.toNumber();
+      var aiFarmProd = aiFarms * C.farm_production;
+      var aiConsume = Math.floor(aiTroopCount * C.food_perTroopDay);
+      var aiNetFood = aiFarmProd - aiConsume;
+      document.getElementById("aiFood").textContent = fmt(G.ai.food);
+      document.getElementById("aiFoodRate").textContent = (aiNetFood >= 0 ? "+" : "") + fmt(aiNetFood);
+      var aiPlant = G.ai.counts["plantation"] || 0;
+      var aiColony = G.ai.counts["colony"] || 0;
+      var aiSL = G.ai.counts["squad_leader"] || 0;
+      var aiBar = G.ai.counts["barracks"] || 0;
+      var aiMB = G.ai.counts["military_base"] || 0;
+      var aiKing = G.ai.counts["kingdom"] || 0;
+
+      document.getElementById("aiFarms").textContent = fmt(aiFarms);
+      document.getElementById("aiPlant").textContent = fmt(aiPlant);
+      document.getElementById("aiColony").textContent = fmt(aiColony);
+      document.getElementById("aiPpt").textContent = fmtP(G.ai.ppt);
+      document.getElementById("aiSL").textContent = fmt(aiSL);
+      document.getElementById("aiBar").textContent = fmt(aiBar);
+      document.getElementById("aiMB").textContent = fmt(aiMB);
+      document.getElementById("aiKing").textContent = fmt(aiKing);
+
+      // Hide rows with 0 values
+      document.getElementById("aiFarmsRow").style.display = aiFarms > 0 ? "" : "none";
+      document.getElementById("aiPlantRow").style.display = aiPlant > 0 ? "" : "none";
+      document.getElementById("aiColonyRow").style.display = aiColony > 0 ? "" : "none";
+      document.getElementById("aiSLRow").style.display = aiSL > 0 ? "" : "none";
+      document.getElementById("aiBarRow").style.display = aiBar > 0 ? "" : "none";
+      document.getElementById("aiMBRow").style.display = aiMB > 0 ? "" : "none";
+      document.getElementById("aiKingRow").style.display = aiKing > 0 ? "" : "none";
+      // Show AI troop type based on their ppt
+      document.getElementById("enemyTroopType").textContent = getTN(G.ai.ppt);
+    } else {
+      aiStatsDiv.style.display = "none";
+    }
+  }
+
+  // Update timer (1 second = 1 day)
+  var days=G.day;
+  var years=Math.floor(days/365);
+  var remainingDays=days%365;
+  if(years>0){
+    document.getElementById("gameTimer").textContent="Year "+years+", Day "+remainingDays;
+  }else{
+    document.getElementById("gameTimer").textContent="Day "+days;
+  }
+  BUTTONS.forEach(function(btn){
+    var r=btnEls[btn.id];if(!r)return;
+    var show=btn.showFn();r.row.classList.toggle("visible",show);if(!show)return;
+    var baseCost=btn.costFn();
+    // Use frozen cost if applicable
+    if(G.costsFrozen&&G._frozenCosts&&G._frozenCosts[btn.id]!==undefined){baseCost=G._frozenCosts[btn.id]}
+
+    // Calculate actual cost with upgrade multiplier
+    var mult = getUpgradeMult(btn.id);
+    var cost;
+    if (btn.isMagic) {
+      cost = baseCost;
+    } else if (G.costsFrozen) {
+      cost = baseCost instanceof OrdinalNumber ? baseCost.mul(mult) : baseCost * mult;
+    } else if (mult <= 1) {
+      cost = baseCost;
+    } else {
+      var rate = (btn.s === "army") ? 1.04 : 1.02;
+      cost = compoundedCost(baseCost instanceof OrdinalNumber ? baseCost.toNumber() : baseCost, rate, mult);
+    }
+
+    // Use displayCost for UI if available (for buttons where actual cost differs from displayed cost)
+    var displayCost = btn.displayCost !== undefined ? btn.displayCost : cost;
+    var afford=btn.isMagic?G.magic>=displayCost:G.coins.gte(displayCost);
+    r.el.disabled=!afford;
+    r.el.classList.toggle("upgraded", mult > 1 && !btn.isMagic);
+
+    // Show description with multiplier if upgraded
+    var desc = btn.descFn?btn.descFn():(btn.desc||"");
+    if(mult > 1 && !btn.isMagic) desc = mult + "x: " + desc;
+    r.el.querySelector(".btn-desc").textContent=desc;
+
+    var costStr=displayCost instanceof OrdinalNumber?fmt(displayCost):fmt(Math.ceil(displayCost));
+    r.el.querySelector(".btn-cost").textContent=(btn.isMagic?costStr+" magic":costStr+" coins");
+    var c=cnt(btn.id);document.getElementById("cnt_"+btn.id).textContent=c>0?fmt(c)+" "+(btn.cw||""):"";
+
+    // Show/hide auto-upgrader buttons (all tiers)
+    if(!btn.isMagic){
+      var superscripts = ['', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+      // Check each tier
+      for(var tier = 1; tier <= 9; tier++){
+        // Build the key for this tier (e.g., tier 1 = btn.id, tier 2 = auto_btn.id, tier 3 = auto_auto_btn.id)
+        var checkKey = btn.id;
+        for(var t = 1; t < tier; t++) checkKey = 'auto_' + checkKey;
+
+        // Check if this tier's auto-upgrader is installed
+        var isInstalled = G.autoUpgraders[checkKey];
+        if(tier >= 3) console.log('updateUI tier '+tier+' for '+btn.id+': checkKey='+checkKey+', isInstalled='+isInstalled);
+        if(!isInstalled) break; // No more tiers
+
+        // Ensure button exists for this tier
+        if(tier === 1 && r.autoBtn){
+          r.autoBtn.style.display = "inline-block";
+          r.autoBtn.disabled = !G.coins.gte(googol());
+          var autoLvl = G.upgradeLevels['auto_' + btn.id]||0;
+          var lvl = G.upgradeLevels[btn.id]||0;
+          var addLvls = autoLvl > 300 ? "10^"+autoLvl : Math.pow(10, autoLvl);
+          var nextLvl = autoLvl > 50 ? lvl + "+" + addLvls : lvl + Math.pow(10, autoLvl);
+          var nextMult = typeof nextLvl === 'number' ? fmtMult(nextLvl) : "10^("+nextLvl+")";
+          var levelInfo = autoLvl > 0 ? ' (+'+addLvls+')' : '';
+          r.autoBtn.innerHTML = '<span class="btn-name">⚡ Upgrade ('+nextMult+'x)'+levelInfo+'</span><div class="btn-cost">1 Googol</div>';
+        } else if(tier === 2 && r.auto2Btn){
+          r.auto2Btn.style.display = "inline-block";
+          r.auto2Btn.disabled = !G.coins.gte(googol());
+          var auto2Lvl = G.upgradeLevels['auto_' + btn.id]||0;
+          var auto2NextMult = fmtMult(auto2Lvl + 1);
+          r.auto2Btn.innerHTML = '<span class="btn-name">⚡² ('+auto2NextMult+'x)</span><div class="btn-cost">1 Googol</div>';
+        } else if(tier >= 3){
+          // Dynamically create higher tier buttons
+          ensureAutoTierButton(btn.id, tier);
+          var tierBtn = r.autoTiers[tier];
+          if(tierBtn){
+            tierBtn.style.display = "inline-block";
+            tierBtn.disabled = !G.coins.gte(googol());
+            var sup = tier < 10 ? superscripts[tier] : '^' + tier;
+            var tierTargetId = btn.id;
+            for(var tt = 1; tt < tier; tt++) tierTargetId = 'auto_' + tierTargetId;
+            var tierLvl = G.upgradeLevels[tierTargetId]||0;
+            var tierNextMult = fmtMult(tierLvl + 1);
+            tierBtn.innerHTML = '<span class="btn-name">⚡' + sup + ' (' + tierNextMult + 'x)</span><div class="btn-cost">1 Googol</div>';
+          }
+        }
+      }
+      // Hide buttons for tiers not installed
+      if(!G.autoUpgraders[btn.id] && r.autoBtn) r.autoBtn.style.display = "none";
+      if(!G.autoUpgraders['auto_' + btn.id] && r.auto2Btn) r.auto2Btn.style.display = "none";
+    }
+  });
+
+  // Check all columns for rows with 3+ auto-upgrade buttons
+  document.querySelectorAll('.columns > div').forEach(function(col){
+    var hasMultiAuto = false;
+    col.querySelectorAll('.btn-row').forEach(function(row){
+      var visibleAutoCount = row.querySelectorAll('.auto-upgrade-btn').length;
+      // Count only visible ones
+      var visible = 0;
+      row.querySelectorAll('.auto-upgrade-btn').forEach(function(btn){
+        if(btn.style.display !== 'none') visible++;
+      });
+      if(visible >= 3) hasMultiAuto = true;
+    });
+    if(hasMultiAuto){
+      col.classList.add('can-expand');
+    } else {
+      col.classList.remove('can-expand');
+    }
+  });
+
+  // Update loot/recruit auto-upgraders
+  if(typeof updateMainAutoUpgraders === 'function') updateMainAutoUpgraders();
+  // Update log count
+  document.getElementById("logCount").textContent = G.clickLog.length;
+}
+
+// AI LOGIC - Score-based strategy (v2 - improved multiplier chain prioritization)
+function runAI(clicks){
+  var ai = G.ai;
+  if(!ai) return;
+
+  // === HELPER FUNCTIONS ===
+  function aiCnt(id) { return ai.counts[id] || 0; }
+  function aiTp() { return ai.troops.mul(ai.ppt); }
+  function aiArmyCost(base) { return Math.floor(base * Math.pow(1.04, ai._armyClicks)); }
+  function aiRecruitCost() { return Math.floor(C.recruitCost * Math.pow(1.02, aiCnt("recruit"))); }
+  function aiTrainCost() {
+    var total = ai._trainClicks;
+    if (total >= 111) return Math.floor(C.train_baseCost * Math.pow(1.02, 111) * Math.pow(1.03, total - 111));
+    return Math.floor(C.train_baseCost * Math.pow(1.02, total));
+  }
+  function aiEconomyCost(base) { return Math.floor(base * Math.pow(1.02, ai._economyClicks || 0)); }
+  function aiFarmCost() { return aiEconomyCost(C.farm_baseCost); }
+  function aiPlantationCost() { return aiEconomyCost(C.plantation_baseCost); }
+  function aiColonyCost() { return aiEconomyCost(C.colony_baseCost); }
+
+  // === ACTION FUNCTIONS ===
+  function buyArmy(id, base, power, boostVar) {
+    var cost = aiArmyCost(base);
+    if(ai.coins.lt(cost)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.counts[id] = (ai.counts[id] || 0) + ai[power];
+    ai._armyClicks++;
+    if(boostVar) ai[boostVar] += ai[power];
+    if(id === "squad_leader") ai.rp = 1 + aiCnt("squad_leader");
+    log("[AI] Bought " + id + " (now " + aiCnt(id) + ")");
+    logAI("buy_" + id);
+    return true;
+  }
+
+  function doBuyFarm() {
+    var cost = aiFarmCost();
+    if(ai.coins.lt(cost)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.counts["farm"] = (ai.counts["farm"] || 0) + ai.fp;
+    ai._economyClicks = (ai._economyClicks || 0) + 1;
+    log("[AI] Bought farm (now " + aiCnt("farm") + ")");
+    logAI("buy_farm");
+    return true;
+  }
+
+  function doBuyPlantation() {
+    var cost = aiPlantationCost();
+    if(ai.coins.lt(cost)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.counts["plantation"] = (ai.counts["plantation"] || 0) + ai.pp;
+    ai._economyClicks = (ai._economyClicks || 0) + 1;
+    ai.fp = 1 + aiCnt("plantation");
+    log("[AI] Bought plantation (now " + aiCnt("plantation") + ")");
+    logAI("buy_plantation");
+    return true;
+  }
+
+  function doBuyColony() {
+    var cost = aiColonyCost();
+    if(ai.coins.lt(cost)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.counts["colony"] = (ai.counts["colony"] || 0) + 1;
+    ai._economyClicks = (ai._economyClicks || 0) + 1;
+    ai.pp = 1 + aiCnt("colony");
+    log("[AI] Bought colony (now " + aiCnt("colony") + ")");
+    logAI("buy_colony");
+    return true;
+  }
+
+  function doRecruit() {
+    var cost = aiRecruitCost();
+    if(ai.coins.lt(cost)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.troops = ai.troops.add(ai.rp);
+    ai.counts["recruit"] = (ai.counts["recruit"] || 0) + 1;
+    log("[AI] Recruited (now " + fmt(ai.troops) + " troops)");
+    logAI("recruit");
+    return true;
+  }
+
+  function doTrain() {
+    var cost = aiTrainCost();
+    if(ai.coins.lt(cost) || ai.troops.lt(5)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.ppt *= ai.trainMult;
+    // All dragon cohorts also get trained
+    for(var c = 0; c < G.dragonCohorts.length; c++) {
+      G.dragonCohorts[c].ppt *= ai.trainMult;
+    }
+    ai.counts["train"] = (ai.counts["train"] || 0) + 1;
+    ai._trainClicks++;
+    log("[AI] Trained (ppt now " + ai.ppt.toFixed(2) + ")");
+    logAI("train");
+    return true;
+  }
+
+  // === SCORING CONTEXT ===
+  var coins = ai.coins.toNumber();
+  var troopCount = ai.troops.toNumber();
+  var ppt = ai.ppt;
+  var myPower = troopCount * ppt;
+  var enemyPower = tp().toNumber();
+
+  var closeness = Math.min(myPower, enemyPower) / Math.max(myPower, enemyPower, 1);
+  var farmProd = aiCnt("farm") * C.farm_production;
+  var maxSustainable = farmProd / C.food_perTroopDay;
+  var strain = maxSustainable > 0 ? troopCount / maxSustainable : 1;
+  strain = Math.min(strain, 1);
+
+  // Tuning constants
+  var K_CLOSENESS = 0.5;
+  var K_STRAIN = 2.0;
+  var NO_INFLATE_BONUS = 1.2;
+  var WAIT_DECAY = 0.99;  // Multiplicative decay per day of waiting
+
+  // Building values (10x per tier - prioritizes multiplier chain)
+  var VAL_FARM = 4, VAL_PLANTATION = 40, VAL_COLONY = 400;
+  var VAL_SL = 10, VAL_BARRACKS = 100, VAL_MB = 1000, VAL_KINGDOM = 10000;
+
+  var incomePerDay = (troopCount * ppt * 4) + clicks;
+
+  // calcScore with MULTIPLICATIVE decay for wait penalty
+  function calcScore(cost, value, isArmy, isImmediate) {
+    if(cost <= 0) return -1;
+    var currentCoins = ai.coins.toNumber();
+    var costPct = cost / Math.max(currentCoins, 1);
+
+    var penalty = Math.sqrt(costPct);
+    var baseScore = value / penalty;
+
+    // Multiplicative decay: each day of waiting reduces value by 1%
+    if(costPct > 1) {
+      var coinsNeeded = cost - currentCoins;
+      var daysToWait = coinsNeeded / Math.max(incomePerDay, 1);
+      baseScore *= Math.pow(WAIT_DECAY, daysToWait);
+    }
+
+    if(isImmediate) baseScore *= NO_INFLATE_BONUS;
+    if(isArmy) baseScore *= (1 + closeness * K_CLOSENESS);
+    else baseScore *= (1 + strain * K_STRAIN);
+
+    return baseScore;
+  }
+
+  // Food emergency detection
+  var dailyConsume = troopCount * C.food_perTroopDay;
+  var netConsume = dailyConsume - farmProd;
+  var foodBuffer = ai.food.toNumber();
+  var daysOfFood = netConsume > 0 ? foodBuffer / netConsume : 999;
+  var fCost = aiFarmCost();
+  var daysToAffordFarm = fCost > coins ? (fCost - coins) / Math.max(incomePerDay, 1) : 0;
+
+  // Check if spending X coins would cause food emergency
+  function wouldSpendingCauseEmergency(spendAmount) {
+    if(netConsume <= 0) return false;
+    var coinsAfterSpend = coins - spendAmount;
+    var daysToAfford = fCost > coinsAfterSpend
+      ? (fCost - coinsAfterSpend) / Math.max(incomePerDay, 1)
+      : 0;
+    return daysToAfford > daysOfFood;
+  }
+
+  function recruitCausesSuperEmergency() {
+    var newTroops = troopCount + ai.rp;
+    var newConsume = newTroops * C.food_perTroopDay;
+    var currentFarmProd = aiCnt("farm") * C.farm_production;
+    if(currentFarmProd >= newConsume) return false;
+    var deficit = newConsume - currentFarmProd;
+    var foodBuf = ai.food.toNumber();
+    var daysOfBuffer = deficit > 0 ? foodBuf / deficit : 999;
+    if(daysOfBuffer > 50) return false;
+    var farmsNeeded = Math.ceil(newConsume / C.farm_production);
+    var farmsToBuy = farmsNeeded - aiCnt("farm");
+    var costToBuy = farmsToBuy * fCost;
+    if(coins >= costToBuy) return false;
+    var coinsNeeded = costToBuy - coins;
+    var daysToAfford = coinsNeeded / Math.max(incomePerDay, 1);
+    return daysToAfford > daysOfBuffer;
+  }
+
+  // === MAIN LOOP ===
+  var maxIterations = clicks;
+  var iterations = 0;
+
+  while(iterations < maxIterations) {
+    iterations++;
+    coins = ai.coins.toNumber();
+    troopCount = ai.troops.toNumber();
+
+    // No troops - must recruit or beg
+    if(troopCount < 1) {
+      var recruitCost = aiRecruitCost();
+      if(ai.coins.gte(recruitCost)) {
+        doRecruit();
+      } else {
+        ai.coins = ai.coins.add(1);
+        logAI("beg");
+      }
+      continue;
+    }
+
+    // Recalculate emergency status
+    dailyConsume = troopCount * C.food_perTroopDay;
+    farmProd = aiCnt("farm") * C.farm_production;
+    netConsume = dailyConsume - farmProd;
+    foodBuffer = ai.food.toNumber();
+    daysOfFood = netConsume > 0 ? foodBuffer / netConsume : 999;
+    fCost = aiFarmCost();
+    daysToAffordFarm = fCost > coins ? (fCost - coins) / Math.max(incomePerDay, 1) : 0;
+    // After dark ritual, AI doesn't need food - no emergency possible
+    var foodEmergency = !G.enemyNoStarve && (daysToAffordFarm > daysOfFood || daysOfFood <= 0) && netConsume > 0;
+
+    // FOOD EMERGENCY: Must buy farm or save
+    if(foodEmergency) {
+      if(ai.coins.gte(fCost)) {
+        doBuyFarm();
+        continue;
+      } else {
+        ai.coins = ai.coins.add(1);
+        continue;
+      }
+    }
+
+    // "ALMOST EMERGENCY": Recruit blocked by food constraints
+    // When this happens, prioritize economy buildings to increase food capacity
+    // Otherwise AI gets stuck spamming SLs while unable to grow troops
+    // After dark ritual, AI doesn't need food - no emergency possible
+    var isAlmostEmergency = !G.enemyNoStarve && recruitCausesSuperEmergency();
+
+    // === CALCULATE ALL SCORES ===
+    var actions = [];
+
+    // In "almost emergency", skip army actions - focus on economy to unlock recruiting
+    if(!isAlmostEmergency) {
+      if(troopCount >= 5) {
+        var trainCost = aiTrainCost();
+        var trainValue = troopCount * ppt * 0.01;
+        var trainScore = calcScore(trainCost, trainValue, true, true);
+        if(trainScore > 0) actions.push({name: 'train', score: trainScore, cost: trainCost, fn: doTrain});
+      }
+
+      {
+        var recruitCost = aiRecruitCost();
+        var recruitValue = ai.rp * ppt;
+        // No strain penalty after dark ritual - AI doesn't need food
+        var newStrain = (!G.enemyNoStarve && maxSustainable > 0) ? (troopCount + ai.rp) / maxSustainable : 0;
+        var strainPenalty = newStrain > 0.9 ? (newStrain - 0.9) * 5 : 0;
+        var recruitScore = calcScore(recruitCost, recruitValue, true, true);
+        recruitScore -= strainPenalty;
+        if(recruitScore > 0) actions.push({name: 'recruit', score: recruitScore, cost: recruitCost, fn: doRecruit});
+      }
+
+      if(troopCount >= 2) {
+        var slCost = aiArmyCost(C.squadLeader_baseCost);
+        var slValue = ai.squadLeaderPower * VAL_SL;
+        var slScore = calcScore(slCost, slValue, true, false);
+        if(slScore > 0) actions.push({name: 'squad_leader', score: slScore, cost: slCost, fn: function(){ return buyArmy("squad_leader", C.squadLeader_baseCost, "squadLeaderPower", null); }});
+      }
+
+      if(aiCnt("squad_leader") >= 3) {
+        var barCost = aiArmyCost(C.barracks_baseCost);
+        var barValue = ai.barracksPower * VAL_BARRACKS;
+        var barScore = calcScore(barCost, barValue, true, false);
+        if(barScore > 0) actions.push({name: 'barracks', score: barScore, cost: barCost, fn: function(){ return buyArmy("barracks", C.barracks_baseCost, "barracksPower", "squadLeaderPower"); }});
+      }
+
+      if(aiCnt("barracks") >= 3) {
+        var mbCost = aiArmyCost(C.militaryBase_baseCost);
+        var mbValue = ai.militaryBasePower * VAL_MB;
+        var mbScore = calcScore(mbCost, mbValue, true, false);
+        if(mbScore > 0) actions.push({name: 'military_base', score: mbScore, cost: mbCost, fn: function(){ return buyArmy("military_base", C.militaryBase_baseCost, "militaryBasePower", "barracksPower"); }});
+      }
+
+      if(aiCnt("military_base") >= 3) {
+        var kingCost = aiArmyCost(C.kingdom_baseCost);
+        var kingValue = ai.kingdomPower * VAL_KINGDOM;
+        var kingScore = calcScore(kingCost, kingValue, true, false);
+        if(kingScore > 0) actions.push({name: 'kingdom', score: kingScore, cost: kingCost, fn: function(){ return buyArmy("kingdom", C.kingdom_baseCost, "kingdomPower", "militaryBasePower"); }});
+      }
+    }
+
+    // Economy actions - always available (critical for almost emergency)
+    // Skip economy entirely after dark ritual - AI doesn't need food
+    if(!G.enemyNoStarve) {
+      {
+        var farmCost = aiFarmCost();
+        var farmValue = ai.fp * VAL_FARM;
+        var farmScore = calcScore(farmCost, farmValue, false, false);
+        if(farmScore > 0) actions.push({name: 'farm', score: farmScore, cost: farmCost, fn: doBuyFarm});
+      }
+
+      if(aiCnt("farm") >= 3) {
+        var plantCost = aiPlantationCost();
+        var plantValue = ai.pp * VAL_PLANTATION;
+        var plantScore = calcScore(plantCost, plantValue, false, false);
+        if(plantScore > 0) actions.push({name: 'plantation', score: plantScore, cost: plantCost, fn: doBuyPlantation});
+      }
+
+      if(aiCnt("plantation") >= 3) {
+        var colCost = aiColonyCost();
+        var colValue = 1 * VAL_COLONY;
+        var colScore = calcScore(colCost, colValue, false, false);
+        if(colScore > 0) actions.push({name: 'colony', score: colScore, cost: colCost, fn: doBuyColony});
+      }
+    }
+
+    if(actions.length > 0) {
+      actions.sort(function(a, b) { return b.score - a.score; });
+
+      var best = actions[0];
+      var bestIsBuilding = (best.name !== 'train' && best.name !== 'recruit');
+      var bestIsUnaffordable = bestIsBuilding && best.cost > coins;
+
+      if(bestIsUnaffordable) {
+        // Best is unaffordable building - save for it
+        // Skip ALL other buildings (score already accounts for cost/delay)
+        // Only train/recruit if they help reach best faster
+        // But if saving for ECONOMY building, don't recruit - it increases food strain
+        // (Unless AI doesn't need food after dark ritual)
+        var bestIsEconomy = !G.enemyNoStarve && (best.name === 'farm' || best.name === 'plantation' || best.name === 'colony');
+
+        var daysToReach = (best.cost - coins) / Math.max(incomePerDay, 1);
+
+        var recruitCost = aiRecruitCost();
+        var newIncomeWithRecruit = ((troopCount + ai.rp) * ppt * 4) + clicks;
+        var daysWithRecruit = (best.cost - coins + recruitCost) / Math.max(newIncomeWithRecruit, 1);
+        var recruitHelps = !bestIsEconomy && daysWithRecruit < daysToReach && !recruitCausesSuperEmergency() && ai.coins.gte(recruitCost);
+
+        var trainCost = aiTrainCost();
+        var newIncomeWithTrain = (troopCount * ppt * ai.trainMult * 4) + clicks;
+        var daysWithTrain = (best.cost - coins + trainCost) / Math.max(newIncomeWithTrain, 1);
+        var trainHelps = daysWithTrain < daysToReach && troopCount >= 5 && ai.coins.gte(trainCost);
+
+        if(recruitHelps || trainHelps) {
+          if(recruitHelps && trainHelps) {
+            if(daysWithRecruit < daysWithTrain) {
+              if(doRecruit()) continue;
+            } else {
+              if(doTrain()) continue;
+            }
+          } else if(recruitHelps) {
+            if(doRecruit()) continue;
+          } else {
+            if(doTrain()) continue;
+          }
+        }
+        // Nothing helps - fall through to beg
+      } else {
+        // Best is affordable or is train/recruit
+        // Check emergency before spending
+        for(var i = 0; i < actions.length; i++) {
+          var action = actions[i];
+          if(action.name !== 'farm' && wouldSpendingCauseEmergency(action.cost)) {
+            continue;
+          }
+          if(action.fn()) break;
+        }
+      }
+    }
+
+    // Nothing affordable or helpful - beg
+    ai.coins = ai.coins.add(1);
+  }
+}
+
+// GAME TICK
+function tick(){
+  if(!G.gameStarted) return;
+  var ch=false;
+
+  // Increment day
+  G.day++;
+
+  // Snapshot every 10 days for logging
+  if(G.day % 10 === 0) logSnapshot();
+
+  // Food system: farms produce, troops consume daily (unless Eternal Feast active)
+  var farmProduction = cnt("farm") * C.farm_production;
+  G.food = G.food.add(farmProduction);
+
+  if(!G.eternalFeast) {
+    var troopConsumption = Math.floor(G.troops.toNumber() * C.food_perTroopDay);
+    var foodShortage = troopConsumption > G.food.toNumber();
+    G.food = G.food.sub(troopConsumption);
+
+    // Desertion if out of food - escalates each consecutive day
+    if(foodShortage){
+      G.starvationStreak++;
+      // Escalating: 5%, 10%, 20%, 40%... doubles each day
+      var desertPct = Math.min(5 * Math.pow(2, G.starvationStreak - 1), 100);
+      var deserters = G.troops.mulFraction(desertPct, 100);
+      // No minimum - 5% of 1 troop = 0 deserters
+      G.troops = G.troops.sub(deserters);
+      // No safety net - can go to 0
+      if(G.starvationStreak === 1) {
+        log("⚠ Troops starving! " + fmt(deserters) + " deserted (" + desertPct + "%).", "danger-msg");
+      } else {
+        log("⚠ STARVATION DAY " + G.starvationStreak + "! " + fmt(deserters) + " deserted (" + desertPct + "%)!", "danger-msg");
+      }
+    } else {
+      G.starvationStreak = 0; // Reset when fed
+    }
+  }
+  ch = true;
+
+  // Calculate daily dragon spawn from dark rituals
+  // Each day, ADD the increment: d^n - (d-1)^n for each ritual
+  // New dragons always spawn at ppt=60000 (dragon level)
+  if(G.darkRitualDays.length > 0) {
+    var newDragons = ON(0);
+    for(var i = 0; i < G.darkRitualDays.length; i++) {
+      var daysSince = G.day - G.darkRitualDays[i];
+      if(daysSince > 0) {
+        var power = i + 1; // 1st ritual = ^1, 2nd = ^2, etc.
+        var todayTotal = Math.pow(daysSince, power);
+        var yesterdayTotal = daysSince > 1 ? Math.pow(daysSince - 1, power) : 0;
+        var dailyIncrement = todayTotal - yesterdayTotal;
+        if(dailyIncrement > 0) {
+          newDragons = newDragons.add(ON(dailyIncrement));
+        }
+      }
+    }
+    // Add new dragons to ppt=60000 cohort (or create if doesn't exist)
+    if(newDragons.gt(0)) {
+      var found = false;
+      for(var c = 0; c < G.dragonCohorts.length; c++) {
+        if(G.dragonCohorts[c].ppt === 60000) {
+          G.dragonCohorts[c].count = G.dragonCohorts[c].count.add(newDragons);
+          found = true;
+          break;
+        }
+      }
+      if(!found) {
+        G.dragonCohorts.push({count: newDragons, ppt: 60000});
+      }
+    }
+    // Update legacy fields for compatibility
+    G.enemyDragons = ON(0);
+    G.enemyDragonPpt = 60000;
+    for(var c = 0; c < G.dragonCohorts.length; c++) {
+      G.enemyDragons = G.enemyDragons.add(G.dragonCohorts[c].count);
+    }
+  }
+
+  // Enemy growth based on difficulty (only if enemy not vanquished)
+  // Practice mode gets enemy after dark ritual
+  var hasEnemy = G.difficulty && !G.enemyVanquished &&
+                 (G.difficulty !== 'practice' || G.darkRitualDays.length > 0);
+  if(hasEnemy){
+    var enemyGain = ON(0);
+    var enemyPptGain = 0;
+    if(G.difficulty === 'easy'){
+      // 1 Pikeman per day (ppt = 3)
+      enemyGain = ON(1);
+      enemyPptGain = 3;
+    } else if(G.difficulty === 'medium'){
+      // Day X = X Knights (ppt = 15)
+      enemyGain = ON(G.day);
+      enemyPptGain = 15;
+    } else if(G.difficulty === 'hard'){
+      // Day X = X² Dragons (ppt = 60000)
+      enemyGain = ON(G.day * G.day);
+      enemyPptGain = 500;
+    } else if(isAIMode() && G.ai){
+      // AI mode: run AI at configured clicks per second
+      runAI(getAICps());
+      // AI passive looting (4x per day, like player gets 4x per second)
+      // Includes both regular troops and dragons
+      var totalAiPower = G.ai.troops.mul(G.ai.ppt).add(getDragonPower());
+      if(totalAiPower.gte(1)){
+        var aiLootPerTick = totalAiPower;
+        if(aiLootPerTick.lt(1)) aiLootPerTick = ON(1);
+        G.ai.coins = G.ai.coins.add(aiLootPerTick.mul(4));
+      }
+      // AI food: farms produce, troops consume daily
+      // After first dark ritual, AI doesn't need food
+      if(!G.enemyNoStarve) {
+        var aiFarmProd = (G.ai.counts["farm"] || 0) * C.farm_production;
+        var aiTroopConsume = Math.floor(G.ai.troops.toNumber() * C.food_perTroopDay);
+        G.ai.food = G.ai.food.add(aiFarmProd);
+        var aiStarving = aiTroopConsume > G.ai.food.toNumber();
+        G.ai.food = G.ai.food.sub(aiTroopConsume);
+        if(aiStarving){
+          G.ai.starvationStreak = (G.ai.starvationStreak || 0) + 1;
+          var aiDesertPct = Math.min(5 * Math.pow(2, G.ai.starvationStreak - 1), 100);
+          var aiDeserters = G.ai.troops.mulFraction(aiDesertPct, 100);
+          // No minimum - 5% of 1 troop = 0 deserters
+          G.ai.troops = G.ai.troops.sub(aiDeserters);
+          // Also lose proportional dragons from all cohorts
+          var keepPct = 100 - aiDesertPct;
+          for(var c = 0; c < G.dragonCohorts.length; c++) {
+            G.dragonCohorts[c].count = G.dragonCohorts[c].count.mulFraction(keepPct, 100);
+          }
+          G.dragonCohorts = G.dragonCohorts.filter(function(c) { return c.count.gte(1); });
+          // Update legacy field
+          G.enemyDragons = ON(0);
+          for(var c = 0; c < G.dragonCohorts.length; c++) {
+            G.enemyDragons = G.enemyDragons.add(G.dragonCohorts[c].count);
+          }
+        } else {
+          G.ai.starvationStreak = 0;
+        }
+      }
+      G.enemyTroops = G.ai.troops;
+      // Enemy power includes both regular troops and dragons (dragons have ppt=60000)
+      var aiBasePower = G.ai.troops.mul(G.ai.ppt);
+      var dragonPower = getDragonPower();
+      G.enemyPower = aiBasePower.add(dragonPower);
+      // Log AI status every 10 days
+      if(G.day % 10 === 0){
+        log("[Player Day " + G.day + "] Troops:" + fmt(G.troops) + " PPT:" + G.ppt.toFixed(2) + " Power:" + fmt(tp()) + " Coins:" + fmt(G.coins) + " Food:" + fmt(G.food));
+        log("[AI Day " + G.day + "] Troops:" + fmt(G.ai.troops) + " PPT:" + G.ai.ppt.toFixed(2) + " Power:" + fmt(G.enemyPower) + " Coins:" + fmt(G.ai.coins) + " Food:" + fmt(G.ai.food));
+      }
+    }
+    if(!isAIMode()){
+      G.enemyTroops = G.enemyTroops.add(enemyGain);
+      // Enemy power includes both regular troops and dragons (dragons have ppt=60000)
+      var basePower = G.enemyTroops.mul(enemyPptGain);
+      var dragonPower = getDragonPower();
+      G.enemyPower = basePower.add(dragonPower);
+    }
+    ch=true;
+
+    // Battle chance (AI modes use 3% like Hard)
+    var battleChance = G.difficulty === 'easy' ? 0.01 : G.difficulty === 'medium' ? 0.02 : 0.03;
+    if(Math.random() < battleChance){
+      doBattle();
+    }
+  }
+
+  // Entropy drain - disabled for now (logic kept for later use)
+  // if(G.ltMagic>0){var pct=ePct()/100;G.troops=G.troops.mulFraction(Math.round((1-pct)*10000),10000);ch=true}
+  // Check for flavor events
+  checkFlavorEvents();
+  if(ch)updateUI();
+}
+
+// BATTLE SYSTEM
+function doBattle(){
+  var playerPower = tp();
+  var enemyPower = G.enemyPower;
+  var flash = document.getElementById("battleFlash");
+  var text = document.getElementById("battleText");
+
+  // Show battle announcement (red screen for 200ms)
+  flash.className = "battle-flash battle active";
+  text.innerHTML = "⚔️ BATTLE! ⚔️<div class='battle-sub'>Your power: " + playerPower.format() + " vs Enemy: " + enemyPower.format() + "</div>";
+
+  setTimeout(function(){
+    var isTie = playerPower.eq(enemyPower);
+    var playerWins = playerPower.gt(enemyPower);
+    var resultDuration = 500;
+
+    if(isTie){
+      // Tie - reset all streaks, no losses
+      G.winStreak = 0;
+      G.lossStreak = 0;
+      flash.className = "battle-flash stalemate active";
+      text.innerHTML = "⚔️ STALEMATE! ⚔️<div class='battle-sub'>Forces evenly matched - no victor!</div>";
+      log("STALEMATE! Battle ends in a draw.", "milestone");
+      logBattle("tie", playerPower, enemyPower);
+    } else if(playerWins){
+      // Victory - update streaks
+      G.winStreak++;
+      G.lossStreak = 0;
+
+      // Loss percentage increases with streak: 5%, 10%, 15%, etc. (cap at 100%)
+      var lossPct = Math.min(G.winStreak * 5, 100);
+      var keepFraction = 100 - lossPct;
+
+      flash.className = "battle-flash victory active";
+      G.enemyTroops = G.enemyTroops.mulFraction(keepFraction, 100);
+      G.enemyPower = G.enemyPower.mulFraction(keepFraction, 100);
+      // Reduce all dragon cohorts proportionally and degrade their ppt
+      for(var c = 0; c < G.dragonCohorts.length; c++) {
+        G.dragonCohorts[c].count = G.dragonCohorts[c].count.mulFraction(keepFraction, 100);
+        G.dragonCohorts[c].ppt = Math.max(1, G.dragonCohorts[c].ppt * keepFraction / 100);
+      }
+      // Remove empty cohorts
+      G.dragonCohorts = G.dragonCohorts.filter(function(c) { return c.count.gte(1); });
+      // Update legacy field
+      G.enemyDragons = ON(0);
+      for(var c = 0; c < G.dragonCohorts.length; c++) {
+        G.enemyDragons = G.enemyDragons.add(G.dragonCohorts[c].count);
+      }
+
+      // In AI mode, also reduce AI stats when player wins
+      if(isAIMode() && G.ai){
+        G.ai.troops = G.ai.troops.mulFraction(keepFraction, 100);
+        G.ai.coins = G.ai.coins.mulFraction(keepFraction, 100);
+        G.ai.ppt = Math.max(1, G.ai.ppt * keepFraction / 100);
+        // Reduce AI army chain counts
+        ["squad_leader","barracks","military_base","kingdom"].forEach(function(id){
+          if(G.ai.counts[id] > 0){
+            G.ai.counts[id] = Math.max(0, G.ai.counts[id] - Math.floor(G.ai.counts[id] * lossPct / 100));
+          }
+        });
+        G.ai.rp = 1 + (G.ai.counts["squad_leader"] || 0);
+      }
+
+      var streakMsg = G.winStreak > 1 ? " (" + G.winStreak + " in a row!)" : "";
+      text.innerHTML = "🏆 VICTORY! 🏆<div class='battle-sub'>Enemy loses " + lossPct + "% of forces!" + streakMsg + "</div>";
+      log("VICTORY! Enemy forces reduced by " + lossPct + "%." + streakMsg, "milestone");
+      logBattle("win", playerPower, enemyPower);
+
+      // Check if enemy is wiped out (both regular troops AND all dragon cohorts)
+      if(G.enemyTroops.lt(1) && G.dragonCohorts.length === 0){
+        G.enemyTroops = ON(0);
+        G.enemyPower = ON(0);
+        G.enemyDragons = ON(0);
+        G.dragonCohorts = [];
+        if(!G.enemyUnvanquishable) {
+          G.enemyVanquished = true;
+          log("🎉 TOTAL VICTORY! The enemy has been vanquished!", "milestone");
+        } else {
+          log("🎉 VICTORY! Enemy forces destroyed... but darkness will bring them back.", "milestone");
+        }
+      }
+      // In AI mode, also check if AI is wiped out
+      // Only vanquish if AI ever had troops (recruited at least once)
+      if(isAIMode() && G.ai && G.ai.troops.lt(1) && (G.ai.counts["recruit"] || 0) > 0){
+        G.ai.troops = ON(0);
+        G.enemyVanquished = true;
+        log("🎉 TOTAL VICTORY! The AI opponent has been defeated!", "milestone");
+      }
+    } else {
+      // Defeat - update streaks
+      G.lossStreak++;
+      G.winStreak = 0;
+
+      // Loss percentage increases with streak: 5%, 10%, 15%, etc. (cap at 100%)
+      var lossPct = Math.min(G.lossStreak * 5, 100);
+      var keepFraction = 100 - lossPct;
+
+      flash.className = "battle-flash defeat active";
+      var losses = [];
+
+      // Calculate and apply troop loss
+      var troopLoss = G.troops.mulFraction(lossPct, 100);
+      G.troops = G.troops.sub(troopLoss);
+      losses.push(fmt(troopLoss) + " troops");
+
+      // Calculate and apply coin loss
+      var coinLoss = G.coins.mulFraction(lossPct, 100);
+      G.coins = G.coins.sub(coinLoss);
+      losses.push(fmt(coinLoss) + " coins");
+
+      // Calculate and apply power/troop loss
+      var oldPpt = G.ppt;
+      var oldTroopName = getTN();
+      if(typeof G.ppt === 'number'){
+        var pptLoss = G.ppt * lossPct / 100;
+        G.ppt = Math.max(1, G.ppt - pptLoss); // Minimum ppt is 1
+        if(pptLoss >= 0.01) losses.push(pptLoss.toFixed(2) + " power/troop");
+      } else {
+        var pptLoss = G.ppt.mulFraction(lossPct, 100);
+        G.ppt = G.ppt.sub(pptLoss);
+        if(G.ppt.lt(1)) G.ppt = 1;
+        losses.push(fmt(pptLoss) + " power/troop");
+      }
+      // Check for devolution
+      var newTroopName = getTN();
+      if(newTroopName !== oldTroopName){
+        log("Your troops devolved from " + oldTroopName + " into " + newTroopName + "!", "danger-msg");
+      }
+
+      // Lose percentage of army chain counts (floor so 5% of 1 = 0 lost)
+      ["squad_leader","barracks","military_base","kingdom","empire","planet","solar_system","galaxy","galaxy_cluster","supercluster"].forEach(function(id){
+        if(G.counts[id] > 0){
+          var lost = Math.floor(G.counts[id] * lossPct / 100);
+          if(lost > 0){
+            G.counts[id] = Math.max(0, G.counts[id] - lost);
+            var name = id.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase()});
+            if(lost > 1) name += "s"; // Pluralize
+            losses.push(fmt(lost) + " " + name);
+          }
+        }
+      });
+      // Recalculate rp after losing squad leaders
+      G.rp = 1 + cnt("squad_leader");
+
+      // Build loss display (show first few, then count remaining)
+      var streakMsg = G.lossStreak > 1 ? "<br><b>" + G.lossStreak + " defeats in a row! (-" + lossPct + "%)</b>" : "";
+      var lossText = losses.slice(0, 5).join("<br>");
+      if(losses.length > 5) lossText += "<br>...and " + (losses.length - 5) + " more";
+      text.innerHTML = "💀 DEFEAT! 💀<div class='battle-sub'>" + lossText + streakMsg + "</div>";
+      log("DEFEAT! Lost " + lossPct + "% - " + losses.join(", "), "danger-msg");
+      logBattle("lose", playerPower, enemyPower);
+
+      // Check if player is wiped out
+      if(G.troops.lt(1)){
+        G.troops = ON(0);
+        log("💀 TOTAL DEFEAT! Your army has been destroyed!", "danger-msg");
+      }
+    }
+
+    setTimeout(function(){
+      flash.className = "battle-flash";
+      updateUI();
+    }, resultDuration);
+  }, 200);
+}
+
+// LOG
+function log(msg,cls){
+  var el=document.getElementById("logEntries");var e=document.createElement("div");
+  e.className="log-entry"+(cls?" "+cls:"");e.textContent=msg;
+  el.insertBefore(e,el.firstChild);while(el.children.length>50)el.removeChild(el.lastChild);
+}
+
+// FLAVOR EVENTS (1 second = 1 day)
+var FLAVOR_EVENTS = [
+  // Time-based events (seconds = days)
+  {t:7, msg:"Day 7. A week of conquest behind you."},
+  {t:14, msg:"Day 14. Two weeks. The locals grow wary."},
+  {t:21, msg:"Day 21. Three weeks. Your name spreads."},
+  {t:30, msg:"Day 30. A month passes. Winter approaches."},
+  {t:45, msg:"Day 45. Six weeks of war. Supplies run low."},
+  {t:60, msg:"Day 60. Two months. The first snow falls."},
+  {t:90, msg:"Day 90. Three months. A harsh winter grips the land."},
+  {t:120, msg:"Day 120. Four months. The snow begins to melt."},
+  {t:150, msg:"Day 150. Five months. Spring brings new recruits."},
+  {t:180, msg:"Day 180. Half a year. The campaign continues."},
+  {t:210, msg:"Day 210. Seven months. Summer heat bakes the battlefield."},
+  {t:240, msg:"Day 240. Eight months. Harvest season - villages burn."},
+  {t:270, msg:"Day 270. Nine months. Children born this war have never known peace."},
+  {t:300, msg:"Day 300. Ten months. Veterans forget their old lives."},
+  {t:330, msg:"Day 330. Eleven months. The anniversary approaches."},
+  {t:365, msg:"Day 365. ONE YEAR of endless conquest."},
+  {t:400, msg:"Day 400. The second year begins."},
+  {t:450, msg:"Day 450. Fifteen months. New legends replace old ones."},
+  {t:500, msg:"Day 500. Five hundred days of war."},
+  {t:548, msg:"Day 548. Eighteen months. A generation grows up fighting."},
+  {t:600, msg:"Day 600. Twenty months. The old maps are obsolete."},
+  {t:650, msg:"Day 650. Some soldiers have fought longer than they lived before."},
+  {t:730, msg:"Day 730. TWO YEARS. The war has no memory of peace."},
+  {t:800, msg:"Day 800. Borders are theoretical."},
+  {t:900, msg:"Day 900. Nine hundred days. The world reshapes itself."},
+  {t:1000, msg:"Day 1000. A THOUSAND DAYS of conquest."},
+  {t:1095, msg:"Day 1095. THREE YEARS. Children born at war's start now walk."},
+  {t:1200, msg:"Day 1200. Languages blend on the battlefield."},
+  {t:1400, msg:"Day 1400. Nearly four years. Empires have risen and fallen faster."},
+  {t:1460, msg:"Day 1460. FOUR YEARS of unbroken war."},
+  {t:1600, msg:"Day 1600. The old world is a fading memory."},
+  {t:1825, msg:"Day 1825. FIVE YEARS. Half a decade of dominion."},
+  {t:2000, msg:"Day 2000. Two thousand days. History takes note."},
+  {t:2190, msg:"Day 2190. SIX YEARS. New soldiers were children when this began."},
+  {t:2500, msg:"Day 2500. The war has its own culture now."},
+  {t:2555, msg:"Day 2555. SEVEN YEARS. A biblical span."},
+  {t:2920, msg:"Day 2920. EIGHT YEARS of endless conquest."},
+  {t:3000, msg:"Day 3000. Three thousand days of blood and gold."},
+  {t:3285, msg:"Day 3285. NINE YEARS. A decade approaches."},
+  {t:3650, msg:"Day 3650. TEN YEARS. A DECADE of war. The world before is myth."},
+  {t:4000, msg:"Day 4000. Eleven years. Your army is a nation unto itself."},
+  {t:4500, msg:"Day 4500. Twelve years. Veterans' children join the ranks."},
+  {t:5000, msg:"Day 5000. Nearly fourteen years. The war is eternal."},
+  {t:5475, msg:"Day 5475. FIFTEEN YEARS. Half a generation."},
+  {t:6000, msg:"Day 6000. Sixteen years. Some soldiers have known nothing else."},
+  {t:7300, msg:"Day 7300. TWENTY YEARS. Those born at start now fight."},
+  {t:9125, msg:"Day 9125. TWENTY-FIVE YEARS. A quarter century of conquest."},
+  {t:10950, msg:"Day 10950. THIRTY YEARS. A generational war."},
+  {t:14600, msg:"Day 14600. FORTY YEARS. Two generations."},
+  {t:18250, msg:"Day 18250. FIFTY YEARS. Half a century. You are legend."},
+
+  // Atmospheric events (also time-based)
+  {t:10, msg:"Your thugs look restless."},
+  {t:25, msg:"A cold wind blows through the camp."},
+  {t:40, msg:"Someone mutters about better pay."},
+  {t:55, msg:"The smell of copper fills the air."},
+  {t:75, msg:"Rumors spread of distant treasure."},
+  {t:85, msg:"A crow watches from a dead tree."},
+  {t:100, msg:"The moon rises, blood-red."},
+  {t:115, msg:"Distant drums echo across the hills."},
+  {t:135, msg:"A messenger arrives, says nothing, leaves."},
+  {t:165, msg:"The fire crackles with strange colors."},
+  {t:195, msg:"Your shadow seems to move independently."},
+  {t:225, msg:"A raven brings an unsigned letter."},
+  {t:255, msg:"The stars align in an unfamiliar pattern."},
+  {t:285, msg:"Someone claims to see ghosts in the mist."},
+  {t:315, msg:"The ground shakes. Something stirs below."},
+  {t:345, msg:"A merchant offers wares you've never seen."},
+  {t:380, msg:"An old woman curses your banner."},
+  {t:420, msg:"A comet streaks across the sky."},
+  {t:470, msg:"The rivers run red after the last battle."},
+  {t:520, msg:"A prophet predicts your doom. You ignore him."},
+  {t:570, msg:"Strange lights dance on the horizon."},
+  {t:620, msg:"A foreign emissary requests audience."},
+  {t:680, msg:"The blacksmiths work through the night."},
+  {t:750, msg:"Songs are sung of your conquests."},
+  {t:820, msg:"A library burns. Knowledge is lost."},
+  {t:880, msg:"Earthquakes trouble the eastern provinces."},
+  {t:950, msg:"A plague sweeps through enemy lands."},
+  {t:1050, msg:"Eclipse. The sun vanishes for minutes."},
+  {t:1150, msg:"A volcano erupts in distant mountains."},
+  {t:1250, msg:"The ocean swallows a coastal city."},
+  {t:1350, msg:"A dragon is rumored in the north."},
+  {t:1500, msg:"The currency changes. Old coins are melted."},
+  {t:1700, msg:"A new religion emerges among the conquered."},
+  {t:1900, msg:"The calendar is reformed. Time itself bends to your will."},
+  {t:2100, msg:"Ancient tombs are unsealed. Secrets emerge."},
+  {t:2300, msg:"A tower is built to touch the heavens."},
+  {t:2600, msg:"The last independent city surrenders."},
+  {t:2800, msg:"Scholars debate whether peace ever existed."},
+  {t:3100, msg:"A monument is carved into a mountainside."},
+  {t:3400, msg:"The concept of 'abroad' becomes meaningless."},
+  {t:3800, msg:"New stars appear in the sky. Or are they?"},
+  {t:4200, msg:"The ocean freezes for a winter."},
+  {t:4700, msg:"A second moon is observed. Then denied."},
+  {t:5200, msg:"The trees grow in strange patterns."},
+  {t:5800, msg:"Animals behave oddly. Migration patterns shift."},
+  {t:6500, msg:"The northern lights are seen everywhere."},
+  {t:7500, msg:"Time feels different. Days stretch."},
+  {t:8500, msg:"Reality becomes negotiable."},
+  {t:10000, msg:"The very concept of history warps around you."},
+
+  // Troop count events
+  {cond:function(){return G.troops.gte(10)}, msg:"A proper crew assembles."},
+  {cond:function(){return G.troops.gte(25)}, msg:"Your numbers demand attention."},
+  {cond:function(){return G.troops.gte(50)}, msg:"The streets clear when you pass."},
+  {cond:function(){return G.troops.gte(100)}, msg:"A hundred strong. Fear spreads."},
+  {cond:function(){return G.troops.gte(250)}, msg:"Merchants pay tribute willingly."},
+  {cond:function(){return G.troops.gte(500)}, msg:"The city guard avoids your district."},
+  {cond:function(){return G.troops.gte(1000)}, msg:"A thousand warriors. A true force."},
+  {cond:function(){return G.troops.gte(2500)}, msg:"Nobles send nervous emissaries."},
+  {cond:function(){return G.troops.gte(5000)}, msg:"Your army rivals the kingdom's."},
+  {cond:function(){return G.troops.gte(10000)}, msg:"Ten thousand! The earth shudders at their march."},
+  {cond:function(){return G.troops.gte(50000)}, msg:"Your horde darkens the horizon."},
+  {cond:function(){return G.troops.gte(100000)}, msg:"One hundred thousand. A tide of steel."},
+  {cond:function(){return G.troops.gte(500000)}, msg:"Half a million strong. Nations fall silent."},
+  {cond:function(){return G.troops.gte(1e6)}, msg:"A million warriors. History has no precedent."},
+  {cond:function(){return G.troops.gte(1e9)}, msg:"A billion souls march under your banner."},
+  {cond:function(){return G.troops.gte(1e12)}, msg:"A trillion. The concept of 'army' breaks down."},
+
+  // Power per troop events
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=2}, msg:"Your thugs grow stronger."},
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=5}, msg:"These are soldiers now, not rabble."},
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=10}, msg:"Each warrior worth ten ordinary men."},
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=25}, msg:"Legends spread of your warriors' prowess."},
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=50}, msg:"Your troops transcend human limits."},
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=100}, msg:"Giants walk among you now."},
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=500}, msg:"Dragons answer your call."},
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=1000}, msg:"Demonic power courses through your ranks."},
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=10000}, msg:"Reality bends around your warriors."},
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=100000}, msg:"Your troops exist beyond mortality."},
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=1e6}, msg:"Each soldier is a walking apocalypse."},
+  {cond:function(){var p=typeof G.ppt==='number'?G.ppt:G.ppt.toNumber();return p>=1e9}, msg:"Abstract forces of destruction incarnate."},
+
+  // Total power events
+  {cond:function(){return tp().gte(1000)}, msg:"A thousand power. You're getting somewhere."},
+  {cond:function(){return tp().gte(10000)}, msg:"Ten thousand. Respectable."},
+  {cond:function(){return tp().gte(100000)}, msg:"One hundred thousand. The strong notice you."},
+  {cond:function(){return tp().gte(1e6)}, msg:"A million power. You are undeniably mighty."},
+  {cond:function(){return tp().gte(1e7)}, msg:"Ten million. Kings would kneel."},
+  {cond:function(){return tp().gte(1e8)}, msg:"A hundred million. The world is yours."},
+  {cond:function(){return tp().gte(1e9)}, msg:"A billion. You approach the divine."},
+  {cond:function(){return tp().gte(1e10)}, msg:"Ten billion. Gods take notice."},
+  {cond:function(){return tp().gte(5e10)}, msg:"Fifty billion. The threshold of darkness beckons."},
+  {cond:function(){return tp().gte(1e11)}, msg:"A hundred billion. You have transcended."},
+  {cond:function(){return tp().gte(1e12)}, msg:"A trillion. Numbers fail to capture your might."},
+  {cond:function(){return tp().gte(1e15)}, msg:"A quadrillion. Reality itself strains."},
+  {cond:function(){return tp().gte(1e18)}, msg:"A quintillion. The universe acknowledges you."},
+
+  // Coin events
+  {cond:function(){return G.coins.gte(1e6)}, msg:"Your first million coins. Wealth accumulates."},
+  {cond:function(){return G.coins.gte(1e9)}, msg:"A billion coins. The economy bends to you."},
+  {cond:function(){return G.coins.gte(1e12)}, msg:"A trillion coins. Money loses meaning."},
+
+  // Upgrade count events
+  {cond:function(){return cnt("train")>=10}, msg:"Ten training sessions. Discipline takes hold."},
+  {cond:function(){return cnt("train")>=25}, msg:"Twenty-five sessions. Your army is hardened."},
+  {cond:function(){return cnt("train")>=50}, msg:"Fifty sessions. Veterans, all."},
+  {cond:function(){return cnt("train")>=100}, msg:"A hundred training sessions. Mastery approaches."},
+  {cond:function(){return cnt("train")>=200}, msg:"Two hundred sessions. Beyond mortal skill."},
+  {cond:function(){return cnt("squad_leader")>=10}, msg:"Ten squad leaders. A proper hierarchy forms."},
+  {cond:function(){return cnt("squad_leader")>=50}, msg:"Fifty squad leaders. Command runs deep."},
+  {cond:function(){return cnt("barracks")>=10}, msg:"Ten barracks. An infrastructure of war."},
+  {cond:function(){return cnt("military_base")>=5}, msg:"Five military bases. An empire takes shape."},
+  {cond:function(){return cnt("kingdom")>=3}, msg:"Three kingdoms united. A continental power."},
+  {cond:function(){return cnt("empire")>=1}, msg:"An empire forged. The world map changes."},
+
+  // Magic events
+  {cond:function(){return G.ltMagic>=1}, msg:"You have tasted dark power. It tastes like ash."},
+  {cond:function(){return G.ltMagic>=10}, msg:"The darkness grows familiar. Too familiar."},
+  // {cond:function(){return G.ltMagic>=50}, msg:"Entropy spreads through your ranks like a disease."}, // Entropy disabled
+  {cond:function(){return G.ltMagic>=100}, msg:"One hundred magic. The corruption is permanent."},
+  {cond:function(){return G.ltMagic>=500}, msg:"You are more darkness than light now."},
+  {cond:function(){return G.ltMagic>=1000}, msg:"A thousand magic. The void stares back."},
+  // Entropy events - disabled for now (logic kept for later use)
+  // {cond:function(){return ePct()>=10}, msg:"Ten percent entropy. Your army decays visibly."},
+  // {cond:function(){return ePct()>=25}, msg:"A quarter of your troops rot away each second."},
+  // {cond:function(){return ePct()>=50}, msg:"Half your army dissolves into nothing constantly."},
+  // {cond:function(){return ePct()>=75}, msg:"Only darkness sustains you now."},
+  // {cond:function(){return ePct()>=90}, msg:"Ninety percent entropy. You are entropy incarnate."},
+
+  // Train multiplier events
+  {cond:function(){return G.trainMult>=1.05}, msg:"Your training regimen intensifies."},
+  {cond:function(){return G.trainMult>=1.1}, msg:"Training efficiency doubles the baseline."},
+  {cond:function(){return G.trainMult>=1.25}, msg:"Each session transforms your warriors."},
+  {cond:function(){return G.trainMult>=1.5}, msg:"Training has become an art form."},
+  {cond:function(){return G.trainMult>=2.0}, msg:"Double efficiency. Your methods are legendary."},
+  {cond:function(){return G.trainMult>=5.0}, msg:"Five times standard. Science cannot explain it."},
+  {cond:function(){return G.trainMult>=10.0}, msg:"Ten times. Training transcends physics."},
+
+  // Random flavor (shown when nothing else triggers)
+  {cond:function(){return Math.random()<0.02}, msg:"A scout returns with troubling news.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"The troops share stories around the fire.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"A distant horn echoes.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"Someone sharpens their blade.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"A dog barks at nothing.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"The wind carries whispers.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"A coin flips and lands on edge.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"Two soldiers argue over rations.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"A child watches your army pass.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"The map shows lands yet unconquered.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"A merchant hawk strange potions.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"The quartermaster complains.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"Vultures circle overhead.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"A soldier prays to forgotten gods.", random:true},
+  {cond:function(){return Math.random()<0.02}, msg:"The treasury needs counting.", random:true},
+];
+
+// Pre-sort time events and separate from condition events
+var TIME_EVENTS=[];
+var COND_EVENTS=[];
+(function(){
+  for(var i=0;i<FLAVOR_EVENTS.length;i++){
+    var ev=FLAVOR_EVENTS[i];
+    if(ev.t!==undefined)TIME_EVENTS.push(ev);
+    else if(ev.cond)COND_EVENTS.push(ev);
+  }
+  TIME_EVENTS.sort(function(a,b){return a.t-b.t});
+})();
+var _nextTimeEvent=0; // Index of next time event to check
+
+function checkFlavorEvents(){
+  var now=Date.now();
+  // Don't fire events more than once per 5 seconds
+  if(now-G._lastEventTime<5000)return;
+
+  var elapsed=G.day; // Use game day counter
+
+  // Check time events (only need to check the next one)
+  if(_nextTimeEvent<TIME_EVENTS.length){
+    var ev=TIME_EVENTS[_nextTimeEvent];
+    if(elapsed>=ev.t){
+      log(ev.msg);
+      G._lastEventTime=now;
+      _nextTimeEvent++;
+      return;
+    }
+  }
+
+  // Check condition events (sample just a few per tick to avoid lag)
+  var startIdx=Math.floor(Math.random()*COND_EVENTS.length);
+  for(var i=0;i<5;i++){ // Only check 5 per tick
+    var idx=(startIdx+i)%COND_EVENTS.length;
+    var ev=COND_EVENTS[idx];
+    var key=ev.msg.substring(0,30);
+    if(G._shownEvents.has(key)&&!ev.random)continue;
+    if(ev.cond()){
+      log(ev.msg);
+      if(!ev.random)G._shownEvents.add(key);
+      G._lastEventTime=now;
+      return;
+    }
+  }
+}
+
+// MODAL FUNCTIONS
+var currentModalMode = null; // 'upgrade' or 'auto-upgrader'
+
+function closeModal(){
+  document.getElementById("modalOverlay").classList.remove("visible");
+  currentModalMode = null;
+}
+
+function openUpgradeModal(){
+  currentModalMode = 'upgrade';
+  document.getElementById("modalTitle").textContent = "Upgrade Button (10x power, 10x cost)";
+  var container = document.getElementById("modalButtons");
+  container.innerHTML = '';
+
+  // Upgradeable buttons: loot, recruit, train, army buttons, and economy buttons
+  var upgradeableIds = ['loot','recruit','train','squad_leader','barracks','military_base','kingdom','empire','farm','plantation','colony'];
+
+  // Add astronomical if unlocked
+  if(G.astronomicalUnlocked){
+    upgradeableIds = upgradeableIds.concat(['planet','solar_system','galaxy','galaxy_cluster','supercluster']);
+  }
+  // Add multiversal if unlocked
+  if(G.multiversalUnlocked){
+    upgradeableIds = upgradeableIds.concat(['observable_universe','full_universe','quantum_multiverse','cosmological_multiverse','mathematical_multiverse']);
+  }
+  // Add mystical/power gem if unlocked
+  if(G.mysticalUnlocked){
+    upgradeableIds = upgradeableIds.concat(['sapphire','emerald','ruby','diamond']);
+  }
+  // Add installed auto-upgraders that don't yet have their own auto-upgrader
+  Object.keys(G.autoUpgraders).forEach(function(id){
+    if(G.autoUpgraders[id] && !G.autoUpgraders['auto_'+id]) {
+      upgradeableIds.push('auto_'+id);
+      console.log('Magic modal: adding auto_'+id+' (because G.autoUpgraders['+id+']=true)');
+    }
+  });
+
+  upgradeableIds.forEach(function(id){
+    var name = id.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase()});
+    var btn = BUTTONS.find(function(b){return b.id===id});
+    if(btn)name=btn.name;
+
+    // Add description for buttons without a BUTTONS entry
+    var desc = '';
+    if(id === 'loot') desc = '<div style="font-size:.85em;opacity:.7;margin-top:2px">Passive coin income (×10 per upgrade)</div>';
+    var isAutoUpgrader = id.startsWith('auto_');
+    if(isAutoUpgrader) {
+      var targetName = id.replace(/^(auto_)+/, '').replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase()});
+      var autoCount = (id.match(/auto_/g) || []).length;
+      var superscripts = ['', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+      var sup = autoCount < 10 ? superscripts[autoCount] : '^' + autoCount;
+      name = '⚡' + sup + ' ' + targetName;
+      desc = '<div style="font-size:.85em;opacity:.7;margin-top:2px">Upgrade auto-upgrader power (×10 per upgrade)</div>';
+    }
+
+    var level = G.upgradeLevels[id]||0;
+    var mult = fmtMult(level);
+
+    var el = document.createElement("button");
+    el.className = "modal-btn"+(level>0?" upgraded":"");
+    el.innerHTML = name+'<span class="upgrade-level">'+(level>0?mult+'x':'—')+'</span>'+desc;
+    el.addEventListener("click",function(){
+      // Check and deduct magic cost
+      if(G.magic < 1) {
+        log("Not enough magic!", "danger-msg");
+        return;
+      }
+      G.magic -= 1;
+      // All buttons (including auto-upgraders) get upgraded the same way
+      G.upgradeLevels[id]=(G.upgradeLevels[id]||0)+1;
+      var newMult = fmtMult(G.upgradeLevels[id]);
+      log("⬆ "+name+" upgraded to "+newMult+"x!","magic-msg");
+      closeModal();
+      updateUI();
+    });
+    container.appendChild(el);
+  });
+
+  document.getElementById("modalOverlay").classList.add("visible");
+}
+
+function openAutoUpgraderModal(){
+  currentModalMode = 'auto-upgrader';
+  document.getElementById("modalTitle").textContent = "Install Auto-Upgrader (costs Googol per use)";
+  var container = document.getElementById("modalButtons");
+  container.innerHTML = '';
+
+  // Show buttons with 3+ upgrades that don't already have auto-upgrader
+  // This includes both regular buttons AND auto-upgraders themselves
+  Object.keys(G.upgradeLevels).forEach(function(id){
+    if(G.upgradeLevels[id]>=3 && !G.autoUpgraders[id]){
+      var name = id.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase()});
+      var btn = BUTTONS.find(function(b){return b.id===id});
+      if(btn)name=btn.name;
+
+      // For auto-upgraders, show a nicer name
+      var isAutoUpgrader = id.startsWith('auto_');
+      if(isAutoUpgrader) {
+        var autoCount = (id.match(/auto_/g) || []).length;
+        var superscripts = ['', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+        var sup = autoCount < 10 ? superscripts[autoCount] : '^' + autoCount;
+        var targetName = id.replace(/^(auto_)+/, '').replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase()});
+        name = '⚡' + sup + ' ' + targetName;
+      }
+
+      var el = document.createElement("button");
+      el.className = "modal-btn";
+      el.innerHTML = name+' <span style="color:var(--dim)">('+G.upgradeLevels[id]+' upgrades) — 1 Googol</span>';
+      el.addEventListener("click",function(){
+        // Check and deduct magic cost
+        if(G.magic < 10) {
+          log("Not enough magic!", "danger-msg");
+          return;
+        }
+        G.magic -= 10;
+        G.autoUpgraders[id]=true;
+        var tierNum = isAutoUpgrader ? ((id.match(/auto_/g) || []).length + 1) : 1;
+        var logMsg = isAutoUpgrader ? "⚡ Auto"+tierNum+" installed on "+name+"!" : "⚡ Auto-upgrader installed on "+name+"!";
+        log(logMsg,"magic-msg");
+        closeModal();
+        updateUI();
+      });
+      container.appendChild(el);
+    }
+  });
+
+  if(container.children.length===0){
+    container.innerHTML='<div style="color:var(--dim);padding:10px">No eligible buttons. Need 3+ upgrades and no existing auto-upgrader.</div>';
+  }
+
+  document.getElementById("modalOverlay").classList.add("visible");
+}
+
+document.getElementById("modalClose").addEventListener("click",closeModal);
+document.getElementById("modalOverlay").addEventListener("click",function(e){
+  if(e.target===this)closeModal();
+});
+
+// Helper: get upgrade multiplier for a button (returns ON for large values)
+function getUpgradeMult(id){
+  var level = G.upgradeLevels[id]||0;
+  if(level > 300) return ON(BigInt(10)**BigInt(level));
+  return Math.pow(10, level);
+}
+
+// Helper: format a multiplier for display (handles large numbers)
+function fmtMult(level){
+  if(level > 300) return "10^" + level;
+  if(level > 15) return fmt(Math.pow(10, level));
+  return Math.pow(10, level) + "";
+}
+
+// Helper: googol constant (10^100)
+function googol(){return ON(BigInt("10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"))}
+
+// Helper: calculate compounded cost for N clicks with exponential scaling
+// Sum = base × (rate^N - 1) / (rate - 1)
+// When N is large, use log math: rate^N = 10^(N × log10(rate))
+function compoundedCost(baseCost, rate, numClicks) {
+  if (numClicks <= 1) return baseCost;
+  if (numClicks <= 1000) {
+    // For small N, calculate exactly
+    var sum = 0;
+    var cost = baseCost;
+    for (var i = 0; i < numClicks; i++) {
+      sum += cost;
+      cost *= rate;
+    }
+    return Math.floor(sum);
+  }
+  // For large N, use geometric series formula with log math
+  // Sum ≈ base × rate^N / (rate - 1)
+  var log10rate = Math.log10(rate);
+  var exponent = numClicks * log10rate;
+  // rate^N / (rate-1) ≈ rate^N / 0.02 for rate=1.02
+  var divisor = rate - 1;
+  // Result = base × 10^exponent / divisor
+  // = (base / divisor) × 10^exponent
+  var mantissa = baseCost / divisor;
+  // Normalize mantissa
+  while (mantissa >= 10) { mantissa /= 10; exponent += 1; }
+  while (mantissa < 1 && mantissa > 0) { mantissa *= 10; exponent -= 1; }
+  return OrdinalNumber.fromSci(mantissa, Math.floor(exponent));
+}
+
+// Helper: format cost for display (use scientific for large numbers)
+function fmtCost(cost) {
+  if (cost instanceof OrdinalNumber) return cost.format();
+  if (cost >= 1e12) return cost.toExponential(2);
+  return fmt(cost);
+}
+
+// AUTO-LOOT: runs 4x per second
+function lootTick(){
+  if(!G.gameStarted) return;
+  if(G.troops.lt(1)) return; // Can't loot with no troops
+  var mult = getUpgradeMult('loot');
+  var gain = tp().mul(C.lootBase).floor();
+  if(gain.lt(1)) gain = ON(1);
+  G.coins = G.coins.add(gain.mul(mult));
+  // Don't call full updateUI - just update coins display for performance
+  document.getElementById("coinCount").textContent = fmt(G.coins);
+}
+
+// CLICK HANDLERS
+document.getElementById("begBtn").addEventListener("click",function(){
+  G.coins = G.coins.add(1);
+  document.getElementById("coinCount").textContent = fmt(G.coins);
+  updateUI(); // Update button states
+});
+
+document.getElementById("recruitBtn").addEventListener("click",function(){
+  var mult = getUpgradeMult('recruit');
+  var baseCost = rCost();
+  var totalCost;
+  if(G.costsFrozen&&G._frozenCosts&&G._frozenCosts['recruit']){
+    totalCost = G._frozenCosts['recruit'] * mult;
+  } else if(mult <= 1){
+    totalCost = baseCost;
+  } else {
+    totalCost = compoundedCost(baseCost, 1.02, mult);
+  }
+  if(G.coins.gte(totalCost)){
+    logClick("recruit");
+    G.coins=G.coins.sub(totalCost);
+    G.troops=G.troops.add(G.rp*mult);
+    G.counts["recruit"]=(G.counts["recruit"]||0)+mult;
+    updateUI();
+  }
+});
+
+// Store references for dynamically adding tier 3+ buttons
+var mainAutoWrappers = {};
+var mainAutoTiers = {recruit: {}, loot: {}};
+
+// Create auto-upgrader buttons for recruit and loot
+function createMainAutoUpgraders(){
+  // Recruit auto-upgrader
+  var recruitAuto = document.createElement("button");
+  recruitAuto.className = "main-btn auto-upgrade-btn";
+  recruitAuto.id = "auto_recruit";
+  recruitAuto.style.display = "none";
+  recruitAuto.style.marginLeft = "10px";
+  recruitAuto.style.width = "auto";
+  recruitAuto.style.flex = "0";
+  recruitAuto.innerHTML = '⚡ Upgrade';
+  recruitAuto.addEventListener("click", function(){
+    if(G.coins.gte(googol())){
+      G.coins = G.coins.sub(googol());
+      var autoMult = getUpgradeMult('auto_recruit');
+      G.upgradeLevels['recruit'] = (G.upgradeLevels['recruit']||0) + autoMult;
+      log("⚡ Recruit upgraded to " + fmtMult(G.upgradeLevels['recruit']) + "x!" + (autoMult > 1 ? " (+" + autoMult + " levels)" : ""), "magic-msg");
+      updateUI();
+    }
+  });
+  // Recruit auto² button
+  var recruitAuto2 = document.createElement("button");
+  recruitAuto2.className = "main-btn auto-upgrade-btn";
+  recruitAuto2.id = "auto2_recruit";
+  recruitAuto2.style.display = "none";
+  recruitAuto2.innerHTML = '⚡²';
+  recruitAuto2.addEventListener("click", function(){
+    if(G.coins.gte(googol())){
+      G.coins = G.coins.sub(googol());
+      var auto2Mult = getUpgradeMult('auto_auto_recruit');
+      G.upgradeLevels['auto_recruit'] = (G.upgradeLevels['auto_recruit']||0) + auto2Mult;
+      log("⚡² Auto-Recruit upgraded to " + fmtMult(G.upgradeLevels['auto_recruit']) + "x!" + (auto2Mult > 1 ? " (+" + auto2Mult + " levels)" : ""), "magic-msg");
+      updateUI();
+    }
+  });
+
+  // Wrap recruit button in a flex container
+  var recruitBtn = document.getElementById("recruitBtn");
+  var wrapper = document.createElement("div");
+  wrapper.style.display = "flex";
+  wrapper.style.gap = "8px";
+  wrapper.style.marginBottom = "8px";
+  wrapper.style.flexWrap = "wrap";
+  recruitBtn.parentNode.insertBefore(wrapper, recruitBtn);
+  recruitBtn.style.marginBottom = "0";
+  wrapper.appendChild(recruitBtn);
+  wrapper.appendChild(recruitAuto);
+  wrapper.appendChild(recruitAuto2);
+  mainAutoWrappers.recruit = wrapper;
+
+  // Loot auto-upgrader (replaces beg button when installed)
+  var lootAuto = document.createElement("button");
+  lootAuto.className = "main-btn auto-upgrade-btn";
+  lootAuto.id = "auto_loot";
+  lootAuto.style.display = "none";
+  lootAuto.innerHTML = '⚡ Loot 10x';
+  lootAuto.addEventListener("click", function(){
+    if(G.coins.gte(googol())){
+      G.coins = G.coins.sub(googol());
+      var autoMult = getUpgradeMult('auto_loot');
+      G.upgradeLevels['loot'] = (G.upgradeLevels['loot']||0) + autoMult;
+      log("⚡ Loot upgraded to " + fmtMult(G.upgradeLevels['loot']) + "x!" + (autoMult > 1 ? " (+" + autoMult + " levels)" : ""), "magic-msg");
+      updateUI();
+    }
+  });
+
+  // Loot auto² button
+  var lootAuto2 = document.createElement("button");
+  lootAuto2.className = "main-btn auto-upgrade-btn";
+  lootAuto2.id = "auto2_loot";
+  lootAuto2.style.display = "none";
+  lootAuto2.innerHTML = '⚡²';
+  lootAuto2.addEventListener("click", function(){
+    if(G.coins.gte(googol())){
+      G.coins = G.coins.sub(googol());
+      var auto2Mult = getUpgradeMult('auto_auto_loot');
+      G.upgradeLevels['auto_loot'] = (G.upgradeLevels['auto_loot']||0) + auto2Mult;
+      log("⚡² Auto-Loot upgraded to " + fmtMult(G.upgradeLevels['auto_loot']) + "x!" + (auto2Mult > 1 ? " (+" + auto2Mult + " levels)" : ""), "magic-msg");
+      updateUI();
+    }
+  });
+
+  // Wrap beg/loot buttons in a flex container
+  var begBtn = document.getElementById("begBtn");
+  var lootWrapper = document.createElement("div");
+  lootWrapper.style.display = "flex";
+  lootWrapper.style.gap = "8px";
+  lootWrapper.style.marginBottom = "8px";
+  lootWrapper.style.flexWrap = "wrap";
+  begBtn.parentNode.insertBefore(lootWrapper, begBtn);
+  lootWrapper.appendChild(begBtn);
+  lootWrapper.appendChild(lootAuto);
+  lootWrapper.appendChild(lootAuto2);
+  mainAutoWrappers.loot = lootWrapper;
+}
+
+// Create dynamic tier 3+ buttons for recruit and loot
+function ensureMainAutoTierButton(btnId, tier) {
+  if (mainAutoTiers[btnId][tier]) return; // Already exists
+
+  var superscripts = ['', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+  var sup = tier < 10 ? superscripts[tier] : '^' + tier;
+
+  var autoBtn = document.createElement("button");
+  autoBtn.className = "main-btn auto-upgrade-btn";
+  autoBtn.id = 'auto' + tier + '_' + btnId;
+  autoBtn.style.display = "none";
+  autoBtn.innerHTML = '⚡' + sup;
+
+  // Build the target ID (what this button upgrades)
+  var targetId = btnId;
+  for (var i = 1; i < tier; i++) targetId = 'auto_' + targetId;
+
+  // Build the next tier ID (for multiplier)
+  var nextTierId = 'auto_' + targetId;
+
+  autoBtn.addEventListener("click", function(){
+    if(G.coins.gte(googol())){
+      G.coins = G.coins.sub(googol());
+      var tierMult = getUpgradeMult(nextTierId);
+      G.upgradeLevels[targetId] = (G.upgradeLevels[targetId]||0) + tierMult;
+      log("⚡" + sup + " " + btnId + " upgraded to " + fmtMult(G.upgradeLevels[targetId]) + "x!" + (tierMult > 1 ? " (+" + tierMult + " levels)" : ""), "magic-msg");
+      updateUI();
+    }
+  });
+
+  if (mainAutoWrappers[btnId]) {
+    mainAutoWrappers[btnId].appendChild(autoBtn);
+  }
+  mainAutoTiers[btnId][tier] = autoBtn;
+}
+
+// Update auto-upgrader visibility for recruit and loot
+function updateMainAutoUpgraders(){
+  // Recruit auto-upgrader
+  var recruitEl = document.getElementById("auto_recruit");
+  if(recruitEl){
+    var show = G.autoUpgraders['recruit'];
+    recruitEl.style.display = show ? "inline-block" : "none";
+    if(show){
+      recruitEl.disabled = !G.coins.gte(googol());
+      // Show what mult will be after upgrade
+      var autoLvl = G.upgradeLevels['auto_recruit']||0;
+      var currLvl = G.upgradeLevels['recruit']||0;
+      var addLvls = autoLvl > 300 ? "10^"+autoLvl : Math.pow(10, autoLvl);
+      var nextLvl = autoLvl > 50 ? currLvl + "+" + addLvls : currLvl + Math.pow(10, autoLvl);
+      var nextMultStr = typeof nextLvl === 'number' ? fmtMult(nextLvl) : "10^("+nextLvl+")";
+      var levelInfo = autoLvl > 0 ? ' (+'+addLvls+')' : '';
+      recruitEl.innerHTML = '⚡ '+nextMultStr+'x'+levelInfo+'<div style="font-size:.85em;opacity:.7">1 Googol</div>';
+    }
+  }
+
+  // Loot auto-upgrader (replaces beg when installed)
+  var lootEl = document.getElementById("auto_loot");
+  var begBtn = document.getElementById("begBtn");
+  if(lootEl){
+    var showLoot = G.autoUpgraders['loot'];
+    lootEl.style.display = showLoot ? "inline-block" : "none";
+    begBtn.style.display = showLoot ? "none" : "inline-block";
+    if(showLoot){
+      lootEl.disabled = !G.coins.gte(googol());
+      // Show what mult will be after upgrade
+      var lootAutoLvl = G.upgradeLevels['auto_loot']||0;
+      var lootCurrLvl = G.upgradeLevels['loot']||0;
+      var lootAddLvls = lootAutoLvl > 300 ? "10^"+lootAutoLvl : Math.pow(10, lootAutoLvl);
+      var lootNextLvl = lootAutoLvl > 50 ? lootCurrLvl + "+" + lootAddLvls : lootCurrLvl + Math.pow(10, lootAutoLvl);
+      var lootNextMultStr = typeof lootNextLvl === 'number' ? fmtMult(lootNextLvl) : "10^("+lootNextLvl+")";
+      var lootLevelInfo = lootAutoLvl > 0 ? ' (+'+lootAddLvls+')' : '';
+      lootEl.innerHTML = '⚡ Loot '+lootNextMultStr+'x'+lootLevelInfo+'<div style="font-size:.85em;opacity:.7">1 Googol</div>';
+    }
+  }
+
+  // Recruit auto² button
+  var recruitAuto2El = document.getElementById("auto2_recruit");
+  if(recruitAuto2El){
+    var showRecruit2 = G.autoUpgraders['auto_recruit'];
+    recruitAuto2El.style.display = showRecruit2 ? "inline-block" : "none";
+    if(showRecruit2){
+      recruitAuto2El.disabled = !G.coins.gte(googol());
+      var r2Lvl = G.upgradeLevels['auto_recruit']||0;
+      var r2NextMult = fmtMult(r2Lvl + 1);
+      recruitAuto2El.innerHTML = '⚡² '+r2NextMult+'x<div style="font-size:.85em;opacity:.7">1 Googol</div>';
+    }
+  }
+
+  // Loot auto² button
+  var lootAuto2El = document.getElementById("auto2_loot");
+  if(lootAuto2El){
+    var showLoot2 = G.autoUpgraders['auto_loot'];
+    lootAuto2El.style.display = showLoot2 ? "inline-block" : "none";
+    if(showLoot2){
+      lootAuto2El.disabled = !G.coins.gte(googol());
+      var l2Lvl = G.upgradeLevels['auto_loot']||0;
+      var l2NextMult = fmtMult(l2Lvl + 1);
+      lootAuto2El.innerHTML = '⚡² '+l2NextMult+'x<div style="font-size:.85em;opacity:.7">1 Googol</div>';
+    }
+  }
+
+  // Handle tier 3+ for recruit and loot
+  var superscripts = ['', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+  ['recruit', 'loot'].forEach(function(btnId) {
+    for (var tier = 3; tier <= 9; tier++) {
+      // Build the check key for this tier
+      var checkKey = btnId;
+      for (var t = 1; t < tier; t++) checkKey = 'auto_' + checkKey;
+
+      var isInstalled = G.autoUpgraders[checkKey];
+      if (!isInstalled) break;
+
+      // Ensure button exists
+      ensureMainAutoTierButton(btnId, tier);
+      var tierBtn = mainAutoTiers[btnId][tier];
+      if (tierBtn) {
+        tierBtn.style.display = "inline-block";
+        tierBtn.disabled = !G.coins.gte(googol());
+
+        // Update button text
+        var sup = tier < 10 ? superscripts[tier] : '^' + tier;
+        var targetId = btnId;
+        for (var tt = 1; tt < tier; tt++) targetId = 'auto_' + targetId;
+        var tierLvl = G.upgradeLevels[targetId] || 0;
+        var tierNextMult = fmtMult(tierLvl + 1);
+        tierBtn.innerHTML = '⚡' + sup + ' ' + tierNextMult + 'x<div style="font-size:.85em;opacity:.7">1 Googol</div>';
+      }
+    }
+  });
+}
+
+// DIFFICULTY SELECTION
+document.querySelectorAll(".difficulty-btn").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var mode = btn.getAttribute("data-mode");
+    G.difficulty = mode;
+    G.gameStarted = true;
+    G.startTime = Date.now();
+    document.getElementById("difficultyOverlay").classList.add("hidden");
+
+    // Set up enemy based on difficulty
+    if(mode === 'practice'){
+      document.getElementById("enemyCol").style.display = "none";
+      log("Practice mode. No enemies - take your time.");
+    } else if(mode.startsWith('ai')){
+      // AI opponent modes
+      var aiCps = parseInt(mode.substring(2)) || 10;
+      document.getElementById("enemyCol").style.display = "block";
+      document.getElementById("aiStats").style.display = "block";
+      document.getElementById("enemyName").textContent = "AI Opponent (" + aiCps + " cps)";
+      document.getElementById("enemyTroopType").textContent = "Thugs";
+      document.getElementById("battleChance").textContent = "3";
+      // Initialize AI state
+      G.ai = {
+        coins: ON(0), troops: ON(0), food: ON(500), ppt: 1, rp: 1, fp: 1, pp: 1,  // Start with 0 troops - must beg
+        squadLeaderPower: 1, barracksPower: 1, militaryBasePower: 1, kingdomPower: 1, empirePower: 1,
+        trainMult: C.train_multiplier, counts: {}, _armyClicks: 0, _trainClicks: 0, _economyClicks: 0,
+        starvationStreak: 0
+      };
+      log("AI MODE: You vs AI at " + aiCps + " clicks/sec! Battle chance: 3%/day.", "danger-msg");
+    } else {
+      document.getElementById("enemyCol").style.display = "block";
+      document.getElementById("aiStats").style.display = "none";
+      var enemyNames = {
+        easy: "Town Police Force",
+        medium: "Imperial Forces",
+        hard: "Forces of Dark Lord"
+      };
+      var enemyTroopTypes = {
+        easy: "Pikemen",
+        medium: "Knights",
+        hard: "Dragons"
+      };
+      var battleChances = {easy: 1, medium: 2, hard: 3};
+      document.getElementById("enemyName").textContent = enemyNames[mode];
+      document.getElementById("enemyTroopType").textContent = enemyTroopTypes[mode];
+      document.getElementById("battleChance").textContent = battleChances[mode];
+      log("Battle begins against " + enemyNames[mode] + "!");
+      if(mode === 'easy') log("Enemy gains 1 Pikeman per day. Battle chance: 1%/day.", "danger-msg");
+      if(mode === 'medium') log("Enemy gains X Knights on day X. Battle chance: 2%/day.", "danger-msg");
+      if(mode === 'hard') log("Enemy gains X² Dragons on day X. Battle chance: 3%/day.", "danger-msg");
+    }
+    updateUI();
+  });
+});
+
+// === AI SIMULATION ===
+// Old priority-based AI for comparison
+function runAI_Old(ai, clicks, enemyPower) {
+  if(!ai) return;
+
+  function aiCnt(id) { return ai.counts[id] || 0; }
+  function aiArmyCost(base) { return Math.floor(base * Math.pow(1.04, ai._armyClicks)); }
+  function aiRecruitCost() { return Math.floor(C.recruitCost * Math.pow(1.02, aiCnt("recruit"))); }
+  function aiTrainCost() {
+    var total = ai._trainClicks;
+    if (total >= 111) return Math.floor(C.train_baseCost * Math.pow(1.02, 111) * Math.pow(1.03, total - 111));
+    return Math.floor(C.train_baseCost * Math.pow(1.02, total));
+  }
+  function aiEconomyCost(base) { return Math.floor(base * Math.pow(1.02, ai._economyClicks || 0)); }
+  function aiFarmCost() { return aiEconomyCost(C.farm_baseCost); }
+  function aiPlantationCost() { return aiEconomyCost(C.plantation_baseCost); }
+  function aiColonyCost() { return aiEconomyCost(C.colony_baseCost); }
+
+  function buyArmy(id, base, power, boostVar) {
+    var cost = aiArmyCost(base);
+    if(ai.coins.lt(cost)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.counts[id] = (ai.counts[id] || 0) + ai[power];
+    ai._armyClicks++;
+    if(boostVar) ai[boostVar] += ai[power];
+    if(id === "squad_leader") ai.rp = 1 + aiCnt("squad_leader");
+    return true;
+  }
+  function doBuyFarm() {
+    var cost = aiFarmCost();
+    if(ai.coins.lt(cost)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.counts["farm"] = (ai.counts["farm"] || 0) + ai.fp;
+    ai._economyClicks = (ai._economyClicks || 0) + 1;
+    return true;
+  }
+  function doBuyPlantation() {
+    var cost = aiPlantationCost();
+    if(ai.coins.lt(cost)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.counts["plantation"] = (ai.counts["plantation"] || 0) + ai.pp;
+    ai._economyClicks = (ai._economyClicks || 0) + 1;
+    ai.fp = 1 + aiCnt("plantation");
+    return true;
+  }
+  function doBuyColony() {
+    var cost = aiColonyCost();
+    if(ai.coins.lt(cost)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.counts["colony"] = (ai.counts["colony"] || 0) + 1;
+    ai._economyClicks = (ai._economyClicks || 0) + 1;
+    ai.pp = 1 + aiCnt("colony");
+    return true;
+  }
+  function doRecruit() {
+    var cost = aiRecruitCost();
+    if(ai.coins.lt(cost)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.troops = ai.troops.add(ai.rp);
+    ai.counts["recruit"] = (ai.counts["recruit"] || 0) + 1;
+    return true;
+  }
+  function doTrain() {
+    var cost = aiTrainCost();
+    if(ai.coins.lt(cost) || ai.troops.lt(5)) return false;
+    ai.coins = ai.coins.sub(cost);
+    ai.ppt *= ai.trainMult;
+    ai.counts["train"] = (ai.counts["train"] || 0) + 1;
+    ai._trainClicks++;
+    return true;
+  }
+
+  var maxIterations = clicks;
+  var iterations = 0;
+
+  while(iterations < maxIterations) {
+    iterations++;
+    var acted = false;
+    var troopCount = ai.troops.toNumber();
+
+    if(troopCount < 1) {
+      var recruitCost = aiRecruitCost();
+      if(ai.coins.lt(recruitCost)) {
+        ai.coins = ai.coins.add(1);
+        acted = true; continue;
+      }
+    }
+
+    var dailyConsume = troopCount * C.food_perTroopDay;
+    var farmProd = aiCnt("farm") * C.farm_production;
+    var foodBuffer = ai.food.toNumber();
+    var fCost = aiFarmCost();
+    var newTroopCount = troopCount + ai.rp;
+    var newDailyConsume = newTroopCount * C.food_perTroopDay;
+    var canSustainMore = farmProd >= newDailyConsume;
+    var netConsume = dailyConsume - farmProd;
+    var daysOfFood = netConsume > 0 ? Math.floor(foodBuffer / netConsume) : 999;
+
+    if(aiCnt("farm") < 1 && daysOfFood > 10) {
+      if(doRecruit()) { acted = true; continue; }
+    }
+    if(aiCnt("farm") < 1 || farmProd < dailyConsume) {
+      if(ai.coins.gte(fCost)) { doBuyFarm(); acted = true; continue; }
+      if(daysOfFood <= 30) break;
+    }
+    if(doTrain()) { acted = true; continue; }
+    if(aiCnt("military_base") >= 3 && ai.coins.gte(aiArmyCost(C.kingdom_baseCost))) {
+      buyArmy("kingdom", C.kingdom_baseCost, "kingdomPower", "militaryBasePower"); acted = true; continue;
+    }
+    if(aiCnt("barracks") >= 3 && ai.coins.gte(aiArmyCost(C.militaryBase_baseCost))) {
+      buyArmy("military_base", C.militaryBase_baseCost, "militaryBasePower", "barracksPower"); acted = true; continue;
+    }
+    if(aiCnt("squad_leader") >= 3 && ai.coins.gte(aiArmyCost(C.barracks_baseCost))) {
+      buyArmy("barracks", C.barracks_baseCost, "barracksPower", "squadLeaderPower"); acted = true; continue;
+    }
+    if(ai.troops.gte(2) && ai.coins.gte(aiArmyCost(C.squadLeader_baseCost))) {
+      buyArmy("squad_leader", C.squadLeader_baseCost, "squadLeaderPower", null); acted = true; continue;
+    }
+    var targetFarmProd = dailyConsume * 2;
+    if(farmProd < targetFarmProd && ai.coins.gte(fCost)) { doBuyFarm(); acted = true; continue; }
+    if(aiCnt("plantation") >= 3 && ai.coins.gte(aiColonyCost())) { doBuyColony(); acted = true; continue; }
+    if(aiCnt("farm") >= 3 && ai.coins.gte(aiPlantationCost())) { doBuyPlantation(); acted = true; continue; }
+    if(canSustainMore && doRecruit()) { acted = true; continue; }
+    if(!acted) ai.coins = ai.coins.add(1);
+  }
+}
+
+// New score-based AI wrapper for simulation
+function runAI_New(ai, clicks, enemyPower) {
+  // Temporarily set G.ai and mock tp() for the new AI
+  var oldAi = G.ai;
+  var oldTp = window.tp;
+  G.ai = ai;
+  window.tp = function() { return ON(enemyPower); };
+  runAI(clicks);
+  G.ai = oldAi;
+  window.tp = oldTp;
+}
+
+// Create fresh AI state
+function createAIState() {
+  return {
+    coins: ON(0), troops: ON(0), food: ON(500), ppt: 1, rp: 1, fp: 1, pp: 1,
+    squadLeaderPower: 1, barracksPower: 1, militaryBasePower: 1, kingdomPower: 1, empirePower: 1,
+    trainMult: C.train_multiplier, counts: {}, _armyClicks: 0, _trainClicks: 0, _economyClicks: 0,
+    starvationStreak: 0
+  };
+}
+
+// Simulate one day for an AI
+function simDay(ai, clicks, enemyPower, runFn) {
+  // Run AI logic
+  runFn(ai, clicks, enemyPower);
+
+  // Passive loot (4x per day)
+  if(ai.troops.gte(1)) {
+    var loot = ai.troops.mul(ai.ppt).mul(4);
+    ai.coins = ai.coins.add(loot);
+  }
+
+  // Food: farms produce, troops consume
+  var farmProd = (ai.counts["farm"] || 0) * C.farm_production;
+  var troopConsume = Math.floor(ai.troops.toNumber() * C.food_perTroopDay);
+  ai.food = ai.food.add(farmProd);
+  var starving = troopConsume > ai.food.toNumber();
+  ai.food = ai.food.sub(troopConsume);
+  if(ai.food.lt(0)) ai.food = ON(0);
+
+  // Starvation
+  if(starving) {
+    ai.starvationStreak++;
+    var desertPct = Math.min(5 * Math.pow(2, ai.starvationStreak - 1), 100);
+    var deserters = ai.troops.mulFraction(desertPct, 100);
+    ai.troops = ai.troops.sub(deserters);
+    if(ai.troops.lt(0)) ai.troops = ON(0);
+  } else {
+    ai.starvationStreak = 0;
+  }
+}
+
+// Run full simulation
+function runSimulation(days, clicksPerSec) {
+  var oldAI = createAIState();
+  var newAI = createAIState();
+
+  var results = { days: days, clicks: clicksPerSec, snapshots: [] };
+
+  for(var day = 1; day <= days; day++) {
+    // Each AI sees the other's power as "enemy"
+    var oldPower = oldAI.troops.toNumber() * oldAI.ppt;
+    var newPower = newAI.troops.toNumber() * newAI.ppt;
+
+    simDay(oldAI, clicksPerSec, newPower, runAI_Old);
+    simDay(newAI, clicksPerSec, oldPower, runAI_New);
+
+    // Snapshot every 10 days
+    if(day % 10 === 0 || day === days) {
+      results.snapshots.push({
+        day: day,
+        old: {
+          troops: oldAI.troops.toNumber(),
+          ppt: oldAI.ppt,
+          power: oldAI.troops.toNumber() * oldAI.ppt,
+          coins: oldAI.coins.toNumber(),
+          farms: oldAI.counts["farm"] || 0,
+          plantations: oldAI.counts["plantation"] || 0,
+          sl: oldAI.counts["squad_leader"] || 0
+        },
+        new: {
+          troops: newAI.troops.toNumber(),
+          ppt: newAI.ppt,
+          power: newAI.troops.toNumber() * newAI.ppt,
+          coins: newAI.coins.toNumber(),
+          farms: newAI.counts["farm"] || 0,
+          plantations: newAI.counts["plantation"] || 0,
+          sl: newAI.counts["squad_leader"] || 0
+        }
+      });
+    }
+  }
+
+  return results;
+}
+
+// Display simulation results
+function displaySimResults(results) {
+  console.log("=== SIMULATION RESULTS ===");
+  console.log("Days:", results.days, "| Clicks/sec:", results.clicks);
+  console.log("");
+  console.table(results.snapshots.map(function(s) {
+    return {
+      Day: s.day,
+      "Old Power": Math.floor(s.old.power),
+      "New Power": Math.floor(s.new.power),
+      "Old Troops": Math.floor(s.old.troops),
+      "New Troops": Math.floor(s.new.troops),
+      "Old Farms": s.old.farms,
+      "New Farms": s.new.farms,
+      "Winner": s.new.power > s.old.power ? "NEW" : s.old.power > s.new.power ? "OLD" : "TIE"
+    };
+  }));
+
+  var final = results.snapshots[results.snapshots.length - 1];
+  console.log("");
+  console.log("FINAL: Old Power =", Math.floor(final.old.power), "| New Power =", Math.floor(final.new.power));
+  console.log("WINNER:", final.new.power > final.old.power ? "NEW AI" : final.old.power > final.new.power ? "OLD AI" : "TIE");
+
+  return results;
+}
+
+// Quick simulation runner
+window.simAI = function(days, clicks) {
+  days = days || 200;
+  clicks = clicks || 10;
+  return displaySimResults(runSimulation(days, clicks));
+};
+
+console.log("Run simAI(days, clicksPerSec) to compare old vs new AI");
+
+// INIT
+window.ON=ON;window.OrdinalNumber=OrdinalNumber;
+buildButtons();createMainAutoUpgraders();updateUI();setInterval(tick,1000);setInterval(lootTick,250);
+document.getElementById("exportLogBtn").addEventListener("click", exportLog);
+// Don't log until game starts
+console.log("=== ARMY CLICKER ===");
+console.log("C = tuning constants | G = game state | ON(n) = OrdinalNumber");
+</script>
+</body>
+</html>

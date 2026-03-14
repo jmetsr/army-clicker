@@ -1,0 +1,23 @@
+Auto^3 (Triple Auto-Upgrader) Not Working
+=========================================
+
+Problem:
+Auto-auto-auto (3 levels of auto-upgraders) doesn't seem to work, or isn't
+displaying properly.
+
+Steps to reproduce:
+1. Get a button to 3+ upgrades
+2. Install auto-upgrader on it (auto^1)
+3. Upgrade the auto-upgrader 3+ times
+4. Install auto-auto-upgrader on it (auto^2)
+5. Upgrade the auto^2 3+ times
+6. Try to install auto^3
+
+Expected: Should be able to install and use auto^3
+Actual: [needs investigation - not working or not displaying]
+
+Files to check:
+- events.js: openAutoUpgraderModal() - eligibility logic
+- events.js: ensureMainAutoTierButton() - dynamic button creation
+- render.js: auto-upgrade button display logic
+- state.js: G.autoUpgraders and G.upgradeLevels structure

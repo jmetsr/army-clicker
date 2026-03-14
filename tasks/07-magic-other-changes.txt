@@ -1,0 +1,25 @@
+Other Magic Changes
+===================
+
+STATUS: COMPLETE
+================
+All three magic changes implemented in buttons.js:
+- Eternal Feast (1 magic) - lines 325-334
+- Separate Cost Tiers (2 magic) - lines 283-305
+- Freeze All Costs (3 magic, requires Separate Costs) - lines 308-322
+
+---
+
+1. Eternal Feast
+   - Cost: 1 magic (reduced)
+   - Effect: Economy tier disappears completely
+
+2. New: Separate Cost Tiers (cost: 2 magic)
+   - Once bought, each button only affects its own cost
+   - No longer shares cost increases with tier siblings
+   - Prerequisite for Freeze All Costs
+
+3. Freeze All Costs
+   - Cost: 3 magic (reduced)
+   - Prerequisite: Must buy "Separate Cost Tiers" first
+   - Does NOT freeze Dark Ritual cost

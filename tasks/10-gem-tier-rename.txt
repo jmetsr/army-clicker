@@ -1,0 +1,16 @@
+Rename Gem Tier
+===============
+
+STATUS: COMPLETE (changed differently)
+======================================
+Instead of "Power Gems", tier was renamed to "Forbidden Rituals" with items:
+- Forbidden Ritual (was sapphire)
+- School for the Mystic Arts (was emerald)
+- Mystical Dimension (was ruby)
+
+---
+
+Original request:
+- Rename "Gem Tier" to "Power Gem Tier"
+- Cost: 4 magic
+and also rename the gem names to be called Power Gems

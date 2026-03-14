@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Army Clicker</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- Difficulty Selection -->
+<div class="difficulty-overlay" id="difficultyOverlay">
+  <h1>Army Clicker</h1>
+  <div class="subtitle">Choose Your Challenge</div>
+  <button class="difficulty-btn practice" data-mode="practice">Practice<div class="diff-desc">No enemies - learn the game</div></button>
+  <div class="difficulty-grid">
+    <button class="difficulty-btn easy" data-mode="easy">Easy<div class="diff-desc">1 Pikeman/day</div></button>
+    <button class="difficulty-btn medium" data-mode="medium">Medium<div class="diff-desc">X Knights on day X</div></button>
+    <button class="difficulty-btn hard" data-mode="hard">Hard<div class="diff-desc">X&sup2; Dragons on day X</div></button>
+    <button class="difficulty-btn ai" data-mode="ai4">AI (4 cps)<div class="diff-desc">Casual AI opponent</div></button>
+    <button class="difficulty-btn ai" data-mode="ai8">AI (8 cps)<div class="diff-desc">Normal AI opponent</div></button>
+    <button class="difficulty-btn ai" data-mode="ai25">AI (25 cps)<div class="diff-desc">Fast AI opponent</div></button>
+  </div>
+</div>
+<!-- Battle Flash -->
+<div class="battle-flash" id="battleFlash"><div class="battle-text" id="battleText"></div></div>
+<div class="game">
+  <header>
+    <h1>Army Clicker</h1>
+    <div class="sub">Build. Train. Transcend.</div>
+    <div class="timer" id="gameTimer">0:00</div>
+    <div id="logStatus" style="font-size:.7em;margin-top:5px;color:#888">
+      &#128202; <span id="logCount">0</span> clicks
+      <button id="exportLogBtn" style="font-size:1em;padding:2px 8px;margin-left:5px;cursor:pointer">Download Log</button>
+    </div>
+  </header>
+  <div class="resources">
+    <div class="resource-box">
+      <div class="res-label">Coins</div>
+      <div class="res-value" style="color:var(--accent)" id="coinCount">0</div>
+      <div class="res-sub" id="coinSub">+0/sec</div>
+    </div>
+    <div class="resource-box" style="display:flex;align-items:center;gap:10px">
+      <img id="farmIcon" src="icons/Farm.png" style="width:48px;height:48px;object-fit:contain">
+      <div>
+        <div class="res-label">Food</div>
+        <div class="res-value" style="color:var(--growth)" id="foodCount">100</div>
+        <div class="res-sub" id="foodSub">+0/day</div>
+      </div>
+    </div>
+    <div class="resource-box" style="display:flex;align-items:center;gap:10px">
+      <img id="troopIcon" src="icons/Thug.png" style="width:48px;height:48px;object-fit:contain">
+      <div>
+        <div class="group-label" id="groupName">CREW</div>
+        <div class="troop-line" id="troopLine">1 Thug</div>
+      </div>
+    </div>
+    <div class="resource-box">
+      <div class="res-label">Power / Troop</div>
+      <div class="res-value" style="color:var(--power)" id="powerPerTroop">1.00</div>
+    </div>
+    <div class="resource-box">
+      <div class="res-label">Total Power</div>
+      <div class="res-value" style="color:var(--power)" id="totalPower">1</div>
+    </div>
+    <div class="resource-box hidden" id="magicBox">
+      <div class="res-label">Magic</div>
+      <div class="res-value" style="color:var(--magic)" id="magicCount">0</div>
+      <div class="res-sub">Lifetime: <span id="lifetimeMagic">0</span></div>
+    </div>
+  </div>
+  <div class="entropy-warn" id="entropyWarn"></div>
+  <div class="columns">
+    <div id="armyCol">
+      <div class="section-title">Army</div>
+      <button class="main-btn beg-btn" id="begBtn">&#129330; Beg<span class="btn-sub">+1 coin</span></button>
+      <button class="main-btn recruit-btn" id="recruitBtn" disabled>&#128737; Recruit<span class="btn-sub" id="recruitSub">1 thug - 10 coins</span></button>
+      <div id="armyButtons"></div>
+    </div>
+    <div id="economyCol">
+      <div class="section-title">Economy</div>
+      <div id="economyButtons"></div>
+    </div>
+    <div id="trainingCol" style="display:none">
+      <div class="section-title">Training</div>
+      <div id="trainingButtons"></div>
+    </div>
+    <div id="enemyCol" style="display:none">
+      <div class="section-title" style="color:#f66">Enemy Forces</div>
+      <div class="resource-box enemy-box">
+        <div class="enemy-name" id="enemyName">Town Police Force</div>
+        <div class="res-label" id="enemyTroopType">Pikemen</div>
+        <div class="res-value" id="enemyTroops">0</div>
+        <div class="res-sub" style="color:#faa">Power: <span id="enemyPower">0</span></div>
+      </div>
+      <!-- AI stats for Super Hard mode -->
+      <div id="aiStats" style="display:none;margin-top:8px;font-size:.8em;color:#fcc;background:rgba(40,20,20,0.6);padding:8px;border-radius:4px">
+        <div>Coins: <span id="aiCoins">0</span></div>
+        <div>Food: <span id="aiFood">0</span> (<span id="aiFoodRate">+0</span>/day)</div>
+        <div id="aiFarmsRow">Farms: <span id="aiFarms">0</span></div>
+        <div id="aiPlantRow">Plantations: <span id="aiPlant">0</span></div>
+        <div id="aiColonyRow">Colonies: <span id="aiColony">0</span></div>
+        <div>Power/Troop: <span id="aiPpt">1.00</span></div>
+        <div id="aiSLRow">Squad Leaders: <span id="aiSL">0</span></div>
+        <div id="aiBarRow">Barracks: <span id="aiBar">0</span></div>
+        <div id="aiMBRow">Military Bases: <span id="aiMB">0</span></div>
+        <div id="aiKingRow">Kingdoms: <span id="aiKing">0</span></div>
+        <div id="aiEmpRow">Empires: <span id="aiEmp">0</span></div>
+      </div>
+      <div style="margin-top:10px;font-size:.85em;color:var(--dim)">
+        <div>Day: <span id="dayCounter">0</span></div>
+        <div>Battle chance: <span id="battleChance">0</span>%/day</div>
+      </div>
+    </div>
+  </div>
+  <div class="magic-sections" id="magicSections">
+    <div class="section-title">Dark Magic</div>
+    <div id="magicButtons"></div>
+  </div>
+  <div class="log">
+    <div class="log-title">Events</div>
+    <div id="logEntries"></div>
+  </div>
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3 id="modalTitle">Select Button</h3>
+      <div id="modalButtons"></div>
+      <button class="modal-close" id="modalClose">Cancel</button>
+    </div>
+  </div>
+</div>
+<!-- Scripts loaded in dependency order (no ES modules for file:// compatibility) -->
+<script src="js/ordinal.js"></script>
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/util.js"></script>
+<script src="js/core.js"></script>
+<script src="js/buttons.js"></script>
+<script src="js/ai-strategy.js"></script>
+<script src="js/render.js"></script>
+<script src="js/events.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

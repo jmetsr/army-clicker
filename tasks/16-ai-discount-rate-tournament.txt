@@ -1,0 +1,138 @@
+AI: Test Different Discount Rates via Tournament Simulation
+============================================================
+
+Problem:
+--------
+The AI devalues buildings it can't immediately afford using exponential decay:
+
+```javascript
+var WAIT_DECAY = 0.99;
+// ...
+baseScore *= Math.pow(WAIT_DECAY, daysToWait);
+```
+
+So a building 100 days away is worth 0.99^100 ≈ 37% of its base value.
+A building 200 days away is worth 0.99^200 ≈ 13%.
+
+This causes the AI to rarely buy expensive buildings like Military Base after
+it's bought many Squad Leaders (which inflate army costs).
+
+Question: Is 0.99 the right decay rate? Would 0.995 (more patient) or 0.98
+(more impatient) produce a stronger AI?
+
+The Challenge:
+--------------
+Simple simulation won't answer this because:
+1. A more patient AI will eventually pull ahead economically
+2. But battles happen randomly - it might lose before it pulls ahead
+3. There may be rock-paper-scissors dynamics:
+   - Patient (0.995) beats Medium (0.99) by out-scaling
+   - Medium (0.99) beats Impatient (0.98) by better buildings
+   - Impatient (0.98) beats Patient (0.995) by winning early battles
+
+We need to test different values AGAINST EACH OTHER with simulated battles.
+
+Proposed Solution: Round Robin Tournament
+-----------------------------------------
+Test ~10-15 different decay values against each other.
+
+Candidates to test:
+Exponential decay (current formula: score *= decay^daysToWait):
+- 0.97, 0.975, 0.98, 0.985, 0.99, 0.993, 0.995, 0.997, 0.999
+- (9 variants)
+
+Linear decay (alternative: score *= max(0, 1 - daysToWait/N)):
+- N = 100, 150, 200, 264, 300
+- (5 variants)
+- Note: 264 ≈ 8 battles × 33 days/battle (theoretical max survival window)
+
+Total: ~14 strategies
+Round robin = 91 matchups
+
+Runs per matchup:
+- 5 runs is sufficient for overall ranking (total wins across tournament)
+  - Each AI plays 13 opponents × 5 = 65 games
+  - Variance averages out: 60% true win rate → ~39 ± 8 wins (95% CI)
+  - Enough to distinguish good from bad strategies
+- More runs (20-50) only needed if we care about specific head-to-head data
+  (e.g., confirming exact rock-paper-scissors cycles)
+
+Total: 91 matchups × 5 runs = 455 games. Very fast (~1 minute).
+
+Tournament Format Analysis:
+---------------------------
+Swiss vs Round Robin trade-offs:
+
+For N strategies:
+- Swiss with R rounds = N × R / 2 total matches
+- Round Robin = N × (N-1) / 2 matches
+
+| Strategies | Swiss (log₂N) | Swiss (2× rounds) | Round Robin |
+|------------|---------------|-------------------|-------------|
+| 10         | 25 matches    | 50 matches        | 45 matches  |
+| 20         | 50 matches    | 100 matches       | 190 matches |
+| 50         | 150 matches   | 300 matches       | 1225 matches |
+| 100        | 350 matches   | 700 matches       | 4950 matches |
+
+Note: Swiss can use MORE than log₂(N) rounds - that's just the minimum for
+a unique winner. More rounds = more data, approaching round robin.
+
+The catch with Swiss (even with extra rounds): specific pairs might never
+meet if their scores don't align throughout the tournament.
+
+Recommendation:
+- For ~15 strategies: Round Robin (105 matches) - guarantees cycle detection
+- For 50+ strategies: Swiss with extra rounds - saves compute
+- Hybrid option: Swiss to find top 10, then round robin among finalists
+
+Implementation:
+---------------
+1. Create a simulation harness that:
+   - Runs two AIs against each other (both get same clicks/sec)
+   - Simulates daily ticks including food, looting, dragon spawns
+   - Simulates battles with random chance (3%/day)
+   - Runs until one side is "vanquished" or day limit reached
+   - Winner = higher power at end, or whoever vanquished opponent
+
+2. For each matchup (A vs B):
+   - Run N games (10-20)
+   - Record wins for each side
+   - Compute win rate
+
+3. Aggregate results:
+   - Total wins across all matchups
+   - Look for cycles in the data
+   - Identify if there's a clear "best" value or if it's situational
+
+4. Consider testing at different game phases:
+   - Early game (first 100 days)
+   - Mid game (100-500 days)
+   - Late game / post-magic (500+ days)
+
+Alternative: Elo Rating System
+------------------------------
+Instead of formal round robin, run many random matchups and compute Elo ratings.
+Advantage: Can run indefinitely, ratings converge over time.
+Disadvantage: Harder to detect specific cycles.
+
+Output:
+-------
+- Heatmap of win rates (row = AI variant, col = opponent)
+- Overall ranking by total wins
+- Identification of any rock-paper-scissors cycles
+- Recommendation for default WAIT_DECAY value
+
+Prerequisites:
+--------------
+**Complete task 17 (army building scaling) FIRST before running this tournament.**
+The current AI formula has a bug where army building values use fixed constants
+instead of scaling with ppt. This would invalidate tournament results since all
+tested AIs would share the same broken valuation logic.
+
+Notes:
+------
+- The AI currently seems strong but rarely builds past Squad Leaders
+- Goal is not necessarily to make AI stronger, but to make it play more
+  "interestingly" (building diverse structures) while remaining competitive
+- If cycles exist, could implement adaptive AI that changes strategy based
+  on opponent behavior (but that's a separate task)

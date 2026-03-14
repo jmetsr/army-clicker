@@ -1,0 +1,315 @@
+/**
+ * Scoring & Decision Logic
+ *
+ * This module contains the core AI decision-making logic:
+ * - calcScore: Unified scoring formula for all actions
+ * - Food emergency detection
+ * - Helper functions for determining when actions "help" reach goals
+ */
+
+const { C, PARAMS } = require('./constants');
+const { getFarmCost, getRecruitCost, getCount } = require('./costs');
+
+// =============================================================================
+// CORE SCORING FUNCTION
+// =============================================================================
+
+/**
+ * Calculate the score for a potential action
+ *
+ * FORMULA:
+ *   baseScore = value / sqrt(costPct)
+ *   if unaffordable: baseScore *= decay^daysToWait
+ *   apply modifiers (NO_INFLATE_BONUS, closeness, strain)
+ *
+ * WHY sqrt(costPct)?
+ *   - Compresses differences at low cost (1% vs 5% = both cheap)
+ *   - Still penalizes high cost (50% = expensive)
+ *   - Continuous, no arbitrary thresholds
+ *
+ * WHY multiplicative decay?
+ *   - Each day of waiting reduces value by 1% (decay = 0.99)
+ *   - Prevents waiting forever for expensive items
+ *   - Still allows saving for high-value items if close
+ *
+ * @param {number} cost - Cost of the action
+ * @param {number} value - Value of the action (from PARAMS)
+ * @param {number} coins - Current coins
+ * @param {number} incomePerDay - Expected daily income
+ * @param {boolean} isArmy - True if army chain action
+ * @param {boolean} isImmediate - True if train/recruit (no cost pool inflation)
+ * @param {number} closeness - Battle closeness (0-1, higher = tighter battle)
+ * @param {number} strain - Food strain (0-1, higher = more constrained)
+ * @returns {number} Score (higher = better action)
+ */
+function calcScore(cost, value, coins, incomePerDay, isArmy, isImmediate, closeness, strain) {
+  if (cost <= 0) return -1;
+
+  const currentCoins = Math.max(coins, 1);
+  const costPct = cost / currentCoins;
+
+  // Base penalty: sqrt of cost percentage
+  const penalty = Math.sqrt(costPct);
+  let baseScore = value / penalty;
+
+  // Wait penalty: if unaffordable, apply decay per day of waiting
+  if (costPct > 1) {
+    const coinsNeeded = cost - currentCoins;
+    const daysToWait = coinsNeeded / Math.max(incomePerDay, 1);
+    baseScore *= Math.pow(PARAMS.WAIT_DECAY, daysToWait);
+  }
+
+  // Modifiers
+  if (isImmediate) {
+    // Train/recruit don't inflate building costs, so they get a bonus
+    baseScore *= PARAMS.NO_INFLATE_BONUS;
+  }
+
+  if (isArmy) {
+    // Army actions get bonus when battle is close
+    baseScore *= (1 + closeness * PARAMS.K_CLOSENESS);
+  } else {
+    // Economy actions get bonus when food is constrained
+    baseScore *= (1 + strain * PARAMS.K_STRAIN);
+  }
+
+  return baseScore;
+}
+
+// =============================================================================
+// FOOD EMERGENCY DETECTION
+// =============================================================================
+
+/**
+ * Calculate food situation metrics
+ *
+ * @param {Object} ai - AI state
+ * @param {number} clicks - Clicks available this day
+ * @returns {Object} Food metrics
+ */
+function getFoodMetrics(ai, clicks) {
+  const troopCount = ai.troops.toNumber();
+  const farmProd = getCount(ai, "farm") * C.farm_production;
+  const dailyConsume = troopCount * C.food_perTroopDay;
+  const netConsume = dailyConsume - farmProd;
+  const foodBuffer = ai.food.toNumber();
+  const coins = ai.coins.toNumber();
+  const ppt = ai.ppt;
+
+  // How many days until we run out of food?
+  const daysOfFood = netConsume > 0 ? foodBuffer / netConsume : 999;
+
+  // How much income do we generate per day?
+  const incomePerDay = (troopCount * ppt * 4) + clicks;
+
+  // How many days until we can afford a farm?
+  const farmCost = getFarmCost(ai);
+  const daysToAffordFarm = farmCost > coins ? (farmCost - coins) / Math.max(incomePerDay, 1) : 0;
+
+  // Emergency: can't afford farm before food runs out
+  const isEmergency = (daysToAffordFarm > daysOfFood || daysOfFood <= 0) && netConsume > 0;
+
+  return {
+    coins,
+    troopCount,
+    farmProd,
+    dailyConsume,
+    netConsume,
+    foodBuffer,
+    daysOfFood,
+    incomePerDay,
+    farmCost,
+    daysToAffordFarm,
+    isEmergency,
+  };
+}
+
+/**
+ * Check if spending X coins would cause a food emergency
+ *
+ * This prevents the AI from buying something expensive (like an SL)
+ * when it should be saving for a farm.
+ *
+ * @param {Object} ai - AI state
+ * @param {number} spendAmount - Amount of coins to spend
+ * @param {number} clicks - Clicks per day (for income calculation)
+ * @returns {boolean} True if spending would cause emergency
+ */
+function wouldSpendingCauseEmergency(ai, spendAmount, clicks) {
+  const troopCount = ai.troops.toNumber();
+  const farmProd = getCount(ai, "farm") * C.farm_production;
+  const netConsume = (troopCount * C.food_perTroopDay) - farmProd;
+
+  // If we're not consuming more than we produce, no emergency possible
+  if (netConsume <= 0) return false;
+
+  const foodBuffer = ai.food.toNumber();
+  const daysOfFood = foodBuffer / netConsume;
+
+  const coins = ai.coins.toNumber();
+  const coinsAfterSpend = coins - spendAmount;
+  const incomePerDay = (troopCount * ai.ppt * 4) + clicks;
+
+  const farmCost = getFarmCost(ai);
+  const daysToAffordFarm = farmCost > coinsAfterSpend
+    ? (farmCost - coinsAfterSpend) / Math.max(incomePerDay, 1)
+    : 0;
+
+  // Would we be unable to afford farm before food runs out?
+  return daysToAffordFarm > daysOfFood;
+}
+
+/**
+ * Check if recruiting would cause a SUPER emergency
+ *
+ * Super emergency = recruiting would make it impossible to buy enough farms
+ * to survive. This is a hard veto on recruiting.
+ *
+ * @param {Object} ai - AI state
+ * @returns {boolean} True if recruiting would cause super emergency
+ */
+function wouldRecruitCauseSuperEmergency(ai) {
+  const troopCount = ai.troops.toNumber();
+  const coins = ai.coins.toNumber();
+  const farmCost = getFarmCost(ai);
+
+  // Calculate state AFTER recruiting
+  const newTroops = troopCount + ai.rp;
+  const newConsume = newTroops * C.food_perTroopDay;
+  const currentFarmProd = getCount(ai, "farm") * C.farm_production;
+
+  // If farms already sustain new consumption, we're fine
+  if (currentFarmProd >= newConsume) return false;
+
+  // Check food buffer
+  const deficit = newConsume - currentFarmProd;
+  const foodBuffer = ai.food.toNumber();
+  const daysOfBuffer = deficit > 0 ? foodBuffer / deficit : 999;
+
+  // If we have 50+ days of food buffer, not an emergency
+  if (daysOfBuffer > 50) return false;
+
+  // Check if we can afford enough farms
+  const farmsNeeded = Math.ceil(newConsume / C.farm_production);
+  const farmsHave = getCount(ai, "farm");
+  const farmsToBuy = farmsNeeded - farmsHave;
+  const costToBuyFarms = farmsToBuy * farmCost; // Simplified estimate
+
+  // If we can afford the farms needed, not an emergency
+  if (coins >= costToBuyFarms) return false;
+
+  // If buffer is low and can't afford farms, it's a super emergency
+  return daysOfBuffer < 20;
+}
+
+// =============================================================================
+// "HELPS REACH TARGET" CALCULATIONS
+// =============================================================================
+
+/**
+ * Check if recruiting would help reach a target cost faster
+ *
+ * Logic: Does the increased income from more troops offset the recruit cost?
+ *
+ * @param {Object} ai - AI state
+ * @param {number} targetCost - Cost we're trying to reach
+ * @param {number} coins - Current coins
+ * @param {number} incomePerDay - Current income per day
+ * @param {number} clicks - Clicks per day
+ * @returns {boolean} True if recruiting helps
+ */
+function doesRecruitHelp(ai, targetCost, coins, incomePerDay, clicks) {
+  // Check if we can afford to recruit
+  const recruitCost = getRecruitCost(ai);
+  if (ai.coins.lt(recruitCost)) return false;
+
+  // Check if recruiting would cause emergency
+  if (wouldRecruitCauseSuperEmergency(ai)) return false;
+
+  // Days to reach target without recruiting
+  const daysToReach = (targetCost - coins) / Math.max(incomePerDay, 1);
+
+  // Days to reach target WITH recruiting
+  const troopCount = ai.troops.toNumber();
+  const newIncomeWithRecruit = ((troopCount + ai.rp) * ai.ppt * 4) + clicks;
+  const daysWithRecruit = (targetCost - coins + recruitCost) / Math.max(newIncomeWithRecruit, 1);
+
+  // Recruiting helps if it gets us there faster
+  return daysWithRecruit < daysToReach;
+}
+
+/**
+ * Check if training would help reach a target cost faster
+ *
+ * Logic: Does the increased ppt (more loot per troop) offset the train cost?
+ *
+ * @param {Object} ai - AI state
+ * @param {number} targetCost - Cost we're trying to reach
+ * @param {number} coins - Current coins
+ * @param {number} incomePerDay - Current income per day
+ * @param {number} clicks - Clicks per day
+ * @returns {boolean} True if training helps
+ */
+function doesTrainHelp(ai, targetCost, coins, incomePerDay, clicks) {
+  // Need at least 5 troops to train
+  const troopCount = ai.troops.toNumber();
+  if (troopCount < 5) return false;
+
+  // Check if we can afford to train
+  const { getTrainCost } = require('./costs');
+  const trainCost = getTrainCost(ai);
+  if (ai.coins.lt(trainCost)) return false;
+
+  // Days to reach target without training
+  const daysToReach = (targetCost - coins) / Math.max(incomePerDay, 1);
+
+  // Days to reach target WITH training
+  const newIncomeWithTrain = (troopCount * ai.ppt * ai.trainMult * 4) + clicks;
+  const daysWithTrain = (targetCost - coins + trainCost) / Math.max(newIncomeWithTrain, 1);
+
+  // Training helps if it gets us there faster
+  return daysWithTrain < daysToReach;
+}
+
+// =============================================================================
+// STRAIN CALCULATIONS
+// =============================================================================
+
+/**
+ * Calculate food strain - how constrained is troop growth?
+ *
+ * @param {Object} ai - AI state
+ * @returns {number} Strain value (0-1, higher = more constrained)
+ */
+function calculateStrain(ai) {
+  const troopCount = ai.troops.toNumber();
+  const farmProd = getCount(ai, "farm") * C.farm_production;
+  const maxSustainable = farmProd / C.food_perTroopDay;
+
+  if (maxSustainable <= 0) return 1;
+  return Math.min(troopCount / maxSustainable, 1);
+}
+
+/**
+ * Calculate battle closeness - how tight is the power race?
+ *
+ * @param {number} myPower - AI's current power
+ * @param {number} enemyPower - Enemy's current power
+ * @returns {number} Closeness value (0-1, higher = tighter battle)
+ */
+function calculateCloseness(myPower, enemyPower) {
+  const maxPower = Math.max(myPower, enemyPower, 1);
+  const minPower = Math.min(myPower, enemyPower);
+  return minPower / maxPower;
+}
+
+module.exports = {
+  calcScore,
+  getFoodMetrics,
+  wouldSpendingCauseEmergency,
+  wouldRecruitCauseSuperEmergency,
+  doesRecruitHelp,
+  doesTrainHelp,
+  calculateStrain,
+  calculateCloseness,
+};

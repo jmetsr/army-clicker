@@ -1,0 +1,9 @@
+                                                                                                                                        
+  1. Sort all actions by score                                                                                                                   
+  2. Look at the BEST action (highest score)                                                                                                     
+  3. If best is an unaffordable building → filter out lower-tier same-pool buildings, check if train/recruit helps                               
+  4. If best is anything else (affordable building, train, recruit) → just do it, no filtering                                                 
+                                                                                                                                               
+  So filtering only kicks in when the highest-scoring action is an unaffordable building. If MB scores higher than Kingdom (because Kingdom is
+  far away and MB has high value now), then MB should just be executed - no filtering.
+

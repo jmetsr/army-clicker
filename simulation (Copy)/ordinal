@@ -1,0 +1,77 @@
+/**
+ * Minimal Ordinal Number implementation
+ *
+ * Used for handling large numbers (troops, coins) that can exceed JavaScript's
+ * safe integer range. Uses BigInt internally for precision.
+ *
+ * In this game, numbers can grow exponentially due to compound multipliers,
+ * so we need arbitrary precision arithmetic.
+ */
+
+class OrdinalNumber {
+  constructor(n) {
+    this.layer = 0;
+    this.value = BigInt(Math.floor(Number(n) || 0));
+  }
+
+  add(other) {
+    const o = other instanceof OrdinalNumber ? other : new OrdinalNumber(other);
+    const result = new OrdinalNumber(0);
+    result.value = this.value + o.value;
+    return result;
+  }
+
+  sub(other) {
+    const o = other instanceof OrdinalNumber ? other : new OrdinalNumber(other);
+    const result = new OrdinalNumber(0);
+    result.value = this.value - o.value;
+    if (result.value < 0n) result.value = 0n;
+    return result;
+  }
+
+  mul(other) {
+    const o = typeof other === 'number' ? BigInt(Math.floor(other)) :
+              other instanceof OrdinalNumber ? other.value : BigInt(other);
+    const result = new OrdinalNumber(0);
+    result.value = this.value * o;
+    return result;
+  }
+
+  mulFraction(num, denom) {
+    const result = new OrdinalNumber(0);
+    result.value = this.value * BigInt(num) / BigInt(denom);
+    return result;
+  }
+
+  lt(other) {
+    const o = other instanceof OrdinalNumber ? other.value : BigInt(Math.floor(other));
+    return this.value < o;
+  }
+
+  gt(other) {
+    const o = other instanceof OrdinalNumber ? other.value : BigInt(Math.floor(other));
+    return this.value > o;
+  }
+
+  gte(other) {
+    const o = other instanceof OrdinalNumber ? other.value : BigInt(Math.floor(other));
+    return this.value >= o;
+  }
+
+  toNumber() {
+    return Number(this.value);
+  }
+}
+
+/**
+ * Factory function to create OrdinalNumber instances
+ * @param {number} n - Initial value
+ * @returns {OrdinalNumber}
+ */
+function ON(n) {
+  if (n instanceof OrdinalNumber) return n;
+  return new OrdinalNumber(n);
+}
+ON.constructor = OrdinalNumber;
+
+module.exports = { ON, OrdinalNumber };

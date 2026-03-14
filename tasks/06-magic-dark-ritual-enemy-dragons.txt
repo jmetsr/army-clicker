@@ -1,0 +1,51 @@
+Magic Changes - Dark Ritual & Enemy Dragons
+===========================================
+
+STATUS: COMPLETE
+================
+Implemented in buttons.js (dark_ritual button) and core.js:
+- Practice mode gets enemy after first dark ritual
+- G.enemyUnvanquishable and G.enemyNoStarve flags
+- G.darkRitualDays tracks when rituals were bought
+- Dragon spawning uses polynomial formula: day^n for nth ritual
+- UI warning on dark ritual button
+
+---
+
+Entropy:
+- Keep entropy logic in code but move to separate file for later use
+- Will not be used currently
+
+Dark Ritual Changes:
+
+1. Practice Mode Enemy
+   - Practice mode now gives you an enemy
+
+2. Un-vanquish Mechanic
+   - If enemy was vanquished, dark ritual un-vanquishes it
+   - Once first dark ritual is bought, enemy stays un-vanquished FOREVER
+   - Even if you vanquish it again, it can still spawn more troops
+
+3. Dragon Spawning Formula
+   For every day d after your nth dark ritual purchase, enemy gets d^n dragons
+
+   Example: Dark rituals bought on days 100, 200, 300, 400
+   On day 500, enemy gets:
+   - (500-100)^1 = 400^1 from 1st ritual
+   - (500-200)^2 = 300^2 from 2nd ritual
+   - (500-300)^3 = 200^3 from 3rd ritual
+   - (500-400)^4 = 100^4 from 4th ritual
+   Total: 400 + 90,000 + 8,000,000 + 100,000,000 dragons
+
+4. Dragon Mechanics
+   - Dragons spawn regardless of enemy's other troop types
+   - Even if enemy troops degraded to thugs or upgraded, dragons stay dragons
+   - Works for enemy levels 1, 2, 3 - they just accumulate and use in battles
+
+5. AI Enemy Income
+   - These dragons generate income for AI enemy
+   - If AI starves or loses battle, loses proportionally from ALL troop types
+   - e.g., 50% loss = 50% of dragons AND 50% of other troops
+
+6. UI Warning
+   - Dark ritual button should warn "this helps your enemies"

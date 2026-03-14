@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Value Ratio Comparison</title>
+  <style>
+    body {
+      font-family: 'Consolas', 'Monaco', monospace;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 20px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    h1 { color: #00d4ff; text-align: center; }
+    h2 { color: #ff6b6b; margin-top: 40px; border-bottom: 2px solid #ff6b6b; padding-bottom: 10px; }
+    h3 { color: #ffd93d; margin-top: 30px; }
+    .config {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .config p { margin: 5px 0; }
+    .config table { margin: 10px 0; }
+    .config th, .config td { padding: 4px 12px; text-align: left; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 15px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px 12px;
+      text-align: right;
+    }
+    th {
+      background: #2d2d44;
+      color: #00d4ff;
+    }
+    td:first-child {
+      text-align: left;
+      font-weight: bold;
+    }
+    tr:nth-child(even) { background: #252538; }
+    tr:nth-child(odd) { background: #1e1e30; }
+    tr:hover { background: #3a3a55; }
+    .winner { background: #1a4a1a !important; }
+    .summary {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Value Ratio Comparison: Current (10x) vs Cost-Proportional</h1>
+
+  <div class="config">
+    <p><strong>Fixed Parameters:</strong> VAL_SL=5, FARM_THRESHOLD=6, trainMult=0.01, CPS=25</p>
+    <table>
+      <tr><th>Building</th><th>Base Cost</th><th>Current (10x)</th><th>Cost-Proportional</th></tr>
+      <tr><td>SL</td><td>400</td><td>5</td><td>5</td></tr>
+      <tr><td>Barracks</td><td>1,600</td><td>50</td><td>20</td></tr>
+      <tr><td>MB</td><td>30,000</td><td>500</td><td>375</td></tr>
+      <tr><td>Kingdom</td><td>400,000</td><td>5,000</td><td>5,000</td></tr>
+      <tr><td>Empire</td><td>40,000,000</td><td>50,000</td><td>500,000</td></tr>
+      <tr><td>Plantation</td><td>5,000</td><td>10×FARM</td><td>5×FARM</td></tr>
+      <tr><td>Colony</td><td>25,000</td><td>100×FARM</td><td>25×FARM</td></tr>
+    </table>
+  </div>
+
+  <h2>Day 100</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve</th>
+      <th>MaxStrk</th>
+    </tr>
+    <tr class="winner">
+      <td>current</td>
+      <td>9.88e+8</td>
+      <td>1,149,274</td>
+      <td>859.4</td>
+      <td>679</td>
+      <td>3,571</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,504</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>cost-proportional</td>
+      <td>2.22e+7</td>
+      <td>101,791</td>
+      <td>217.7</td>
+      <td>541</td>
+      <td>707</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1,899</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </table>
+
+  <h2>Day 200</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve</th>
+      <th>MaxStrk</th>
+    </tr>
+    <tr class="winner">
+      <td>current</td>
+      <td>2.63e+9</td>
+      <td>1,864,166</td>
+      <td>1413.5</td>
+      <td>729</td>
+      <td>7,779</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,040</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>cost-proportional</td>
+      <td>7.67e+7</td>
+      <td>179,051</td>
+      <td>428.3</td>
+      <td>609</td>
+      <td>809</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2,259</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </table>
+
+  <h2>Day 300</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve</th>
+      <th>MaxStrk</th>
+    </tr>
+    <tr class="winner">
+      <td>current</td>
+      <td>4.64e+9</td>
+      <td>2,295,502</td>
+      <td>2022.3</td>
+      <td>765</td>
+      <td>8,211</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,360</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>cost-proportional</td>
+      <td>1.37e+8</td>
+      <td>224,273</td>
+      <td>612.8</td>
+      <td>645</td>
+      <td>865</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2,430</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </table>
+
+  <h2>Day 400</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve</th>
+      <th>MaxStrk</th>
+    </tr>
+    <tr class="winner">
+      <td>current</td>
+      <td>6.60e+9</td>
+      <td>2,596,318</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,200</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>cost-proportional</td>
+      <td>2.01e+8</td>
+      <td>256,061</td>
+      <td>785.8</td>
+      <td>670</td>
+      <td>901</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2,538</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </table>
+
+  <h2>Day 500</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve</th>
+      <th>MaxStrk</th>
+    </tr>
+    <tr class="winner">
+      <td>current</td>
+      <td>8.58e+9</td>
+      <td>2,820,086</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,848</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>cost-proportional</td>
+      <td>2.61e+8</td>
+      <td>280,769</td>
+      <td>930.6</td>
+      <td>687</td>
+      <td>929</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2,619</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </table>
+
+  <h2>Power Rankings Summary</h2>
+  <div class="summary">
+    <table>
+      <tr><th>Day</th><th>Winner</th><th>Power</th><th>Margin</th></tr>
+      <tr><td>100</td><td>current</td><td>9.88e+8</td><td>+4357.2%</td></tr>
+      <tr><td>200</td><td>current</td><td>2.63e+9</td><td>+3336.2%</td></tr>
+      <tr><td>300</td><td>current</td><td>4.64e+9</td><td>+3278.0%</td></tr>
+      <tr><td>400</td><td>current</td><td>6.60e+9</td><td>+3180.5%</td></tr>
+      <tr><td>500</td><td>current</td><td>8.58e+9</td><td>+3182.1%</td></tr>
+    </table>
+  </div>
+
+</body>
+</html>

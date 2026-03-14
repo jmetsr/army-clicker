@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tier Multiplier Comparison</title>
+  <style>
+    body {
+      font-family: 'Consolas', 'Monaco', monospace;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 20px;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+    h1 { color: #00d4ff; text-align: center; }
+    h2 { color: #ff6b6b; margin-top: 40px; border-bottom: 2px solid #ff6b6b; padding-bottom: 10px; }
+    .config {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .config p { margin: 5px 0; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 15px 0;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 6px 10px;
+      text-align: right;
+    }
+    th {
+      background: #2d2d44;
+      color: #00d4ff;
+    }
+    td:first-child {
+      text-align: left;
+      font-weight: bold;
+    }
+    tr:nth-child(even) { background: #252538; }
+    tr:nth-child(odd) { background: #1e1e30; }
+    tr:hover { background: #3a3a55; }
+    .winner { background: #1a4a1a !important; }
+    .summary {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tier Multiplier Comparison</h1>
+
+  <div class="config">
+    <p><strong>Fixed:</strong> VAL_SL=5, FARM_THRESHOLD=6, trainMult=0.01, CPS=25</p>
+    <p><strong>Testing:</strong> How much more valuable is each tier vs previous?</p>
+    <p>VAL_BARRACKS = tierMult × VAL_SL</p>
+    <p>VAL_MB = tierMult × VAL_BARRACKS</p>
+    <p>VAL_KINGDOM = tierMult × VAL_MB</p>
+    <p>etc.</p>
+  </div>
+
+  <h2>Day 100</h2>
+  <table>
+    <tr>
+      <th>TierMult</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="">
+      <td>3x</td>
+      <td>1.19e+4</td>
+      <td>2,777</td>
+      <td>4.3</td>
+      <td>146</td>
+      <td>31</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>28</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="winner">
+      <td>5x</td>
+      <td>2.48e+4</td>
+      <td>5,046</td>
+      <td>4.9</td>
+      <td>160</td>
+      <td>60</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>53</td>
+      <td>2</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10x</td>
+      <td>8.47e+2</td>
+      <td>558</td>
+      <td>1.5</td>
+      <td>42</td>
+      <td>33</td>
+      <td>9</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>1</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>20x</td>
+      <td>5.99e+2</td>
+      <td>387</td>
+      <td>1.5</td>
+      <td>44</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>50x</td>
+      <td>5.92e+2</td>
+      <td>386</td>
+      <td>1.5</td>
+      <td>43</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>100x</td>
+      <td>6.08e+2</td>
+      <td>389</td>
+      <td>1.6</td>
+      <td>45</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>150x</td>
+      <td>5.92e+2</td>
+      <td>386</td>
+      <td>1.5</td>
+      <td>43</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>200x</td>
+      <td>5.62e+2</td>
+      <td>374</td>
+      <td>1.5</td>
+      <td>41</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>6</td>
+      <td>2</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>500x</td>
+      <td>3.09e+2</td>
+      <td>234</td>
+      <td>1.3</td>
+      <td>28</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr class="">
+      <td>1000x</td>
+      <td>3.09e+2</td>
+      <td>234</td>
+      <td>1.3</td>
+      <td>28</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </table>
+
+  <h2>Day 200</h2>
+  <table>
+    <tr>
+      <th>TierMult</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="">
+      <td>3x</td>
+      <td>2.74e+6</td>
+      <td>56,623</td>
+      <td>48.5</td>
+      <td>390</td>
+      <td>363</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>570</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="winner">
+      <td>5x</td>
+      <td>7.92e+6</td>
+      <td>109,769</td>
+      <td>72.1</td>
+      <td>430</td>
+      <td>648</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1,103</td>
+      <td>2</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10x</td>
+      <td>3.72e+5</td>
+      <td>37,387</td>
+      <td>10.0</td>
+      <td>231</td>
+      <td>353</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>366</td>
+      <td>23</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    <tr class="">
+      <td>20x</td>
+      <td>4.27e+4</td>
+      <td>11,707</td>
+      <td>3.6</td>
+      <td>130</td>
+      <td>123</td>
+      <td>39</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>132</td>
+      <td>84</td>
+      <td>8</td>
+      <td>8</td>
+    </tr>
+    <tr class="">
+      <td>50x</td>
+      <td>3.26e+3</td>
+      <td>684</td>
+      <td>4.8</td>
+      <td>157</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>7</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+    </tr>
+    <tr class="">
+      <td>100x</td>
+      <td>3.31e+3</td>
+      <td>694</td>
+      <td>4.8</td>
+      <td>157</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>7</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+    </tr>
+    <tr class="">
+      <td>150x</td>
+      <td>3.73e+3</td>
+      <td>782</td>
+      <td>4.8</td>
+      <td>157</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>200x</td>
+      <td>3.32e+3</td>
+      <td>738</td>
+      <td>4.5</td>
+      <td>151</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>6</td>
+      <td>2</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>500x</td>
+      <td>3.18e+2</td>
+      <td>234</td>
+      <td>1.4</td>
+      <td>31</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+      <td>4</td>
+      <td>0</td>
+    </tr>
+    <tr class="">
+      <td>1000x</td>
+      <td>3.18e+2</td>
+      <td>234</td>
+      <td>1.4</td>
+      <td>31</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+      <td>4</td>
+      <td>0</td>
+    </tr>
+  </table>
+
+  <h2>Day 300</h2>
+  <table>
+    <tr>
+      <th>TierMult</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="">
+      <td>3x</td>
+      <td>8.65e+6</td>
+      <td>94,451</td>
+      <td>91.6</td>
+      <td>454</td>
+      <td>475</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>946</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="">
+      <td>5x</td>
+      <td>1.96e+7</td>
+      <td>162,048</td>
+      <td>121.0</td>
+      <td>482</td>
+      <td>756</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1,619</td>
+      <td>2</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10x</td>
+      <td>2.17e+8</td>
+      <td>959,617</td>
+      <td>226.5</td>
+      <td>545</td>
+      <td>4,737</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,022</td>
+      <td>23</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    <tr class="winner">
+      <td>20x</td>
+      <td>7.60e+8</td>
+      <td>5,739,729</td>
+      <td>132.4</td>
+      <td>491</td>
+      <td>72,195</td>
+      <td>675</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>57,167</td>
+      <td>84</td>
+      <td>8</td>
+      <td>37</td>
+    </tr>
+    <tr class="">
+      <td>50x</td>
+      <td>3.37e+3</td>
+      <td>692</td>
+      <td>4.9</td>
+      <td>159</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0</td>
+      <td>7</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+    </tr>
+    <tr class="">
+      <td>100x</td>
+      <td>3.42e+3</td>
+      <td>702</td>
+      <td>4.9</td>
+      <td>159</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0</td>
+      <td>7</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+    </tr>
+    <tr class="">
+      <td>150x</td>
+      <td>3.79e+3</td>
+      <td>771</td>
+      <td>4.9</td>
+      <td>160</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>9</td>
+      <td>1</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>200x</td>
+      <td>3.94e+3</td>
+      <td>802</td>
+      <td>4.9</td>
+      <td>160</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>6</td>
+      <td>2</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>500x</td>
+      <td>3.28e+2</td>
+      <td>234</td>
+      <td>1.4</td>
+      <td>34</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+      <td>7</td>
+      <td>0</td>
+    </tr>
+    <tr class="">
+      <td>1000x</td>
+      <td>3.28e+2</td>
+      <td>234</td>
+      <td>1.4</td>
+      <td>34</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+      <td>7</td>
+      <td>0</td>
+    </tr>
+  </table>
+
+  <h2>Day 400</h2>
+  <table>
+    <tr>
+      <th>TierMult</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="">
+      <td>3x</td>
+      <td>1.15e+7</td>
+      <td>112,149</td>
+      <td>102.2</td>
+      <td>465</td>
+      <td>505</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1,120</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="">
+      <td>5x</td>
+      <td>2.37e+7</td>
+      <td>182,763</td>
+      <td>129.8</td>
+      <td>489</td>
+      <td>783</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1,826</td>
+      <td>2</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10x</td>
+      <td>5.67e+8</td>
+      <td>1,506,421</td>
+      <td>376.3</td>
+      <td>596</td>
+      <td>5,697</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>14,358</td>
+      <td>23</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    <tr class="winner">
+      <td>20x</td>
+      <td>9.76e+8</td>
+      <td>6,476,561</td>
+      <td>150.7</td>
+      <td>504</td>
+      <td>74,899</td>
+      <td>675</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>64,987</td>
+      <td>84</td>
+      <td>8</td>
+      <td>37</td>
+    </tr>
+    <tr class="">
+      <td>50x</td>
+      <td>3.49e+3</td>
+      <td>704</td>
+      <td>5.0</td>
+      <td>161</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>7</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+    </tr>
+    <tr class="">
+      <td>100x</td>
+      <td>3.54e+3</td>
+      <td>714</td>
+      <td>5.0</td>
+      <td>161</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>8</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+    </tr>
+    <tr class="">
+      <td>150x</td>
+      <td>3.87e+3</td>
+      <td>779</td>
+      <td>5.0</td>
+      <td>161</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>4</td>
+      <td>0</td>
+      <td>9</td>
+      <td>1</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>200x</td>
+      <td>3.86e+3</td>
+      <td>778</td>
+      <td>5.0</td>
+      <td>161</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>9</td>
+      <td>2</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>500x</td>
+      <td>3.38e+2</td>
+      <td>234</td>
+      <td>1.4</td>
+      <td>37</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+      <td>10</td>
+      <td>0</td>
+    </tr>
+    <tr class="">
+      <td>1000x</td>
+      <td>3.38e+2</td>
+      <td>234</td>
+      <td>1.4</td>
+      <td>37</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+      <td>10</td>
+      <td>0</td>
+    </tr>
+  </table>
+
+  <h2>Day 500</h2>
+  <table>
+    <tr>
+      <th>TierMult</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="">
+      <td>3x</td>
+      <td>1.30e+7</td>
+      <td>119,821</td>
+      <td>108.5</td>
+      <td>471</td>
+      <td>517</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1,198</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr class="">
+      <td>5x</td>
+      <td>2.60e+7</td>
+      <td>192,381</td>
+      <td>135.0</td>
+      <td>493</td>
+      <td>816</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1,925</td>
+      <td>2</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10x</td>
+      <td>7.70e+8</td>
+      <td>1,744,487</td>
+      <td>441.2</td>
+      <td>612</td>
+      <td>6,289</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>16,758</td>
+      <td>23</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    <tr class="winner">
+      <td>20x</td>
+      <td>1.07e+9</td>
+      <td>6,777,513</td>
+      <td>158.3</td>
+      <td>509</td>
+      <td>75,575</td>
+      <td>675</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>67,877</td>
+      <td>84</td>
+      <td>8</td>
+      <td>37</td>
+    </tr>
+    <tr class="">
+      <td>50x</td>
+      <td>3.48e+3</td>
+      <td>681</td>
+      <td>5.1</td>
+      <td>164</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>5</td>
+      <td>0</td>
+      <td>7</td>
+      <td>0</td>
+      <td>0</td>
+      <td>6</td>
+    </tr>
+    <tr class="">
+      <td>100x</td>
+      <td>3.71e+3</td>
+      <td>726</td>
+      <td>5.1</td>
+      <td>164</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>5</td>
+      <td>0</td>
+      <td>8</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+    </tr>
+    <tr class="">
+      <td>150x</td>
+      <td>4.11e+3</td>
+      <td>795</td>
+      <td>5.2</td>
+      <td>165</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>6</td>
+      <td>0</td>
+      <td>9</td>
+      <td>1</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>200x</td>
+      <td>4.12e+3</td>
+      <td>798</td>
+      <td>5.2</td>
+      <td>165</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>6</td>
+      <td>0</td>
+      <td>9</td>
+      <td>2</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>500x</td>
+      <td>3.48e+2</td>
+      <td>234</td>
+      <td>1.5</td>
+      <td>40</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+      <td>12</td>
+      <td>0</td>
+    </tr>
+    <tr class="">
+      <td>1000x</td>
+      <td>3.48e+2</td>
+      <td>234</td>
+      <td>1.5</td>
+      <td>40</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+      <td>12</td>
+      <td>0</td>
+    </tr>
+  </table>
+
+  <h2>Power Rankings Summary</h2>
+  <div class="summary">
+    <table>
+      <tr><th>Day</th><th>Winner</th><th>Power</th></tr>
+      <tr><td>100</td><td>5x</td><td>2.48e+4</td></tr>
+      <tr><td>200</td><td>5x</td><td>7.92e+6</td></tr>
+      <tr><td>300</td><td>20x</td><td>7.60e+8</td></tr>
+      <tr><td>400</td><td>20x</td><td>9.76e+8</td></tr>
+      <tr><td>500</td><td>20x</td><td>1.07e+9</td></tr>
+    </table>
+  </div>
+
+</body>
+</html>

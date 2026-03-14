@@ -1,0 +1,6 @@
+13 - after buying first dark ritual, enemy doesnt need food anymore and has no farms or economy tier-stuff anymore and cant starve anymore. this is another cost to DR and there should be warnings/events about it
+
+STATUS: COMPLETE
+================
+Implemented via G.enemyNoStarve flag set in dark_ritual effectFn.
+Warning message logged: "The enemy stirs! They no longer need food and will spawn dragons!"

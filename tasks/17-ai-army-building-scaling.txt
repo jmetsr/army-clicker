@@ -1,0 +1,130 @@
+AI: Army Building Values Should Scale with PPT
+==============================================
+
+Problem:
+--------
+The AI scoring formula has an asymmetry:
+
+Training value scales with total power:
+```javascript
+var trainValue = troopCount * ppt * 0.01;
+```
+
+But army buildings use fixed constants:
+```javascript
+var VAL_SL = 10, VAL_BARRACKS = 100, VAL_MB = 1000, VAL_KINGDOM = 10000;
+var slValue = ai.squadLeaderPower * VAL_SL;
+```
+
+In late game with ppt = 1000:
+- trainValue = 1,000,000 troops × 1000 ppt × 0.01 = 10,000,000
+- slValue = 1 × 10 = 10
+
+Training wins by 1,000,000x. AI never buys buildings.
+
+Why This Is Wrong:
+------------------
+Squad Leaders give +1 recruit per click. Each recruit has current ppt.
+So actual value of SL = ppt × (expected future recruit clicks).
+
+The value SHOULD scale with ppt, not be fixed.
+
+Proposed Fix:
+-------------
+Make army building values scale with ppt:
+
+```javascript
+// Old (fixed values)
+var slValue = ai.squadLeaderPower * VAL_SL;
+
+// New (scales with ppt)
+var slValue = ai.squadLeaderPower * ppt * SL_FACTOR;
+```
+
+The factors need tuning, but rough logic:
+- SL: Each gives +1 troop/click at current ppt
+- Barracks: Each gives +1 SL/click, so indirectly more troops
+- Military Base: Each gives +1 Barracks/click
+- etc.
+
+The chain compounds, so higher tiers should have higher factors.
+
+What Stays The Same:
+--------------------
+Training value formula is correct - it scales with total power because
+training multiplies your entire army's ppt.
+
+Testing:
+--------
+After implementing, verify AI behavior:
+- Early game (ppt ~1): Should still buy SLs reasonably
+- Mid game (ppt ~100): Should balance training vs buildings
+- Late game (ppt ~10000): Should still consider buildings, not just spam train
+
+SIMULATION RESULTS (2024-03-12):
+================================
+Tested ppt scaling fix against buggy version using compare-ppt-fix.js
+
+The fix: Multiply building values by ppt (army AND economy buildings)
+```javascript
+const value = ai.squadLeaderPower * PARAMS.VAL_SL * ppt;  // was without * ppt
+```
+
+PROBLEM: Fix alone makes AI worse because it values buildings MORE, trains LESS.
+SOLUTION: Also boost training value from 0.01 to 0.015.
+
+Results at 2000 days:
+- 25 CPS: FIXED (trainMult=0.015) wins by 1.4x
+- 8 CPS: BUGGY still wins by 0.87x but gap narrows over time
+
+Recommendation:
+1. Apply ppt scaling to ALL building values (army AND economy)
+2. Boost training value from `troopCount * ppt * 0.01` to `troopCount * ppt * 0.015`
+3. This makes the fix beneficial at high CPS and neutral/slightly-worse at low CPS
+
+Alternative consideration:
+- Could keep buggy behavior since it performs well
+- The "bug" makes AI prioritize training, which is actually optimal for raw power
+- Fix is only needed if we want AI to build more diverse structures
+
+Related:
+--------
+See task 16 for discount rate tournament (should be done after this fix).
+
+IMPLEMENTATION COMPLETE (2026-03-12):
+=====================================
+Applied to html-game/js/ai-strategy.js as version "urgency-farm-v1"
+
+Final Parameters:
+- VAL_SL = 5 (anchor value)
+- tierMult = 70 (each tier 70× more valuable than previous)
+- divisor = 1 (for SL helper formula)
+- FARM_THRESHOLD = 6
+- trainMult = 0.01
+
+Building Values (all × ppt):
+- VAL_SL = 5
+- VAL_BARRACKS = 350 (70 × 5)
+- VAL_MB = 24,500 (70² × 5)
+- VAL_KINGDOM = 1,715,000 (70³ × 5)
+- VAL_EMPIRE = 120,050,000 (70⁴ × 5)
+
+New Features Added:
+1. Urgency-based farm valuation (replaces strain-based):
+   - urgency = min(daysOfFood, recruitsUntil1DayStarve)
+   - VAL_FARM = VAL_SL × (FARM_THRESHOLD / urgency)
+
+2. SL helper logic - when saving for expensive military building:
+   - gain = (ratio - 1) × expectedRecruits
+   - cost = (slCost + targetCost × 0.04) / recruitCost
+   - Buy SL if gain > cost
+
+Why tierMult=70, divisor=1?
+Tested via worst-day robustness analysis across days 100-500.
+tm=70 strategies maintain 45%+ of leader power on worst day.
+tm=100 strategies get crushed at day 300 (0.5% of leader).
+
+Simulation shows first empire around day 250 with uninterrupted growth.
+In actual gameplay, battles slow this down.
+
+Also fixed: Added empire display to AI stats panel in UI.

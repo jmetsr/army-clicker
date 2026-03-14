@@ -1,0 +1,10 @@
+Astronomical Tier Cost Change
+=============================
+
+STATUS: COMPLETE
+================
+Implemented in buttons.js line 253: costFn returns 4.
+
+---
+
+Simple change: Astronomical tier should cost 4 magic (instead of current cost).

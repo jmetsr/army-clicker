@@ -1,0 +1,76 @@
+make tasks files for the following:
+in fun/tasks
+1. deal with large numbers - specificly numbers that come up when we have auto upgraders and auto^2 upgraders and auto^3 upgraders for which big int can't handle.
+
+to quote CLAUDE                                                                                                                     
+● Great, glad the visual/recursive system is working now! The buttons correctly chain: ⚡³ powers up ⚡², which      
+  powers up ⚡, which powers up the base button.
+                                                                                                                     
+  The number overflow issue is expected - once you get to things like 10^10^1000, even BigInt can't handle actual
+  computation. When you're ready to discuss, we'll need to implement tower notation in the OrdinalNumber class -     
+  storing numbers as towers of exponents rather than actual values, like:
+
+  {base: 10, tower: [1000, 500, 200]}  // represents 10^10^10^1000              
+
+  Then operations become manipulating the tower structure rather than computing impossible values. Let me know when
+  you want to tackle that.
+
+2. refactor army-clicker.htnl focus on human readability - create folder called html-game and have seperate files for AI-strategy, helper functions (util), core game logic, etc
+css in seperate file, html in seperate file, events in seperate file. keep it functional.
+
+3. fix the simulation (see simulation folder for logic). only make changes to simulation folder AI not to game AI till approved by human. Issue it is too easy for human to beat by delaying strong buildings till latter. i think the issue is that the wait penalty is too big. the AI i think penalizes futue buildings at a rate of .01 a day so that any thing it wont be able to builind for more than 100 days it ignores. in the short term the AI is always winning but human can win but it takes a long time for human to full ahead so i suspect this is the issue
+
+4. allow for an enemee army to have more than 1 troop type at once. like some troops at power level X and other troops at power level Y. Trains would still effect all troops power level as a percentage of what each troop's power is now. and passive income sums the passive income score for all troop-types
+
+5. move enemee to top so that its 4 rows to the top, instead of 3 with enemee at bottom
+6. changes to magic ---- keep idea of entropy in the code but put it in a different file for latter bc it wont be used. instead magic will effect enemee troop levels. giving bonus to enemee. the dark ritual button can have a warning that it helps ur enemees
+specificly
+- if on practice mode you now get an enemee
+-if enemy was vanguished it now becomes unvanguished
+- enemy stays unvanugueshed forever after first dark ritual. even if its vanguages again, it can still spawn more.
+- for every day d after your nth dark ritual buy you enemy gets d^n dragons
+
+so for example if u bought dark ritual on days 100,200,300, and 400. then on day 500 enemee gets:
+
+400^1+300^2+200^3+100^4 dragons. this is true even if their other regular troops have been degreaded to thugs or upgraded to something else. if the enemee is just lvl 1, 2 or 3 they just keep getting troops and using them in battles.
+
+if the enemee is AI these new troops generate income for it. if it starves or loses troops in battle it loses proportionaly all its troop types. like if something would cause it to lose 50% of troops it losses 50% of all its power levels
+
+
+7. other changes to magic 
+--- eternal feast costs only 1 magic. 
+it should also make economy tier disaper completly
+--- new thing costing 2 magic that seperates cost tiers i.e. once bought each button only effects its own cost, not the costs of other things within it's shared tier 
+--- freeze all costs should only cost 3 magic but u can only buy it after first buying the thing that seperates cost tiers. also it shouldn't freeze dark ritual
+
+
+8. astronomical tier should cost 4. 
+9. new tier called multiversal tier that also costs 4 but can only be bought after buying astronomical tier
+it adds
+observable universes,
+full universes
+quantom multiverses
+cosmological multiverses
+mathamatical multiverses to the army chain 
+they each effect the one bellow it and the lowerst one effects super cluster
+
+10. gem tier - should be called Power Gem tier and should cost 4 magic
+
+11. upgrade should cost 1 magic
+12. there is a bug now i just noticed where now it doesnt let u auto upgrade a button that has been upgraded. gives message:
+No eligible buttons. Need 3+ upgrades and no existing auto-upgrader.
+"no existing auto-upgrader"
+but actually we already did the work to allow auto upgrading auto upgraders but we put it in the wrong place. we put it in the upgrade place instead of the auto-upgrade place.
+
+so like the way it should work is
+1. pay 1 magic to upgrade farm (for instance)
+2. pay 1 magic to upgrade farm
+3. pay 1 magic to upgrade farm 
+4. pay 10 magic to install auto-upgrade farm
+5. pay 1 magic to upgrade auto-upgrade farm
+6. pay 1 magic to upgrade auto-upgrade farm
+7. pay 1 magic to upgrade auto-upgrade farm
+8. pay 10 magic to install auto-auto upgrade farm
+
+the logic for how installing  auto-auto upgrades is currect, its just in the wrong place
+

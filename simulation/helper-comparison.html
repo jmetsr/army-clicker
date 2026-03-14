@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Helper Strategy Comparison</title>
+  <style>
+    body {
+      font-family: 'Consolas', 'Monaco', monospace;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 20px;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+    h1 { color: #00d4ff; text-align: center; }
+    h2 { color: #ff6b6b; margin-top: 40px; border-bottom: 2px solid #ff6b6b; padding-bottom: 10px; }
+    .config {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .config p { margin: 5px 0; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 15px 0;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 5px 8px;
+      text-align: right;
+    }
+    th {
+      background: #2d2d44;
+      color: #00d4ff;
+    }
+    td:first-child {
+      text-align: left;
+      font-weight: bold;
+    }
+    tr:nth-child(even) { background: #252538; }
+    tr:nth-child(odd) { background: #1e1e30; }
+    tr:hover { background: #3a3a55; }
+    .winner { background: #1a4a1a !important; }
+    .summary {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Helper Strategy Comparison</h1>
+
+  <div class="config">
+    <p><strong>Fixed:</strong> tierMult=20, VAL_SL=5, FARM_THRESHOLD=6, trainMult=0.01, CPS=25</p>
+    <p><strong>Testing:</strong> What "helps" functions to use when waiting for unaffordable military buildings</p>
+    <p><strong>Logic:</strong> SL helps if RP &lt; 25 (4% breakeven), Barracks helps if SL power &lt; 25, etc.</p>
+  </div>
+
+  <h2>Day 100</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>RP</th>
+      <th>SL Pwr</th>
+      <th>Bar Pwr</th>
+      <th>MB Pwr</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="">
+      <td>baseline (train+recruit)</td>
+      <td>6.10e+2</td>
+      <td>390</td>
+      <td>1.6</td>
+      <td>4.0</td>
+      <td>4.00</td>
+      <td>2.00</td>
+      <td>1.00</td>
+      <td>45</td>
+      <td>3</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>1</td>
+    </tr>
+    <tr class="winner">
+      <td>+SL helps</td>
+      <td>6.99e+2</td>
+      <td>519</td>
+      <td>1.3</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>30</td>
+      <td>27</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>3</td>
+    </tr>
+    <tr class="">
+      <td>+Barracks helps</td>
+      <td>6.99e+2</td>
+      <td>519</td>
+      <td>1.3</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>30</td>
+      <td>27</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>3</td>
+    </tr>
+    <tr class="">
+      <td>+MB helps</td>
+      <td>6.99e+2</td>
+      <td>519</td>
+      <td>1.3</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>30</td>
+      <td>27</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>3</td>
+    </tr>
+    <tr class="">
+      <td>+Kingdom helps</td>
+      <td>6.99e+2</td>
+      <td>519</td>
+      <td>1.3</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>30</td>
+      <td>27</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>3</td>
+    </tr>
+  </table>
+
+  <h2>Day 200</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>RP</th>
+      <th>SL Pwr</th>
+      <th>Bar Pwr</th>
+      <th>MB Pwr</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="winner">
+      <td>baseline (train+recruit)</td>
+      <td>6.79e+4</td>
+      <td>16,851</td>
+      <td>4.0</td>
+      <td>124.0</td>
+      <td>40.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>140</td>
+      <td>123</td>
+      <td>39</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>229</td>
+      <td>7</td>
+    </tr>
+    <tr class="">
+      <td>+SL helps</td>
+      <td>7.16e+2</td>
+      <td>496</td>
+      <td>1.4</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>37</td>
+      <td>27</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>5</td>
+    </tr>
+    <tr class="">
+      <td>+Barracks helps</td>
+      <td>7.16e+2</td>
+      <td>496</td>
+      <td>1.4</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>37</td>
+      <td>27</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>5</td>
+    </tr>
+    <tr class="">
+      <td>+MB helps</td>
+      <td>7.16e+2</td>
+      <td>496</td>
+      <td>1.4</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>37</td>
+      <td>27</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>5</td>
+    </tr>
+    <tr class="">
+      <td>+Kingdom helps</td>
+      <td>7.16e+2</td>
+      <td>496</td>
+      <td>1.4</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>37</td>
+      <td>27</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5</td>
+      <td>5</td>
+    </tr>
+  </table>
+
+  <h2>Day 300</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>RP</th>
+      <th>SL Pwr</th>
+      <th>Bar Pwr</th>
+      <th>MB Pwr</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="winner">
+      <td>baseline (train+recruit)</td>
+      <td>8.52e+8</td>
+      <td>5,715,044</td>
+      <td>149.2</td>
+      <td>79632.0</td>
+      <td>676.00</td>
+      <td>64.00</td>
+      <td>12.00</td>
+      <td>503</td>
+      <td>79,631</td>
+      <td>675</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>57,179</td>
+      <td>36</td>
+    </tr>
+    <tr class="">
+      <td>+SL helps</td>
+      <td>2.36e+4</td>
+      <td>4,474</td>
+      <td>5.3</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>3.00</td>
+      <td>167</td>
+      <td>27</td>
+      <td>3</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>90</td>
+      <td>6</td>
+    </tr>
+    <tr class="">
+      <td>+Barracks helps</td>
+      <td>2.36e+4</td>
+      <td>4,474</td>
+      <td>5.3</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>3.00</td>
+      <td>167</td>
+      <td>27</td>
+      <td>3</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>90</td>
+      <td>6</td>
+    </tr>
+    <tr class="">
+      <td>+MB helps</td>
+      <td>2.36e+4</td>
+      <td>4,474</td>
+      <td>5.3</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>3.00</td>
+      <td>167</td>
+      <td>27</td>
+      <td>3</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>90</td>
+      <td>6</td>
+    </tr>
+    <tr class="">
+      <td>+Kingdom helps</td>
+      <td>2.36e+4</td>
+      <td>4,474</td>
+      <td>5.3</td>
+      <td>28.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>3.00</td>
+      <td>167</td>
+      <td>27</td>
+      <td>3</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>90</td>
+      <td>6</td>
+    </tr>
+  </table>
+
+  <h2>Day 400</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>RP</th>
+      <th>SL Pwr</th>
+      <th>Bar Pwr</th>
+      <th>MB Pwr</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="winner">
+      <td>baseline (train+recruit)</td>
+      <td>1.09e+9</td>
+      <td>6,512,716</td>
+      <td>168.1</td>
+      <td>80308.0</td>
+      <td>676.00</td>
+      <td>64.00</td>
+      <td>12.00</td>
+      <td>515</td>
+      <td>80,307</td>
+      <td>675</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>65,084</td>
+      <td>36</td>
+    </tr>
+    <tr class="">
+      <td>+SL helps</td>
+      <td>6.83e+8</td>
+      <td>5,812,723</td>
+      <td>117.5</td>
+      <td>78920.0</td>
+      <td>668.00</td>
+      <td>64.00</td>
+      <td>12.00</td>
+      <td>479</td>
+      <td>78,919</td>
+      <td>667</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>57,975</td>
+      <td>35</td>
+    </tr>
+    <tr class="">
+      <td>+Barracks helps</td>
+      <td>6.83e+8</td>
+      <td>5,812,723</td>
+      <td>117.5</td>
+      <td>78920.0</td>
+      <td>668.00</td>
+      <td>64.00</td>
+      <td>12.00</td>
+      <td>479</td>
+      <td>78,919</td>
+      <td>667</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>57,975</td>
+      <td>35</td>
+    </tr>
+    <tr class="">
+      <td>+MB helps</td>
+      <td>6.83e+8</td>
+      <td>5,812,723</td>
+      <td>117.5</td>
+      <td>78920.0</td>
+      <td>668.00</td>
+      <td>64.00</td>
+      <td>12.00</td>
+      <td>479</td>
+      <td>78,919</td>
+      <td>667</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>57,975</td>
+      <td>35</td>
+    </tr>
+    <tr class="">
+      <td>+Kingdom helps</td>
+      <td>6.83e+8</td>
+      <td>5,812,723</td>
+      <td>117.5</td>
+      <td>78920.0</td>
+      <td>668.00</td>
+      <td>64.00</td>
+      <td>12.00</td>
+      <td>479</td>
+      <td>78,919</td>
+      <td>667</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>57,975</td>
+      <td>35</td>
+    </tr>
+  </table>
+
+  <h2>Day 500</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>RP</th>
+      <th>SL Pwr</th>
+      <th>Bar Pwr</th>
+      <th>MB Pwr</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="winner">
+      <td>baseline (train+recruit)</td>
+      <td>1.22e+9</td>
+      <td>6,835,976</td>
+      <td>178.4</td>
+      <td>80984.0</td>
+      <td>676.00</td>
+      <td>64.00</td>
+      <td>12.00</td>
+      <td>521</td>
+      <td>80,983</td>
+      <td>675</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>67,974</td>
+      <td>36</td>
+    </tr>
+    <tr class="">
+      <td>+SL helps</td>
+      <td>8.77e+8</td>
+      <td>6,623,967</td>
+      <td>132.4</td>
+      <td>86268.0</td>
+      <td>668.00</td>
+      <td>64.00</td>
+      <td>12.00</td>
+      <td>491</td>
+      <td>86,267</td>
+      <td>667</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>65,795</td>
+      <td>35</td>
+    </tr>
+    <tr class="">
+      <td>+Barracks helps</td>
+      <td>8.77e+8</td>
+      <td>6,623,967</td>
+      <td>132.4</td>
+      <td>86268.0</td>
+      <td>668.00</td>
+      <td>64.00</td>
+      <td>12.00</td>
+      <td>491</td>
+      <td>86,267</td>
+      <td>667</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>65,795</td>
+      <td>35</td>
+    </tr>
+    <tr class="">
+      <td>+MB helps</td>
+      <td>8.77e+8</td>
+      <td>6,623,967</td>
+      <td>132.4</td>
+      <td>86268.0</td>
+      <td>668.00</td>
+      <td>64.00</td>
+      <td>12.00</td>
+      <td>491</td>
+      <td>86,267</td>
+      <td>667</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>65,795</td>
+      <td>35</td>
+    </tr>
+    <tr class="">
+      <td>+Kingdom helps</td>
+      <td>8.77e+8</td>
+      <td>6,623,967</td>
+      <td>132.4</td>
+      <td>86268.0</td>
+      <td>668.00</td>
+      <td>64.00</td>
+      <td>12.00</td>
+      <td>491</td>
+      <td>86,267</td>
+      <td>667</td>
+      <td>63</td>
+      <td>11</td>
+      <td>1</td>
+      <td>65,795</td>
+      <td>35</td>
+    </tr>
+  </table>
+
+  <h2>Power Rankings Summary</h2>
+  <div class="summary">
+    <table>
+      <tr><th>Day</th><th>Winner</th><th>Power</th><th>Margin vs Baseline</th></tr>
+      <tr><td>100</td><td>+SL helps</td><td>6.99e+2</td><td>+14.6%</td></tr>
+      <tr><td>200</td><td>baseline (train+recruit)</td><td>6.79e+4</td><td>+0.0%</td></tr>
+      <tr><td>300</td><td>baseline (train+recruit)</td><td>8.52e+8</td><td>+0.0%</td></tr>
+      <tr><td>400</td><td>baseline (train+recruit)</td><td>1.09e+9</td><td>+0.0%</td></tr>
+      <tr><td>500</td><td>baseline (train+recruit)</td><td>1.22e+9</td><td>+0.0%</td></tr>
+    </table>
+  </div>
+
+</body>
+</html>

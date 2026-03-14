@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TrainMult Comparison</title>
+  <style>
+    body {
+      font-family: 'Consolas', 'Monaco', monospace;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 20px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    h1 { color: #00d4ff; text-align: center; }
+    h2 { color: #ff6b6b; margin-top: 40px; border-bottom: 2px solid #ff6b6b; padding-bottom: 10px; }
+    h3 { color: #ffd93d; margin-top: 30px; }
+    .config {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .config p { margin: 5px 0; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 15px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px 12px;
+      text-align: right;
+    }
+    th {
+      background: #2d2d44;
+      color: #00d4ff;
+    }
+    td:first-child {
+      text-align: left;
+      font-weight: bold;
+    }
+    tr:nth-child(even) { background: #252538; }
+    tr:nth-child(odd) { background: #1e1e30; }
+    tr:hover { background: #3a3a55; }
+    .winner { background: #1a4a1a !important; }
+    .broken { background: #4a1a1a !important; color: #ff6b6b; }
+    .starving { background: #4a3a1a !important; }
+    .summary {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .summary table { margin: 0; }
+    .summary th { background: #3d3d55; }
+  </style>
+</head>
+<body>
+  <h1>TrainMult Comparison</h1>
+
+  <div class="config">
+    <p><strong>Configuration:</strong></p>
+    <p>VAL_SL = 5 (fixed)</p>
+    <p>FARM_THRESHOLD = 6 (fixed)</p>
+    <p>pptScaling = true</p>
+    <p>CPS = 25</p>
+    <p><strong>Formula:</strong></p>
+    <p>trainValue = troops × ppt × trainMult</p>
+  </div>
+
+  <h2>Day 100</h2>
+  <table>
+    <tr>
+      <th>trainMult</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve Days</th>
+      <th>Max Streak</th>
+    </tr>
+    <tr class="">
+      <td>0.0001</td>
+      <td>3.03e+8</td>
+      <td>1,233,343</td>
+      <td>245.3</td>
+      <td>553</td>
+      <td>5,121</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>12,341</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.0002</td>
+      <td>3.84e+8</td>
+      <td>1,172,701</td>
+      <td>327.4</td>
+      <td>582</td>
+      <td>4,945</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,741</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.0005</td>
+      <td>5.29e+8</td>
+      <td>1,085,789</td>
+      <td>487.4</td>
+      <td>622</td>
+      <td>4,897</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>10,853</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.001</td>
+      <td>5.76e+8</td>
+      <td>1,081,099</td>
+      <td>533.1</td>
+      <td>631</td>
+      <td>4,657</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>10,829</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.002</td>
+      <td>6.34e+8</td>
+      <td>1,097,869</td>
+      <td>577.2</td>
+      <td>639</td>
+      <td>4,321</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>10,925</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.005</td>
+      <td>8.10e+8</td>
+      <td>1,127,615</td>
+      <td>718.5</td>
+      <td>661</td>
+      <td>3,585</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,285</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.01</td>
+      <td>9.88e+8</td>
+      <td>1,149,274</td>
+      <td>859.4</td>
+      <td>679</td>
+      <td>3,571</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,504</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="starving">
+      <td>0.02</td>
+      <td>1.09e+9</td>
+      <td>1,160,254</td>
+      <td>940.0</td>
+      <td>688</td>
+      <td>3,619</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,615</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>3</td>
+    </tr>
+    <tr class="">
+      <td>0.05</td>
+      <td>1.14e+9</td>
+      <td>1,156,697</td>
+      <td>987.9</td>
+      <td>693</td>
+      <td>3,635</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,516</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.1</td>
+      <td>1.15e+9</td>
+      <td>1,152,944</td>
+      <td>997.8</td>
+      <td>694</td>
+      <td>3,603</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,527</td>
+      <td>23</td>
+      <td>4</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.2</td>
+      <td>1.15e+9</td>
+      <td>1,152,815</td>
+      <td>997.8</td>
+      <td>694</td>
+      <td>3,571</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,511</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.3</td>
+      <td>1.15e+9</td>
+      <td>1,156,149</td>
+      <td>997.8</td>
+      <td>694</td>
+      <td>3,587</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,564</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.4</td>
+      <td>1.16e+9</td>
+      <td>1,159,781</td>
+      <td>997.8</td>
+      <td>694</td>
+      <td>3,587</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,564</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.5</td>
+      <td>1.16e+9</td>
+      <td>1,159,851</td>
+      <td>997.8</td>
+      <td>694</td>
+      <td>3,587</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,597</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="winner">
+      <td>1</td>
+      <td>1.21e+9</td>
+      <td>1,173,104</td>
+      <td>1028.0</td>
+      <td>697</td>
+      <td>3,729</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,752</td>
+      <td>23</td>
+      <td>4</td>
+      <td>7</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>2</td>
+      <td>1.21e+9</td>
+      <td>1,172,934</td>
+      <td>1028.0</td>
+      <td>697</td>
+      <td>3,729</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,747</td>
+      <td>23</td>
+      <td>4</td>
+      <td>7</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>5</td>
+      <td>1.20e+9</td>
+      <td>1,176,598</td>
+      <td>1017.8</td>
+      <td>696</td>
+      <td>3,712</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,766</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10</td>
+      <td>1.20e+9</td>
+      <td>1,176,598</td>
+      <td>1017.8</td>
+      <td>696</td>
+      <td>3,712</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,766</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>20</td>
+      <td>1.20e+9</td>
+      <td>1,176,598</td>
+      <td>1017.8</td>
+      <td>696</td>
+      <td>3,712</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>11,766</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+  </table>
+
+  <h2>Day 200</h2>
+  <table>
+    <tr>
+      <th>trainMult</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve Days</th>
+      <th>Max Streak</th>
+    </tr>
+    <tr class="winner">
+      <td>0.0001</td>
+      <td>3.16e+9</td>
+      <td>2,282,687</td>
+      <td>1385.6</td>
+      <td>727</td>
+      <td>7,729</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,013</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.0002</td>
+      <td>2.92e+9</td>
+      <td>2,170,635</td>
+      <td>1344.9</td>
+      <td>724</td>
+      <td>7,697</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,061</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.0005</td>
+      <td>2.73e+9</td>
+      <td>2,047,879</td>
+      <td>1331.5</td>
+      <td>723</td>
+      <td>7,681</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,013</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.001</td>
+      <td>2.64e+9</td>
+      <td>1,982,277</td>
+      <td>1331.5</td>
+      <td>723</td>
+      <td>7,665</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>21,965</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.002</td>
+      <td>2.59e+9</td>
+      <td>1,929,189</td>
+      <td>1344.9</td>
+      <td>724</td>
+      <td>7,681</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>21,941</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.005</td>
+      <td>2.58e+9</td>
+      <td>1,860,423</td>
+      <td>1385.6</td>
+      <td>727</td>
+      <td>7,697</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,061</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.01</td>
+      <td>2.63e+9</td>
+      <td>1,864,166</td>
+      <td>1413.5</td>
+      <td>729</td>
+      <td>7,779</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,040</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="starving">
+      <td>0.02</td>
+      <td>2.68e+9</td>
+      <td>1,859,914</td>
+      <td>1441.9</td>
+      <td>731</td>
+      <td>7,779</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,127</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>3</td>
+    </tr>
+    <tr class="">
+      <td>0.05</td>
+      <td>2.70e+9</td>
+      <td>1,855,741</td>
+      <td>1456.3</td>
+      <td>732</td>
+      <td>7,795</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,172</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.1</td>
+      <td>2.70e+9</td>
+      <td>1,857,084</td>
+      <td>1456.3</td>
+      <td>732</td>
+      <td>7,811</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,183</td>
+      <td>23</td>
+      <td>4</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.2</td>
+      <td>2.70e+9</td>
+      <td>1,854,011</td>
+      <td>1456.3</td>
+      <td>732</td>
+      <td>7,811</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,143</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.3</td>
+      <td>2.71e+9</td>
+      <td>1,859,325</td>
+      <td>1456.3</td>
+      <td>732</td>
+      <td>7,827</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,148</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.4</td>
+      <td>2.66e+9</td>
+      <td>1,846,293</td>
+      <td>1441.9</td>
+      <td>731</td>
+      <td>7,811</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,196</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.5</td>
+      <td>2.70e+9</td>
+      <td>1,851,019</td>
+      <td>1456.3</td>
+      <td>732</td>
+      <td>7,811</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,229</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>1</td>
+      <td>2.85e+9</td>
+      <td>1,937,195</td>
+      <td>1470.8</td>
+      <td>733</td>
+      <td>8,251</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,240</td>
+      <td>23</td>
+      <td>4</td>
+      <td>7</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>2</td>
+      <td>2.87e+9</td>
+      <td>1,933,370</td>
+      <td>1485.6</td>
+      <td>734</td>
+      <td>8,234</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,211</td>
+      <td>23</td>
+      <td>4</td>
+      <td>7</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>5</td>
+      <td>2.83e+9</td>
+      <td>1,925,868</td>
+      <td>1470.8</td>
+      <td>733</td>
+      <td>8,251</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,230</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10</td>
+      <td>2.83e+9</td>
+      <td>1,925,868</td>
+      <td>1470.8</td>
+      <td>733</td>
+      <td>8,251</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,230</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>20</td>
+      <td>2.83e+9</td>
+      <td>1,925,868</td>
+      <td>1470.8</td>
+      <td>733</td>
+      <td>8,251</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22,230</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+  </table>
+
+  <h2>Day 300</h2>
+  <table>
+    <tr>
+      <th>trainMult</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve Days</th>
+      <th>Max Streak</th>
+    </tr>
+    <tr class="">
+      <td>0.0001</td>
+      <td>4.91e+9</td>
+      <td>2,377,987</td>
+      <td>2063.0</td>
+      <td>767</td>
+      <td>8,209</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,549</td>
+      <td>23</td>
+      <td>4</td>
+      <td>3</td>
+      <td>2</td>
+    </tr>
+    <tr class="winner">
+      <td>0.0002</td>
+      <td>5.48e+9</td>
+      <td>2,655,573</td>
+      <td>2063.0</td>
+      <td>767</td>
+      <td>8,209</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,549</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.0005</td>
+      <td>5.10e+9</td>
+      <td>2,523,791</td>
+      <td>2022.3</td>
+      <td>765</td>
+      <td>8,177</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,477</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.001</td>
+      <td>4.87e+9</td>
+      <td>2,457,677</td>
+      <td>1982.5</td>
+      <td>763</td>
+      <td>8,161</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,429</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.002</td>
+      <td>4.75e+9</td>
+      <td>2,396,475</td>
+      <td>1982.5</td>
+      <td>763</td>
+      <td>8,145</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,405</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.005</td>
+      <td>4.60e+9</td>
+      <td>2,320,315</td>
+      <td>1982.5</td>
+      <td>763</td>
+      <td>8,161</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,429</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.01</td>
+      <td>4.64e+9</td>
+      <td>2,295,502</td>
+      <td>2022.3</td>
+      <td>765</td>
+      <td>8,211</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,360</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="starving">
+      <td>0.02</td>
+      <td>4.60e+9</td>
+      <td>2,276,186</td>
+      <td>2022.3</td>
+      <td>765</td>
+      <td>8,227</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,399</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>3</td>
+    </tr>
+    <tr class="">
+      <td>0.05</td>
+      <td>4.62e+9</td>
+      <td>2,264,105</td>
+      <td>2042.5</td>
+      <td>766</td>
+      <td>8,227</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,444</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.1</td>
+      <td>4.61e+9</td>
+      <td>2,257,684</td>
+      <td>2042.5</td>
+      <td>766</td>
+      <td>8,227</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,479</td>
+      <td>23</td>
+      <td>4</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.2</td>
+      <td>4.61e+9</td>
+      <td>2,254,643</td>
+      <td>2042.5</td>
+      <td>766</td>
+      <td>8,227</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,415</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.3</td>
+      <td>4.62e+9</td>
+      <td>2,259,909</td>
+      <td>2042.5</td>
+      <td>766</td>
+      <td>8,227</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,468</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.4</td>
+      <td>4.61e+9</td>
+      <td>2,254,721</td>
+      <td>2042.5</td>
+      <td>766</td>
+      <td>8,227</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,444</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.5</td>
+      <td>4.62e+9</td>
+      <td>2,259,463</td>
+      <td>2042.5</td>
+      <td>766</td>
+      <td>8,227</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,501</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>1</td>
+      <td>4.94e+9</td>
+      <td>2,368,740</td>
+      <td>2083.6</td>
+      <td>768</td>
+      <td>8,676</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,512</td>
+      <td>23</td>
+      <td>4</td>
+      <td>7</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>2</td>
+      <td>4.86e+9</td>
+      <td>2,356,187</td>
+      <td>2063.0</td>
+      <td>767</td>
+      <td>8,676</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,531</td>
+      <td>23</td>
+      <td>4</td>
+      <td>7</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>5</td>
+      <td>4.93e+9</td>
+      <td>2,365,597</td>
+      <td>2083.6</td>
+      <td>768</td>
+      <td>8,676</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,502</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10</td>
+      <td>4.93e+9</td>
+      <td>2,365,597</td>
+      <td>2083.6</td>
+      <td>768</td>
+      <td>8,676</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,502</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>20</td>
+      <td>4.93e+9</td>
+      <td>2,365,597</td>
+      <td>2083.6</td>
+      <td>768</td>
+      <td>8,676</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23,502</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+  </table>
+
+  <h2>Day 400</h2>
+  <table>
+    <tr>
+      <th>trainMult</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve Days</th>
+      <th>Max Streak</th>
+    </tr>
+    <tr class="">
+      <td>0.0001</td>
+      <td>6.18e+9</td>
+      <td>2,408,445</td>
+      <td>2567.8</td>
+      <td>789</td>
+      <td>8,481</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,365</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.0002</td>
+      <td>6.22e+9</td>
+      <td>2,420,895</td>
+      <td>2567.8</td>
+      <td>789</td>
+      <td>8,481</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,365</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.0005</td>
+      <td>6.28e+9</td>
+      <td>2,422,582</td>
+      <td>2593.5</td>
+      <td>790</td>
+      <td>8,481</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,389</td>
+      <td>23</td>
+      <td>4</td>
+      <td>3</td>
+      <td>2</td>
+    </tr>
+    <tr class="winner">
+      <td>0.001</td>
+      <td>7.10e+9</td>
+      <td>2,765,527</td>
+      <td>2567.8</td>
+      <td>789</td>
+      <td>8,465</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,341</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.002</td>
+      <td>6.85e+9</td>
+      <td>2,695,619</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,465</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,293</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.005</td>
+      <td>6.66e+9</td>
+      <td>2,619,555</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,449</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,293</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.01</td>
+      <td>6.60e+9</td>
+      <td>2,596,318</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,200</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="starving">
+      <td>0.02</td>
+      <td>6.51e+9</td>
+      <td>2,560,194</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,263</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>3</td>
+    </tr>
+    <tr class="">
+      <td>0.05</td>
+      <td>6.50e+9</td>
+      <td>2,556,629</td>
+      <td>2542.4</td>
+      <td>788</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,284</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.1</td>
+      <td>6.55e+9</td>
+      <td>2,550,208</td>
+      <td>2567.8</td>
+      <td>789</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,295</td>
+      <td>23</td>
+      <td>4</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.2</td>
+      <td>6.54e+9</td>
+      <td>2,547,183</td>
+      <td>2567.8</td>
+      <td>789</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,255</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.3</td>
+      <td>6.55e+9</td>
+      <td>2,552,465</td>
+      <td>2567.8</td>
+      <td>789</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,284</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.4</td>
+      <td>6.54e+9</td>
+      <td>2,547,277</td>
+      <td>2567.8</td>
+      <td>789</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,260</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.5</td>
+      <td>6.55e+9</td>
+      <td>2,551,955</td>
+      <td>2567.8</td>
+      <td>789</td>
+      <td>8,499</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,317</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>1</td>
+      <td>7.01e+9</td>
+      <td>2,677,892</td>
+      <td>2619.4</td>
+      <td>791</td>
+      <td>8,982</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,328</td>
+      <td>23</td>
+      <td>4</td>
+      <td>7</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>2</td>
+      <td>6.98e+9</td>
+      <td>2,664,965</td>
+      <td>2619.4</td>
+      <td>791</td>
+      <td>8,982</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,323</td>
+      <td>23</td>
+      <td>4</td>
+      <td>7</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>5</td>
+      <td>6.98e+9</td>
+      <td>2,665,800</td>
+      <td>2619.4</td>
+      <td>791</td>
+      <td>8,982</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,318</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10</td>
+      <td>6.98e+9</td>
+      <td>2,665,800</td>
+      <td>2619.4</td>
+      <td>791</td>
+      <td>8,982</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,318</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>20</td>
+      <td>6.98e+9</td>
+      <td>2,665,800</td>
+      <td>2619.4</td>
+      <td>791</td>
+      <td>8,982</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,318</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+  </table>
+
+  <h2>Day 500</h2>
+  <table>
+    <tr>
+      <th>trainMult</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Plant</th>
+      <th>Col</th>
+      <th>Starve Days</th>
+      <th>Max Streak</th>
+    </tr>
+    <tr class="">
+      <td>0.0001</td>
+      <td>7.47e+9</td>
+      <td>2,479,307</td>
+      <td>3011.0</td>
+      <td>805</td>
+      <td>8,673</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,917</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.0002</td>
+      <td>7.50e+9</td>
+      <td>2,491,167</td>
+      <td>3011.0</td>
+      <td>805</td>
+      <td>8,673</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,941</td>
+      <td>23</td>
+      <td>4</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.0005</td>
+      <td>7.52e+9</td>
+      <td>2,496,179</td>
+      <td>3011.0</td>
+      <td>805</td>
+      <td>8,673</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,941</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.001</td>
+      <td>7.32e+9</td>
+      <td>2,431,055</td>
+      <td>3011.0</td>
+      <td>805</td>
+      <td>8,673</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,941</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.002</td>
+      <td>7.24e+9</td>
+      <td>2,381,422</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,673</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,941</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.005</td>
+      <td>8.56e+9</td>
+      <td>2,842,263</td>
+      <td>3011.0</td>
+      <td>805</td>
+      <td>8,673</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,941</td>
+      <td>23</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr class="">
+      <td>0.01</td>
+      <td>8.58e+9</td>
+      <td>2,820,086</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,848</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="starving">
+      <td>0.02</td>
+      <td>8.47e+9</td>
+      <td>2,783,754</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,863</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>3</td>
+    </tr>
+    <tr class="">
+      <td>0.05</td>
+      <td>8.46e+9</td>
+      <td>2,780,397</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,884</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.1</td>
+      <td>8.44e+9</td>
+      <td>2,774,024</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,919</td>
+      <td>23</td>
+      <td>4</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.2</td>
+      <td>8.40e+9</td>
+      <td>2,762,211</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,879</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.3</td>
+      <td>8.44e+9</td>
+      <td>2,776,265</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,884</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.4</td>
+      <td>8.40e+9</td>
+      <td>2,762,273</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,884</td>
+      <td>23</td>
+      <td>4</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>0.5</td>
+      <td>8.44e+9</td>
+      <td>2,775,771</td>
+      <td>3041.1</td>
+      <td>806</td>
+      <td>8,707</td>
+      <td>15</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,917</td>
+      <td>23</td>
+      <td>4</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>1</td>
+      <td>8.98e+9</td>
+      <td>2,895,983</td>
+      <td>3102.2</td>
+      <td>808</td>
+      <td>9,203</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,976</td>
+      <td>23</td>
+      <td>4</td>
+      <td>7</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>2</td>
+      <td>9.00e+9</td>
+      <td>2,901,260</td>
+      <td>3102.2</td>
+      <td>808</td>
+      <td>9,203</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,947</td>
+      <td>23</td>
+      <td>4</td>
+      <td>7</td>
+      <td>2</td>
+    </tr>
+    <tr class="winner">
+      <td>5</td>
+      <td>9.00e+9</td>
+      <td>2,902,044</td>
+      <td>3102.2</td>
+      <td>808</td>
+      <td>9,203</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,942</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>10</td>
+      <td>9.00e+9</td>
+      <td>2,902,044</td>
+      <td>3102.2</td>
+      <td>808</td>
+      <td>9,203</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,942</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+    <tr class="">
+      <td>20</td>
+      <td>9.00e+9</td>
+      <td>2,902,044</td>
+      <td>3102.2</td>
+      <td>808</td>
+      <td>9,203</td>
+      <td>16</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>24,942</td>
+      <td>23</td>
+      <td>4</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+  </table>
+
+  <h2>Power Rankings Summary</h2>
+  <div class="summary">
+    <table>
+      <tr><th>Day</th><th>Winner</th><th>Power</th></tr>
+      <tr><td>100</td><td>trainMult=1</td><td>1.21e+9</td></tr>
+      <tr><td>200</td><td>trainMult=0.0001</td><td>3.16e+9</td></tr>
+      <tr><td>300</td><td>trainMult=0.0002</td><td>5.48e+9</td></tr>
+      <tr><td>400</td><td>trainMult=0.001</td><td>7.10e+9</td></tr>
+      <tr><td>500</td><td>trainMult=5</td><td>9.00e+9</td></tr>
+    </table>
+  </div>
+
+  <div class="summary">
+    <h3>Legend</h3>
+    <p><span style="background: #1a4a1a; padding: 2px 8px;">Green</span> = Winner for that day</p>
+    <p><span style="background: #4a1a1a; padding: 2px 8px;">Red</span> = Broken (stuck at 1 troop)</p>
+    <p><span style="background: #4a3a1a; padding: 2px 8px;">Orange</span> = Starving (max streak >= 3 days)</p>
+  </div>
+
+</body>
+</html>

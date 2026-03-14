@@ -1,0 +1,281 @@
+AI STRATEGY NOTES
+=================
+
+CURRENT STATE
+-------------
+- NEW: Score-based AI that compares all actions on unified scale
+- Uses sqrt(cost_pct) to balance cheap vs expensive purchases
+- Emergency mode for food crisis (precise calculation)
+- Begging as fallback when nothing affordable (free +1 coin)
+- Beats old priority-based AI 100% of the time (8.97x power ratio)
+
+
+KEY DECISIONS
+-------------
+1. Train vs Recruit - which gives more power per coin?
+2. When to buy farms/economy vs army?
+3. When to save for multiplier upgrades (SL, barracks, plantation)?
+
+
+POWER/COST CALCULATIONS
+-----------------------
+train_value = (troops * ppt * 0.01) / train_cost
+recruit_value = (rp * ppt) / recruit_cost
+
+But recruit has hidden costs (farm strain)...
+
+
+FARM STRAIN - 5 VARIABLES
+-------------------------
+1. SUPER EMERGENCY (0/1)
+   - Will recruiting make it impossible to buy enough farms/plantations to survive?
+   - If 1 → hard veto, never recruit
+
+2. SUPER EMERGENCY COST (clicks, % coins)
+   - How many farm/plantation clicks and what % of coins needed to avoid super emergency?
+   - The hidden cost of recruiting
+
+3. EMERGENCY (0/1)
+   - Will recruiting force me into emergency territory (must buy farms or starve)?
+   - Calculated precisely: days_to_afford_farm > days_of_food
+   - NOT arbitrary threshold like "< 30 days"
+
+4. EMERGENCY DISTANCE (number)
+   - How many recruit clicks until I hit emergency?
+   - Higher = more buffer = safer
+   - Could express as fraction: this recruit uses 1/N of my safety margin
+
+5. EMERGENCY SEVERITY (clicks, % coins)
+   - If in emergency, how expensive to escape?
+   - How many farm/plantation/colony clicks needed?
+   - What % of my coins?
+
+
+COMBINED FARM STRAIN FORMULA
+----------------------------
+if super_emergency: return INFINITY (veto)
+
+strain = (super_emergency_cost.coins / my_coins) * w1
+       + emergency * w2
+       + (1 / emergency_distance) * w3
+       + (emergency_severity.coins / my_coins) * w4
+
+Weights need tuning via playtesting.
+
+
+TRUE COST OF RECRUITING
+-----------------------
+true_recruit_cost = recruit_cost
+                  + farms_needed * farm_cost
+                  + plantations_needed * plantation_cost
+                  + colonies_needed * colony_cost
+
+recruit_adjusted_value = (rp * ppt) / true_recruit_cost
+OR
+recruit_adjusted_value = recruit_value - farm_strain
+
+
+DECISION FRAMEWORK
+------------------
+recruit_adjusted_value vs train_value → pick higher
+
+Also consider:
+- Am I close to a multiplier upgrade? (SL, barracks, plantation)
+- If yes, save for it (future recruits/farms will be better)
+
+
+INCOME CALCULATION
+------------------
+income_per_day = (troops * ppt * 4)      # passive loot
+               + (clicks_per_second * 1)  # begging
+
+Used to calculate days_to_afford_X precisely.
+
+
+RECRUIT TIMING - "WAIT FOR MULTIPLIER?" FACTOR
+-----------------------------------------------
+Two variables:
+1. seconds_until_upgrade - how long until I can afford target upgrade
+2. target_upgrade - which upgrade am I saving for (SL, barracks, etc.)
+
+From target_upgrade, derive rp improvement:
+- SL: +1 to rp directly
+- Barracks: +1 to SL power → more SLs per click → bigger future rp
+- Military base: +1 to barracks power → even more downstream
+
+Decision: is the rp improvement worth the wait?
+- Short wait + big improvement → delay recruiting
+- Long wait + small improvement → recruit now
+
+Lost passive income during wait = opportunity cost.
+
+This is a MINOR factor (recruit is cheap vs upgrades).
+Only matters if very close to upgrade (like < 3 seconds).
+
+SEPARATE QUESTION: "Which multiplier upgrade should I target?"
+That's the upgrade prioritization problem, not recruit vs train.
+
+
+ECONOMY CHAIN FORMULA
+---------------------
+For each economy button (farm, plantation, colony):
+
+  score = button_value / sqrt(cost_pct)
+
+Where:
+  button_value = output * building_value
+  output = buildings per click (fp, pp, cp)
+  cost_pct = button_cost / current_coins
+
+Building values (3x per tier):
+  farm = 1
+  plantation = 3
+  colony = 9
+
+Why sqrt?
+- Compresses differences at low cost_pct (1% vs 5% = both cheap)
+- Still penalizes high cost_pct (50% = expensive)
+- Continuous, no arbitrary thresholds
+
+Example scenario verification:
+- First colony at 36% cost → wins vs plantation (should buy)
+- Second colony at 55% cost → loses vs plantation (shouldn't buy)
+- Farm at 2.5% vs plantation at 13% → farm wins (much cheaper, same output value)
+
+
+CROSS-TIER PRIORITIZATION (Army vs Economy)
+-------------------------------------------
+When to focus on army chain vs economy chain?
+
+Two factors:
+
+1. POWER CLOSENESS - how close is the battle?
+
+   closeness = min(my_power, enemy_power) / max(my_power, enemy_power)
+
+   closeness ≈ 1.0 (tied): army investment HIGH IMPACT (could swing battle)
+   closeness ≈ 0.1 (far apart): army investment LOW IMPACT (outcome decided)
+
+   When far apart (either ahead or behind), army doesn't matter much.
+   Might as well invest in economy for compound growth.
+
+2. PROJECTED FOOD STRAIN - how constrained is future growth?
+
+   capacity_used = current_troops / max_sustainable_troops
+   recruits_until_full = (max_sustainable - current_troops) / rp
+
+   If lots of headroom: army focus ok
+   If near capacity: need economy to unlock more growth
+
+   This is DIFFERENT from immediate food strain (will I starve?).
+   This is about: "am I on a path toward hitting a ceiling?"
+
+Combining them:
+
+   Base building values:
+   economy: farm=1, plantation=3, colony=9
+   army: SL=2, barracks=6, MB=18, kingdom=54 (2x economy equivalent)
+
+   Army has 2x base bias because troops generate loot → compounds more
+   (loot buys both army AND economy)
+
+   Then apply bonuses:
+   army_score = base_score * (1 + closeness * k1)
+   economy_score = base_score * (1 + strain * k2)
+
+   Results:
+   - Neutral (low closeness, low strain) → army wins (2x base)
+   - High strain → economy bonus overcomes 2x bias
+   - High closeness → army wins even more
+   - High closeness + high strain → depends on k1 vs k2 weights
+
+
+TRAIN/RECRUIT VS ARMY CHAIN
+---------------------------
+Train and recruit get ~1.2x bonus because:
+- They're immediate (no waiting for payoff)
+- They don't inflate costs of other things (own scaling pools)
+
+Army chain items share cost pool - buying SL makes barracks more expensive.
+
+
+FULL SCORING SYSTEM
+-------------------
+For each possible action, calculate score:
+
+  score = (output * building_value * modifiers) / sqrt(cost_pct)
+
+Building values:
+  Economy: farm=1, plantation=3, colony=9
+  Army: SL=2, barracks=6, MB=18, kingdom=54 (2x economy)
+  Train: troops * ppt * 0.01 (immediate power gain)
+  Recruit: rp * ppt (immediate power gain)
+
+Modifiers:
+  Train/recruit: * 1.2 (no-inflation bonus)
+  Army chain: * (1 + closeness * k1)
+  Economy chain: * (1 + strain * k2)
+  Recruit: - farm_strain_penalty
+
+Where:
+  closeness = min(my_power, enemy_power) / max(my_power, enemy_power)
+  strain = current_troops / max_sustainable_troops
+  cost_pct = cost / current_coins
+
+Pick action with highest score. If nothing affordable, beg.
+
+
+SIMULATION RESULTS (2024)
+-------------------------
+Tested new score-based AI vs old priority-based AI.
+50 simulations, 200 days.
+
+Optimized parameters:
+  K_CLOSENESS = 0.5      (army bonus when battle is close)
+  K_STRAIN = 2.0         (economy bonus when food constrained)
+  NO_INFLATE_BONUS = 1.2 (train/recruit bonus)
+  Army multiplier = 10x  (SL=10, barracks=100, MB=1000, kingdom=10000)
+
+WHY 10x INSTEAD OF 3x?
+Human playtesting revealed AI was recruiting too early instead of
+building multiplier chain. With 3x values:
+- Recruit at 1% cost: score = 1/sqrt(0.01) = 10
+- Barracks at 50% cost: score = 9/sqrt(0.5) = 12.7 (barely higher!)
+
+The 3x ratio doesn't capture the TRUE compound value of multipliers.
+Each barracks gives +1 SL per click, and each SL gives +1 rp, so
+barracks value compounds over time.
+
+With 10x values, barracks (100) clearly beats recruit (1), making
+the AI prioritize the multiplier chain like human players do.
+
+Simulation tested 10x vs 3x: 10x wins 6x more power at 20 cps.
+
+Results at actual game click rates:
+  4 cps:  100% win rate, 6.79x ratio
+  8 cps:  100% win rate, 18.91x ratio
+  25 cps: 100% win rate, 38.38x ratio
+
+Note: maxIterations = clicks (not clicks*10 - that was a bug)
+
+The game is fully deterministic - no randomness.
+New vs New always ties, solo runs always reach same power.
+
+
+EMERGENCY MODE FIX
+------------------
+Bug found: when coins >= farmCost, daysToAffordFarm = 0, so
+"0 > daysOfFood" was always false, even at 0 food.
+
+Fix: emergency = (daysToAfford > daysOfFood || daysOfFood <= 0) && netConsume > 0
+
+This ensures we buy farms when:
+1. We can't afford farm before starving, OR
+2. We're already at 0 food and still need farms
+
+
+TODO / OPEN QUESTIONS
+---------------------
+- Integrate optimized AI into army-clicker.html
+- Test against human players
+- Consider adding slight randomness for variety?

@@ -1,0 +1,60 @@
+OrdinalNumber breaks when upgrade mult > 300 (native JS operators fail)
+======================================================================
+
+BUG: When upgrade levels exceed 300, getUpgradeMult() returns OrdinalNumber.
+Native JS operators (+, *, >, <=) don't work with OrdinalNumber objects.
+
+AFFECTED LOCATIONS:
+
+1. render.js:155-157 (ensureAutoTierButton):
+   - `(G.upgradeLevels[targetId] || 0) + tierMult` -> NaN or string concat
+   - `tierMult > 1` -> false (object comparison)
+
+2. events.js:155-157 (ensureMainAutoTierButton):
+   Same issue as above
+
+3. events.js:401-411 (recruit button click):
+   - `G._frozenCosts['recruit'] * mult` -> NaN
+   - `mult <= 1` -> wrong result
+   - `G.rp * mult` -> NaN
+   - `G.counts["recruit"] + mult` -> string concat
+
+4. render.js:220-231 (recruit display in updateUI):
+   - `recruitMult <= 1` -> wrong result
+   - `recruitBaseCost * recruitMult` -> NaN
+   - `recruitMult > 1` -> false
+   - `G.rp * recruitMult` -> NaN
+
+5. buttons.js:107-109 (farm effectFn):
+   - `G.fp * mult` -> NaN
+   - `(G.counts["farm"] || 0) + G.fp * mult` -> NaN
+   - `(G._buttonClicks["farm"] || 0) + mult` -> string
+   - `(G._economyClicks || 0) + mult` -> string
+
+6. buttons.js:123-125 (plantation effectFn):
+   Same pattern with G.pp * mult
+
+7. buttons.js:141-143 (colony effectFn):
+   Same pattern
+
+8. buttons.js:112 (farm warning logic):
+   - `4 + G.fp * mult` -> "4NaN" or similar garbage
+   - cntGte() then receives garbage threshold
+
+FIX PATTERN:
+```javascript
+// Before (broken):
+value * mult
+oldValue + mult
+mult > 1
+
+// After (correct):
+var isOrdMult = mult instanceof OrdinalNumber;
+isOrdMult ? mult.mul(value) : value * mult
+isOrdMult ? ON(oldValue).add(mult) : oldValue + mult
+isOrdMult ? mult.gt(1) : mult > 1
+```
+
+NOTE: The army chain buttons use applyEffect() which was updated to handle
+OrdinalNumber. But economy chain (farm/plantation/colony) has inline effectFns
+that were never updated.

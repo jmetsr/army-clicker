@@ -1,0 +1,28 @@
+Tower Notation for Astronomical Numbers
+========================================
+
+Prerequisite: Task 01a (remove BigInt from OrdinalNumber)
+
+Goal:
+Implement proper tower notation (layer 2) for numbers beyond 10^308.
+This is needed for auto^3+ scenarios where numbers go truly astronomical.
+
+When Needed:
+- Layer 1 exponent exceeds ~308 (Number limit)
+- Example: 10^10^1000 can't be represented as {mantissa, exponent}
+- Need tower: [1000] meaning 10^(10^1000)
+
+Tower Representation:
+- {tower: [a]} = 10^(10^a)
+- {tower: [a, b]} = 10^(10^(10^a))^b (or similar - need to define precisely)
+- Operations manipulate tower structure, not actual values
+
+Operations to Implement:
+- Comparison: longer tower usually wins, then compare top elements
+- Multiplication: roughly adds to top tower element
+- Addition: larger tower wins (smaller is negligible)
+- Display: "10^10^10^1000" or "10↑↑4(1000)" notation
+
+Priority:
+Low - only needed when players reach auto^3+ territory.
+Most gameplay stays in layer 0 and 1.

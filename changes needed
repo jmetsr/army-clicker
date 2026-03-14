@@ -1,0 +1,225 @@
+changes needed
+
+1. some stuff like "+2 coins" under loot and anything else that color needs to be darker
+2. words need to be singular when approriate "recruit 2 thugs" needs to say "recruit 1 thug" when its up to 1, not "1 thugs"
+3. loot button should be centered
+recruit button should be left as part of army collumn
+4. instead of trill sargent increasing the multiple of Train, I think its better (and changes seen more easier ) if it just changes the amount of taining sessions you get per press of the button. so with a single drill sargent each press of train button gets 2 session instead of 1. with n drill sargents it gets n+1 sessions. u could make drill sargents more expensive to componsate
+5. 
+need bigger breaks in ordering of troop type, lets try
+
+
+[500,"Dragons"],[360,"Storm Giants"]
+[300,"Giants"],[100,"Ogres"],[80,"Trolls"],[50,"War Orcs"],[40,"Orcs"],[20,"Knights on horseback"]
+
+[15,"Armored Swordsmen"],[12,"Swordsmen"],[9,"Archers"],[7,"Soldjers with katanas"],[5,"Soldiers with nunchucks"],[3,"Pikemen"],[2,"Soldiers with daggers"] 
+
+
+6. not a code change but suggest what prompts i should use to generate icons in stable diffusion for the different types of troops, like should I just do "soldjer" or a more detailed prompt. also what width and height should i tell it. 
+7. ⚠ Entropy: 1.48% troop decay / second is hard to read, need better contrast
+
+8. dark ritual shouldnt say ??? for cost. it should either say cost: entrpee or it should give the cost in coins if there is one that exists in addition to entrpee
+
+9. dark ritual should be a different color
+
+10. you should have to hovor over the loot button to see the "auto loot button" popout from under it and only after clicking it once there should it show up on the bottom
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+1. in additon to causing entrpee,
+ dark ritual should also have 1 time cost of 10% of all troops
+ and 10% of all money
+ 2. dark ritual should only be avalable when total power excedeeds a trillion
+ 3, dark ritual should have a dark purple background color with white text
+ 4. war college should act as making the "drill sargent" button more powerful (creating an extra drill sergent per button) , instead of what it does now. (anagalous to how the drill sargent creats an extra session per button press)
+
+
+1 Quintillion - chuck norrises
+1 Quadrillion - ultra macro agentic galaxies
+10 trillion - Dyson Sphere powered planet sized tornatos 
+100 billion - celestial forces
+10 billion - elder gods
+450 million - titans
+100 million - fallen angels
+50 million - Demon Lords
+20 million - balrogs
+5 million -Archdemons
+200,000 Elder dragons
+60000 Dragons
+50000 Wyrms
+12000 - Giant Knights on Giant horses
+3600,"Giants With Nunchuks
+ [1800,"Giant Pikemen"],
+ [600,"Giants"],
+ [200,"Ogres"],
+ [100,"Trolls"],
+ [75,"War Orcs"],
+ [60,"Orcs"],
+ [20,"Knights on Horseback"],
+ [18,"Armored Swordsmen"],[16,"Swordsmen"],[13,"Archers"],[8,"Soldiers with Katanas"],[6,"Soldiers with Nunchucks"],[3,"Pikemen"],[2,"Soldiers with Daggers"],[0,"Thugs"]];
+
+
+ train by default should start at only 1% not 3
+7. all buttons need a different on hover color, slightly lighter than regular color
+8. when color scheme changes change the overall background and text too, not just the buttons. (obviously this changes how the buttons should look too. since buttons need to be different than background)
+
+9. scheme changes should happen on multiple of 10s so when power reaches 10, 100, 1000 etc
+
+10. general rule - many contrasts are not good. As a general rule, if a text color is ok on background X thats light then its not good on a background Y thats dark. as a general rule of thumb for yourself, for every color classify it as to how dark it is from a scale from 1 to 10, 1 as lightest and 10 as darkest.
+the background should always be 5 away from the text. if the text is a 3 on the scale, he background should be atleast an 8. show your work in the comments
+
+11. in general improve readability of the code. meaningful vairable names, more indentation, more new lines, lists should have each thing on seperate line
+
+
+
+*****************************
+
+1. number names shouldnt stop at quadrillion, have them go all the way up to Decillion
+
+2. getting error:
+Uncaught RangeError: Infinity can't be converted to BigInt because it isn't an integer
+    OrdinalNumber file:///home/jjsclaude/Desktop/fun/army-clicker.html:119
+    _wrap file:///home/jjsclaude/Desktop/fun/army-clicker.html:209
+    mul file:///home/jjsclaude/Desktop/fun/army-clicker.html:248
+    tp file:///home/jjsclaude/Desktop/fun/army-clicker.html:466
+    ch file:///home/jjsclaude/Desktop/fun/army-clicker.html:716
+    tickAuto file:///home/jjsclaude/Desktop/fun/army-clicker.html:708
+    tick file:///home/jjsclaude/Desktop/fun/army-clicker.html:715
+43 army-clicker.html:119:20 (this was the line before the recent code changes)
+
+
+
+*****************************
+\more changes:
+
+1.
+Add timer. and events that corropond to timing. Imagine each second of real time corrpsonds to a day of game-time
+so events are stuff like:
+you've been ammasing your army for a week
+for a month
+for a year
+for a decade
+a century
+etc
+
+also have events like 
+the town's people are getting scared of your looting
+Rival gangs are doing this and that
+other armies etc. just add more flavor-events in general corrosponding to game states
+- add >100 such events for different states
+
+
+2. "Notice how all army costs rose?"" should be red it should also say "Don't spam one button without considering the consequencies"
+
+
+3. add a new thing to buy called commander. similar cost algorthim of exponential to the other stuff (2% per buy). each commander does 1 auto loot per second. if 2 commanders then an auto loot every half second, if 10 once per every 1/10 seconds. if 2000 then 2 every milisecond etc.
+
+
+4. change it so Each army upgrade (SL, barracks, colony, kingdom, empire) increases all army costs by .08% instead of 2% 
+
+5. lower base cost of kingdom to 200,000
+
+6. also add genral where every general u buy makes each press of the commander button give an extra commander (the same way colony effects baracs) have general and commander cost pool together so the ration between them is preserved like the army stuff is shared. put them together in a third collumn
+
+7. then add Kings above general in the tier
+
+8. change dark ritual and magic to show up at 50 billion power instead of a trillion
+
+9. add war university which is in the training tier. each war university makes "train" more powerful. one war college makes each train produce 2 sessions instead of 1. 2 war colleges makes it 3 sessions. it shares a cost pool with train so that the ration between war college and train is presesserved. (keep the cost exponential at 2%) start them at 500 million cost
+--------------
+
+1. war university - don't show it till u are within 1% of being able to afford it
+
+2. war university change lower base cost to 10,000,000
+
+3. generals and commanders should give similar warnings as the army that each button boosts the other one
+
+
+------
+1.ok so to make build up slower, change .8% back to 2% for army cost multiplier
+2. also not connected but when number of a resource exceedes 1000 u dont have the comma, like it should say 4,000 Barrachs, instead of 4000 Baracks. similarly it should say 6 million with a word instead of 6,000,000 or 6000000.
+3. also lets remove "War Univeristy" completly its way too powerful now and breaks the game
+4. remove "War king" as well
+
+5. big changes to MAGIC - 
+
+now dark ritual is only avalable at 1 trilion and only gives 1 magic. each 1 magic corrosponds to 1% entripee. so with 50 magic u lose half troops every second.
+
+
+and i want to change what u can buy with magic
+first of all remove all that stuff about inspire, automation, propoganda etc
+instead:
+
+For 4 magic u can buy UPGRADE BUTTON - this opens up a model where u can choose one of the core buttons - including LOOT, TRAIN, RECRUIT, all the way up to Empire and upgrade that button. what this does is changes the button color and also now each click is the equivilent to clicking it 10 times, so loot button now loot's 10 times, train now trains 10 times. note: this SHOULE effect cost. pressing train costs the same as what it would have costed to train 10 times etc
+If u upgrade a button thats already upgraded u get 100 instead of 10. then 1000 etc, multiplying by 10 each time
+
+
+For 6 magic u unclock Astronomical tier of army. This is 10 extra levels in army chain, with names like Plannet, Galaxy, Solar System, Super Cluster etc . they should work the same way as empire, kingdom, colony, etc each one boosting the effect of the 1 bellow it
+
+for 7 magic u can unlock Mystical Gem tier of training:
+Mystical Saphires boost Train the way war college used to, mystical emperalds boost saphires etc.
+
+(note once astronomical tier and mystic gem tier are unlocked, the buttons they unlock are eligable for being upgraded)
+
+For 8 magic u freeeze all costs of all buttons perminantly as they are now. No more expoential costs
+
+For 10 magic u can purchase an auto upgrader button for a button. This is a button u can press that each time u press that button it upgrades a corrosponding button. for instance if u buy an auto upgrader for LOOT then each time u press this button it upgrades LOOT. since this also requires picking a button, it should also open up a model. u can only abuy an auto upgrader for a button once uve already purchased 3 upgrades for it. auto upgraders should cost a googol coins to press (once the button is purchased)
+
+
+I think auto upgrader is the way to get to the fast growing higharcy. does that sound right to you?
+
+
+*********************************
+more changes----
+
+1. add another category of troop after thugs called thugs with knives - worth 1.5 thugs of power
+
+2. get rid of generals and commanders (entire command )
+collumn
+3. make army costs increase by 3% instead of 2%
+
+
+4. in the place where commander used to people put enemy troop totals
+put both the troop amounts and their total power
+- there are 4 modes to the game - 
+at the begining (before seeing anything else) u have to choose mode
+Practice
+Easy
+Medium
+HArd
+
+practice - no enimies
+Easy - enimy is called town police force
+it should say Town Police Force
+ it gets one 
+Pikeman per day (per second)
+
+Medium enemy is emperial forces
+on day X it gets X knights on horseback
+so 5 extra knights on day 5 etc
+
+hard - enimy is forces of dark lord
+on each day they get dragons equal to that day squared
+so on day 5, 25 dragons
+
+
+on each day probability of a battle is 1% on easy, 2% on medium, 3% on hard
+whoever has higher total power wins the battle
+loser of battle loses 10% of all troops, 10% of all money, 10% of all stuff in army chain, squad leaders, baracs etc
+when battle happends entire screen should become red for 1 sec and it should anounce in very big letters thers a battle. when u lose screen should become black for 1 sec as it anounces what u lost. when u win it becomes green.
+
+
+
+************************
+changes
+(my goal is to slow down the game. it should idealy take 2 years game time to get to magic)
+
+1. double the base cost of  everything 
+2. instead of costing 10% of everything. first dark ritual should cost a trillion coin. eveyr subsequent dark ritual should cost 10x the last dark ritual (also should continue causing entrepee as before)
+3. for battles instead of 10% losses, make it 5% (and increment by 5% for each consequtive victory/defeat)
+4. this is not something i want u to do but write about - what are your thoughts on adding an additional resource. like maybe each troop consumes 1 food perday so in additon to looting u need to hunt to continue feeding your troops ? or maybe instead of food u need to forage for stone to build baracs or something? I don't know. what are your thoughts on what resources would make the game the most intresting and how should they work
+5. my impression is the army chain is more powerful than train so lets 
+
+
+
+

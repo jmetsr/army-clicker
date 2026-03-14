@@ -1,0 +1,50 @@
+Handle Large Numbers with Tower Notation
+=========================================
+
+STATUS: SPLIT INTO SUBTASKS
+===========================
+- Task 01a: Remove BigInt from OrdinalNumber (performance fix)
+- Task 01b: Tower notation for astronomical numbers (auto^3+ support)
+
+---
+
+Original Description:
+
+Problem:
+When we have auto upgraders (auto^1), auto^2 upgraders, auto^3 upgraders, etc.,
+the numbers become so large that even BigInt can't handle them. We get overflow
+when values reach things like 10^10^1000.
+
+Solution:
+Implement tower notation in the OrdinalNumber class. Store numbers as towers of
+exponents rather than actual values:
+
+{base: 10, tower: [1000, 500, 200]}  // represents 10^10^10^1000
+
+Operations become manipulating the tower structure rather than computing
+impossible values.
+
+Implementation Notes:
+- Need to update OrdinalNumber class to support tower representation
+- Operations (add, multiply, compare) work on tower structure
+- Display formatting shows the tower notation to user
+- Need to define when to switch from BigInt to tower notation
+
+Additional Issue: BigInt Efficiency
+-----------------------------------
+The problem isn't just numbers too large for BigInt. BigInt itself is inefficient
+even when it "works" - calculations are slow. We don't need the precision BigInt
+provides (we're not doing accounting, just a game).
+
+Options to consider:
+1. Use regular JS numbers with rounding for values up to ~10^15
+2. Use floating point approximation (mantissa + exponent) for larger values
+3. Only switch to BigInt/tower notation when truly necessary
+4. If using BigInt, round aggressively to keep digit count low
+
+The current OrdinalNumber class may be overkill for most game states. Even values
+above a trillion could use simpler representations.
+
+Reference from Claude:
+"Then operations become manipulating the tower structure rather than computing
+impossible values."

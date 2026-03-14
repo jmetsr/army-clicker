@@ -1,0 +1,30 @@
+Fix Simulation AI Wait Penalty
+==============================
+
+Location: simulation/ folder (DO NOT modify game AI until approved)
+
+Problem:
+It's too easy for human to beat AI by delaying strong buildings until later.
+The AI is winning in the short term but human wins long-term.
+
+Suspected Cause:
+The wait penalty is too high. AI penalizes future buildings at ~0.01/day, meaning
+anything it can't build for 100+ days gets ignored. This makes AI too short-sighted.
+
+Evidence:
+- AI always wins short term
+- Human pulls ahead if they wait long enough
+- This suggests AI is undervaluing long-term investments
+
+Potential Fixes:
+1. Reduce the wait penalty rate (e.g., 0.001/day instead of 0.01/day)
+2. Use exponential decay instead of linear penalty
+3. Add special handling for high-value long-term buildings
+4. Implement look-ahead to see how building A enables building B
+
+Testing:
+- Run simulations comparing current vs modified penalty
+- Verify AI now considers buildings 100+ days out
+- Ensure human can't trivially win by just waiting
+
+IMPORTANT: Only modify simulation/ folder code, not game AI, until human approves.

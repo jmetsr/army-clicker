@@ -1,0 +1,40 @@
+Allow Enemy to Have Multiple Troop Types
+========================================
+
+STATUS: COMPLETE
+================
+Implemented via dragonCohorts system:
+- state.js: dragonCohorts = [] array of {count: OrdinalNumber, ppt: number}
+- core.js: Dragons spawn into cohorts, losses affect all proportionally
+- ai-strategy.js: Training multiplies ppt for each cohort separately
+- render.js: UI shows dragon cohort breakdown
+
+---
+
+Feature:
+Enemy army can now have troops at different power levels simultaneously.
+Example: Some troops at power level X and others at power level Y.
+
+Requirements:
+
+1. Enemy Troop Storage
+   - Track multiple troop types with their power levels
+   - e.g., {dragons: 1000, knights: 5000, thugs: 10000}
+
+2. Training Effects
+   - Training still affects all troops as percentage of current power
+   - If you apply a 10% buff, each troop type gets 10% stronger
+   - Power levels stay distinct (dragons stay dragons, etc.)
+
+3. Passive Income
+   - Sum passive income scores across all troop types
+   - Each troop type contributes based on its own power level
+
+4. Battle/Loss Mechanics
+   - When enemy loses troops (starvation, battle), lose proportionally
+   - 50% loss = 50% of ALL troop types lost
+   - Maintains the ratio between troop types
+
+5. Display
+   - Show breakdown of enemy troop types
+   - Show combined power/income

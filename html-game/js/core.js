@@ -1,0 +1,449 @@
+// ================================================================
+//  CORE GAME LOGIC - Game tick, battle, food, logging
+//  VERSION: troop-loss-fix-v2 (2024-03-12)
+// ================================================================
+
+// References to functions from other modules (set from main.js)
+var runAIRef = null;
+var updateUIRef = null;
+var checkFlavorEventsRef = null;
+var getUpgradeMultRef = null;
+
+function setRunAI(fn) { runAIRef = fn; }
+function setUpdateUI(fn) { updateUIRef = fn; }
+function setCheckFlavorEvents(fn) { checkFlavorEventsRef = fn; }
+function setGetUpgradeMult(fn) { getUpgradeMultRef = fn; }
+
+// Log to event display
+function log(msg, cls) {
+  var el = document.getElementById("logEntries");
+  if (!el) return;
+  var e = document.createElement("div");
+  e.className = "log-entry" + (cls ? " " + cls : "");
+  e.textContent = msg;
+  el.insertBefore(e, el.firstChild);
+  while (el.children.length > 50) el.removeChild(el.lastChild);
+}
+
+// Gameplay logging
+function logClick(action) {
+  if (!G.logStartTime) G.logStartTime = Date.now();
+  var elapsed = Date.now() - G.logStartTime;
+  G.clickLog.push({
+    t: elapsed,
+    day: G.day,
+    action: action,
+    coins: G.coins.toNumber(),
+    troops: G.troops.toNumber(),
+    ppt: G.ppt,
+    rp: G.rp,
+    sl: cnt("squad_leader"),
+    bar: cnt("barracks"),
+    mb: cnt("military_base"),
+    king: cnt("kingdom"),
+    train: cnt("train"),
+    armyClicks: G._armyClicks || 0
+  });
+}
+
+function logAI(action) {
+  if (!G.ai) return;
+  G.gameLog.push({
+    type: "ai",
+    day: G.day,
+    action: action,
+    coins: G.ai.coins.toNumber(),
+    troops: G.ai.troops.toNumber(),
+    ppt: G.ai.ppt,
+    food: G.ai.food.toNumber(),
+    farms: G.ai.counts["farm"] || 0
+  });
+}
+
+function logSnapshot() {
+  var snap = { type: "snapshot", day: G.day };
+  snap.player = {
+    troops: G.troops.toNumber(),
+    ppt: G.ppt,
+    power: tp().toNumber(),
+    coins: G.coins.toNumber(),
+    food: G.food.toNumber(),
+    farms: cnt("farm")
+  };
+  if (G.ai) {
+    snap.ai = {
+      troops: G.ai.troops.toNumber(),
+      ppt: G.ai.ppt,
+      power: G.ai.troops.mul(G.ai.ppt).toNumber(),
+      coins: G.ai.coins.toNumber(),
+      food: G.ai.food.toNumber(),
+      farms: G.ai.counts["farm"] || 0
+    };
+  }
+  G.gameLog.push(snap);
+}
+
+function logBattle(result, playerPower, enemyPower) {
+  G.gameLog.push({
+    type: "battle",
+    day: G.day,
+    result: result,
+    playerPower: playerPower.toNumber(),
+    enemyPower: enemyPower.toNumber()
+  });
+}
+
+function exportLog() {
+  var exportData = {
+    playerClicks: G.clickLog,
+    gameEvents: G.gameLog
+  };
+  var data = JSON.stringify(exportData, null, 2);
+  var blob = new Blob([data], { type: "application/json" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "army-clicker-log-" + new Date().toISOString().slice(0, 19).replace(/:/g, "-") + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  return G.clickLog;
+}
+
+function clearLog() {
+  G.clickLog = [];
+  G.logStartTime = null;
+}
+
+// GAME TICK
+function tick() {
+  if (!G.gameStarted) return;
+  var ch = false;
+
+  // Increment day
+  G.day++;
+
+  // Snapshot every 10 days for logging
+  if (G.day % 10 === 0) logSnapshot();
+
+  // Food system: farms produce, troops consume daily (unless Eternal Feast active)
+  var farmProduction = cnt("farm") * C.farm_production;
+  G.food = G.food.add(farmProduction);
+
+  if (!G.eternalFeast) {
+    var troopConsumption = Math.floor(G.troops.toNumber() * C.food_perTroopDay);
+    var foodShortage = troopConsumption > G.food.toNumber();
+    G.food = G.food.sub(troopConsumption);
+
+    // Desertion if out of food - escalates each consecutive day
+    if (foodShortage) {
+      G.starvationStreak++;
+      // Escalating: 5%, 10%, 20%, 40%... doubles each day
+      var desertPct = Math.min(5 * Math.pow(2, G.starvationStreak - 1), 100);
+      var deserters = G.troops.mulFraction(desertPct, 100);
+      G.troops = G.troops.sub(deserters);
+      if (G.starvationStreak === 1) {
+        log("\u26a0 Troops starving! " + fmt(deserters) + " deserted (" + desertPct + "%).", "danger-msg");
+      } else {
+        log("\u26a0 STARVATION DAY " + G.starvationStreak + "! " + fmt(deserters) + " deserted (" + desertPct + "%)!", "danger-msg");
+      }
+    } else {
+      G.starvationStreak = 0;
+    }
+  }
+  ch = true;
+
+  // Calculate daily dragon spawn from dark rituals
+  if (G.darkRitualDays.length > 0) {
+    var newDragons = ON(0);
+    for (var i = 0; i < G.darkRitualDays.length; i++) {
+      var daysSince = G.day - G.darkRitualDays[i];
+      if (daysSince > 0) {
+        var power = i + 1;
+        var todayTotal = Math.pow(daysSince, power);
+        var yesterdayTotal = daysSince > 1 ? Math.pow(daysSince - 1, power) : 0;
+        var dailyIncrement = todayTotal - yesterdayTotal;
+        if (dailyIncrement > 0) {
+          newDragons = newDragons.add(ON(dailyIncrement));
+        }
+      }
+    }
+    // Add new dragons to ppt=60000 cohort
+    if (newDragons.gt(0)) {
+      var found = false;
+      for (var c = 0; c < G.dragonCohorts.length; c++) {
+        if (G.dragonCohorts[c].ppt === 60000) {
+          G.dragonCohorts[c].count = G.dragonCohorts[c].count.add(newDragons);
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        G.dragonCohorts.push({ count: newDragons, ppt: 60000 });
+      }
+    }
+    // Update legacy fields
+    G.enemyDragons = ON(0);
+    G.enemyDragonPpt = 60000;
+    for (var c = 0; c < G.dragonCohorts.length; c++) {
+      G.enemyDragons = G.enemyDragons.add(G.dragonCohorts[c].count);
+    }
+  }
+
+  // Enemy growth based on difficulty
+  var hasEnemy = G.difficulty && !G.enemyVanquished &&
+                 (G.difficulty !== 'practice' || G.darkRitualDays.length > 0);
+  if (hasEnemy) {
+    var enemyGain = ON(0);
+    var enemyPptGain = 0;
+    if (G.difficulty === 'easy') {
+      enemyGain = ON(1);
+      enemyPptGain = 3;
+    } else if (G.difficulty === 'medium') {
+      enemyGain = ON(G.day);
+      enemyPptGain = 15;
+    } else if (G.difficulty === 'hard') {
+      enemyGain = ON(G.day * G.day);
+      enemyPptGain = 500;
+    } else if (isAIMode() && G.ai) {
+      // AI mode: run AI at configured clicks per second
+      if (runAIRef) runAIRef(getAICps());
+      // AI passive looting
+      var totalAiPower = G.ai.troops.mul(G.ai.ppt).add(getDragonPower());
+      if (totalAiPower.gte(1)) {
+        var aiLootPerTick = totalAiPower;
+        if (aiLootPerTick.lt(1)) aiLootPerTick = ON(1);
+        G.ai.coins = G.ai.coins.add(aiLootPerTick.mul(4));
+      }
+      // AI food
+      if (!G.enemyNoStarve) {
+        var aiFarmProd = (G.ai.counts["farm"] || 0) * C.farm_production;
+        var aiTroopConsume = Math.floor(G.ai.troops.toNumber() * C.food_perTroopDay);
+        G.ai.food = G.ai.food.add(aiFarmProd);
+        var aiStarving = aiTroopConsume > G.ai.food.toNumber();
+        G.ai.food = G.ai.food.sub(aiTroopConsume);
+        if (aiStarving) {
+          G.ai.starvationStreak = (G.ai.starvationStreak || 0) + 1;
+          var aiDesertPct = Math.min(5 * Math.pow(2, G.ai.starvationStreak - 1), 100);
+          var aiDeserters = G.ai.troops.mulFraction(aiDesertPct, 100);
+          G.ai.troops = G.ai.troops.sub(aiDeserters);
+          var keepPct = 100 - aiDesertPct;
+          for (var c = 0; c < G.dragonCohorts.length; c++) {
+            G.dragonCohorts[c].count = G.dragonCohorts[c].count.mulFraction(keepPct, 100);
+          }
+          G.dragonCohorts = G.dragonCohorts.filter(function(c) { return c.count.gte(1); });
+          G.enemyDragons = ON(0);
+          for (var c = 0; c < G.dragonCohorts.length; c++) {
+            G.enemyDragons = G.enemyDragons.add(G.dragonCohorts[c].count);
+          }
+        } else {
+          G.ai.starvationStreak = 0;
+        }
+      }
+      G.enemyTroops = G.ai.troops;
+      var aiBasePower = G.ai.troops.mul(G.ai.ppt);
+      var dragonPower = getDragonPower();
+      G.enemyPower = aiBasePower.add(dragonPower);
+      // Log AI status every 10 days
+      if (G.day % 10 === 0) {
+        var playerPptStr = (typeof G.ppt === 'number') ? G.ppt.toFixed(2) : G.ppt.format();
+        var aiPptStr = (typeof G.ai.ppt === 'number') ? G.ai.ppt.toFixed(2) : G.ai.ppt.format();
+        log("[Player Day " + G.day + "] Troops:" + fmt(G.troops) + " PPT:" + playerPptStr + " Power:" + fmt(tp()) + " Coins:" + fmt(G.coins) + " Food:" + fmt(G.food));
+        log("[AI Day " + G.day + "] Troops:" + fmt(G.ai.troops) + " PPT:" + aiPptStr + " Power:" + fmt(G.enemyPower) + " Coins:" + fmt(G.ai.coins) + " Food:" + fmt(G.ai.food));
+      }
+    }
+    if (!isAIMode()) {
+      G.enemyTroops = G.enemyTroops.add(enemyGain);
+      var basePower = G.enemyTroops.mul(enemyPptGain);
+      var dragonPower = getDragonPower();
+      G.enemyPower = basePower.add(dragonPower);
+    }
+    ch = true;
+
+    // Battle chance
+    var battleChance = G.difficulty === 'easy' ? 0.01 : G.difficulty === 'medium' ? 0.02 : 0.03;
+    if (Math.random() < battleChance) {
+      doBattle();
+    }
+  }
+
+  // Check for flavor events
+  if (checkFlavorEventsRef) checkFlavorEventsRef();
+  if (ch && updateUIRef) updateUIRef();
+}
+
+// BATTLE SYSTEM
+function doBattle() {
+  var playerPower = tp();
+  var enemyPower = G.enemyPower;
+  var flash = document.getElementById("battleFlash");
+  var text = document.getElementById("battleText");
+
+  // Show battle announcement
+  flash.className = "battle-flash battle active";
+  text.innerHTML = "\u2694\ufe0f BATTLE! \u2694\ufe0f<div class='battle-sub'>Your power: " + playerPower.format() + " vs Enemy: " + enemyPower.format() + "</div>";
+
+  setTimeout(function() {
+    var isTie = playerPower.eq(enemyPower);
+    var playerWins = playerPower.gt(enemyPower);
+    var resultDuration = 500;
+
+    if (isTie) {
+      G.winStreak = 0;
+      G.lossStreak = 0;
+      flash.className = "battle-flash stalemate active";
+      text.innerHTML = "\u2694\ufe0f STALEMATE! \u2694\ufe0f<div class='battle-sub'>Forces evenly matched - no victor!</div>";
+      log("STALEMATE! Battle ends in a draw.", "milestone");
+      logBattle("tie", playerPower, enemyPower);
+    } else if (playerWins) {
+      G.winStreak++;
+      G.lossStreak = 0;
+      var lossPct = Math.min(G.winStreak * 5, 100);
+      var keepFraction = 100 - lossPct;
+
+      flash.className = "battle-flash victory active";
+      // Calculate enemy troop loss with proper rounding (not truncation)
+      var enemyTroopCount = G.enemyTroops.toNumber();
+      var enemyTroopLoss = Math.round(enemyTroopCount * lossPct / 100);
+      G.enemyTroops = G.enemyTroops.sub(enemyTroopLoss);
+      if (G.enemyTroops.lt(0)) G.enemyTroops = ON(0);
+      G.enemyPower = G.enemyPower.mulFraction(keepFraction, 100);
+
+      // Reduce dragon cohorts
+      for (var c = 0; c < G.dragonCohorts.length; c++) {
+        G.dragonCohorts[c].count = G.dragonCohorts[c].count.mulFraction(keepFraction, 100);
+        G.dragonCohorts[c].ppt = Math.max(1, G.dragonCohorts[c].ppt * keepFraction / 100);
+      }
+      G.dragonCohorts = G.dragonCohorts.filter(function(c) { return c.count.gte(1); });
+      G.enemyDragons = ON(0);
+      for (var c = 0; c < G.dragonCohorts.length; c++) {
+        G.enemyDragons = G.enemyDragons.add(G.dragonCohorts[c].count);
+      }
+      // Recalculate enemy power from actual values (not just mulFraction)
+      G.enemyPower = G.enemyTroops.mul(isAIMode() && G.ai ? G.ai.ppt : 1).add(getDragonPower());
+
+      // AI mode: reduce AI stats
+      if (isAIMode() && G.ai) {
+        // Calculate loss with proper rounding (not truncation)
+        var aiTroopCount = G.ai.troops.toNumber();
+        var aiTroopLoss = Math.round(aiTroopCount * lossPct / 100);
+        G.ai.troops = G.ai.troops.sub(aiTroopLoss);
+        if (G.ai.troops.lt(0)) G.ai.troops = ON(0);
+        G.ai.coins = G.ai.coins.mulFraction(keepFraction, 100);
+        G.ai.ppt = Math.max(1, G.ai.ppt * keepFraction / 100);
+        ["squad_leader", "barracks", "military_base", "kingdom", "empire"].forEach(function(id) {
+          if (G.ai.counts[id] > 0) {
+            G.ai.counts[id] = Math.max(0, G.ai.counts[id] - Math.round(G.ai.counts[id] * lossPct / 100));
+          }
+        });
+        G.ai.rp = 1 + (G.ai.counts["squad_leader"] || 0);
+      }
+
+      var streakMsg = G.winStreak > 1 ? " (" + G.winStreak + " in a row!)" : "";
+      text.innerHTML = "\ud83c\udfc6 VICTORY! \ud83c\udfc6<div class='battle-sub'>Enemy loses " + lossPct + "% of forces!" + streakMsg + "</div>";
+      log("VICTORY! Enemy forces reduced by " + lossPct + "%." + streakMsg, "milestone");
+      logBattle("win", playerPower, enemyPower);
+
+      // Check if enemy wiped out (non-AI mode only - AI has its own check below)
+      if (!isAIMode() && G.enemyTroops.lt(1) && G.dragonCohorts.length === 0) {
+        G.enemyTroops = ON(0);
+        G.enemyPower = ON(0);
+        G.enemyDragons = ON(0);
+        G.dragonCohorts = [];
+        if (!G.enemyUnvanquishable) {
+          G.enemyVanquished = true;
+          log("\ud83c\udf89 TOTAL VICTORY! The enemy has been vanquished!", "milestone");
+        } else {
+          log("\ud83c\udf89 VICTORY! Enemy forces destroyed... but darkness will bring them back.", "milestone");
+        }
+      }
+      // AI vanquish check - only if AI has recruited at least once (don't vanquish before game starts)
+      if (isAIMode() && G.ai && G.ai.troops.lt(1) && (G.ai.counts["recruit"] || 0) > 0) {
+        G.ai.troops = ON(0);
+        G.enemyVanquished = true;
+        log("\ud83c\udf89 TOTAL VICTORY! The AI opponent has been defeated!", "milestone");
+      }
+    } else {
+      // Defeat
+      G.lossStreak++;
+      G.winStreak = 0;
+      var lossPct = Math.min(G.lossStreak * 5, 100);
+      var keepFraction = 100 - lossPct;
+
+      flash.className = "battle-flash defeat active";
+      var losses = [];
+
+      // Troop loss
+      var troopLoss = G.troops.mulFraction(lossPct, 100);
+      G.troops = G.troops.sub(troopLoss);
+      losses.push(fmt(troopLoss) + " troops");
+
+      // Coin loss
+      var coinLoss = G.coins.mulFraction(lossPct, 100);
+      G.coins = G.coins.sub(coinLoss);
+      losses.push(fmt(coinLoss) + " coins");
+
+      // Power/troop loss
+      var oldTroopName = getTN();
+      if (typeof G.ppt === 'number') {
+        var pptLoss = G.ppt * lossPct / 100;
+        G.ppt = Math.max(1, G.ppt - pptLoss);
+        if (pptLoss >= 0.01) losses.push(pptLoss.toFixed(2) + " power/troop");
+      } else {
+        var pptLoss = G.ppt.mulFraction(lossPct, 100);
+        G.ppt = G.ppt.sub(pptLoss);
+        if (G.ppt.lt(1)) G.ppt = 1;
+        losses.push(fmt(pptLoss) + " power/troop");
+      }
+      var newTroopName = getTN();
+      if (newTroopName !== oldTroopName) {
+        log("Your troops devolved from " + oldTroopName + " into " + newTroopName + "!", "danger-msg");
+      }
+
+      // Army chain losses
+      ["squad_leader", "barracks", "military_base", "kingdom", "empire", "planet", "solar_system", "galaxy", "galaxy_cluster", "supercluster"].forEach(function(id) {
+        if (G.counts[id] > 0) {
+          var lost = Math.floor(G.counts[id] * lossPct / 100);
+          if (lost > 0) {
+            G.counts[id] = Math.max(0, G.counts[id] - lost);
+            var name = id.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+            if (lost > 1) name += "s";
+            losses.push(fmt(lost) + " " + name);
+          }
+        }
+      });
+      G.rp = 1 + cnt("squad_leader");
+
+      var streakMsg = G.lossStreak > 1 ? "<br><b>" + G.lossStreak + " defeats in a row! (-" + lossPct + "%)</b>" : "";
+      var lossText = losses.slice(0, 5).join("<br>");
+      if (losses.length > 5) lossText += "<br>...and " + (losses.length - 5) + " more";
+      text.innerHTML = "\ud83d\udc80 DEFEAT! \ud83d\udc80<div class='battle-sub'>" + lossText + streakMsg + "</div>";
+      log("DEFEAT! Lost " + lossPct + "% - " + losses.join(", "), "danger-msg");
+      logBattle("lose", playerPower, enemyPower);
+
+      if (G.troops.lt(1)) {
+        G.troops = ON(0);
+        log("\ud83d\udc80 TOTAL DEFEAT! Your army has been destroyed!", "danger-msg");
+      }
+    }
+
+    setTimeout(function() {
+      flash.className = "battle-flash";
+      if (updateUIRef) updateUIRef();
+    }, resultDuration);
+  }, 200);
+}
+
+// AUTO-LOOT: runs 4x per second
+function lootTick() {
+  if (!G.gameStarted) return;
+  if (G.troops.lt(1)) return;
+  var mult = getUpgradeMultRef ? getUpgradeMultRef('loot') : 1;
+  var gain = tp().mul(C.lootBase).floor();
+  if (gain.lt(1)) gain = ON(1);
+  G.coins = G.coins.add(gain.mul(mult));
+  // Update coins display
+  var el = document.getElementById("coinCount");
+  if (el) el.textContent = fmt(G.coins);
+}

@@ -1,0 +1,64 @@
+Remove BigInt from OrdinalNumber Class
+=======================================
+
+STATUS: COMPLETE
+================
+Implemented in html-game/js/ordinal.js and simulation/ordinal.js.
+
+Changes made:
+1. Rewrote OrdinalNumber to use Number throughout (no BigInt)
+2. Layer 0: Number (up to 10^12, then promote)
+3. Layer 1: {mantissa: Number, exponent: Number}
+4. SIGNIFICANCE_THRESHOLD = 7 (ignore additions < 1/10M of value)
+5. PROMOTE_THRESHOLD = 1e12 (keep "trillion" display)
+6. Updated util.js: getUpgradeMult() and googol() to not use BigInt
+
+Performance test results:
+- 500 days @ 8 cps: 49ms
+- 2000 days @ 25 cps: 224ms (50K clicks total)
+
+Files updated:
+- html-game/js/ordinal.js - complete rewrite
+- html-game/js/util.js - removed BigInt from getUpgradeMult() and googol()
+- simulation/ordinal.js - synced with game version
+
+Testing needed:
+- [ ] Play actual game to verify no issues
+- [ ] Check late-game performance improvement
+
+---
+
+Goal:
+Replace all BigInt usage in OrdinalNumber with native JS Number for performance.
+Late-game freezes are likely caused by expensive BigInt operations.
+
+Current State:
+- Layer 0: BigInt (slow for large values)
+- Layer 1: {mantissa: Number, exponent: BigInt} (still has BigInt)
+- Layer 2: tower notation (not fully implemented)
+
+New Design:
+- Layer 0: Number (up to ~10^12, then promote)
+- Layer 1: {mantissa: Number, exponent: Number} (covers up to 10^308)
+- Layer 2: {tower: Number[]} (task 01b, for exponent > 308)
+
+Key Changes:
+1. Remove all BigInt usage - use Number throughout
+2. Promote from layer 0 to layer 1 at ~10^12 (keeps "trillion" display nice)
+3. Ignore additions where exponent difference > 7 (the 1/10M rule)
+4. All operations stay O(1) - no .toString() on large numbers
+
+Precision Notes:
+- Number has ~15-17 significant digits of precision
+- That's plenty for a game - we don't need exact counts
+- Example: 1 trillion + 100K = still 1 trillion (and that's fine)
+
+Interface:
+- OrdinalNumber class API stays the same
+- All existing code using OrdinalNumber keeps working
+- Just faster internally
+
+Testing:
+- Verify game still works after changes
+- Check late-game performance improvement
+- Ensure display formatting still looks correct

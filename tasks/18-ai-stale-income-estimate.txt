@@ -1,0 +1,76 @@
+AI: Refresh incomePerDay Inside Decision Loop
+=============================================
+
+STATUS: COMPLETE
+================
+Fixed in ai-strategy.js lines 280-285. Inside the while loop:
+  coins = ai.coins.toNumber();
+  troopCount = ai.troops.toNumber();
+  ppt = ai.ppt;  // REFRESHED
+  incomePerDay = (troopCount * ppt * 4) + clicks;  // REFRESHED
+
+---
+
+Problem:
+--------
+In runAI(), incomePerDay is calculated once at the start of the tick:
+
+```javascript
+var ppt = ai.ppt;  // Line 104
+var incomePerDay = (troopCount * ppt * 4) + clicks;  // Line 124
+```
+
+But inside the loop, only coins and troopCount are updated:
+
+```javascript
+while (iterations < maxIterations) {
+  iterations++;
+  coins = ai.coins.toNumber();
+  troopCount = ai.troops.toNumber();
+  // ppt and incomePerDay NOT updated
+```
+
+This matters because incomePerDay is used for:
+1. Calculating daysToWait in calcScore() for the WAIT_DECAY discount
+2. Food emergency detection
+3. Deciding if recruit/train helps reach goals faster
+
+Why This Matters:
+-----------------
+With 25 cps AI, troopCount can change dramatically within a single tick:
+
+Example:
+- Start of tick: 100 troops, rp=1, incomePerDay = 425
+- Click 1-3: Buy 3 SLs with squadLeaderPower=10, now rp=31
+- Click 4-25: Recruit 22 times, adding 31 each = 682 new troops
+- End of tick: 782 troops, real income ~3100/day
+
+But AI is still using incomePerDay=425 for decisions late in the tick.
+That's 7x too low, causing massive over-discounting of expensive buildings.
+
+The ppt can also change (from training), though that's usually smaller (~1% per train).
+
+Proposed Fix:
+-------------
+Add two lines inside the loop to refresh these values:
+
+```javascript
+while (iterations < maxIterations) {
+  iterations++;
+  coins = ai.coins.toNumber();
+  troopCount = ai.troops.toNumber();
+  ppt = ai.ppt;  // ADD THIS
+  incomePerDay = (troopCount * ppt * 4) + clicks;  // ADD THIS
+```
+
+Priority:
+---------
+Medium. Less impactful than task 17 (building values off by 1000x in late game),
+but still causes incorrect discounting of expensive buildings, especially for
+high cps AI modes.
+
+Testing:
+--------
+Watch AI behavior with 25 cps mode:
+- After buying SLs, does the AI still properly evaluate expensive buildings?
+- Compare decision quality early vs late in a tick

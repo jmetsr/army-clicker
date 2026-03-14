@@ -1,0 +1,67 @@
+Refactor army-clicker.html into Modular Structure
+=================================================
+
+Goal:
+Break army-clicker.html into separate files in a new html-game/ folder for
+human readability. Keep it functional (not OOP).
+
+New Structure:
+html-game/
+  index.html          - Just HTML structure, links to other files
+  styles.css          - All CSS
+
+  js/
+    main.js           - Entry point, initializes game
+    core.js           - Core game logic (game loop, state management)
+    ai-strategy.js    - AI decision making and strategy
+    util.js           - Helper functions
+    events.js         - Event handlers (click, keyboard, etc.)
+    render.js         - Display/rendering functions
+    data.js           - Game data/constants (unit types, costs, etc.)
+
+Guidelines:
+- Keep code functional, not class-based
+- Each file should have a clear single responsibility
+- Use ES modules (import/export) for dependencies
+- Preserve all existing functionality
+- Test thoroughly after refactoring
+
+STATUS: COMPLETE
+================
+
+Refactoring completed with the following structure:
+
+html-game/
+  index.html          - HTML structure only
+  styles.css          - All CSS (game styling, battle effects, modals, etc.)
+  icons/              - Troop icon images (Thug.png, Farm.png, etc.)
+
+  js/
+    main.js           - Entry point, wires up circular dependencies
+    ordinal.js        - OrdinalNumber class for large number handling
+    data.js           - Constants (C), WORDS, TROOP_NAMES, TROOP_ICONS, etc.
+    state.js          - Game state (G) and state-related functions
+    util.js           - Formatting/helper functions (fmt, getTN, etc.)
+    buttons.js        - Button definitions (BUTTONS array)
+    core.js           - Game tick, battle system, logging
+    ai-strategy.js    - AI decision making (runAI, runSimulation)
+    render.js         - UI building and updating (buildButtons, updateUI)
+    events.js         - Event handlers, modals, difficulty selection
+
+Circular Dependencies Resolved:
+- core.js <-> render.js: setUpdateUI/setCheckFlavorEvents pattern
+- core.js <-> util.js: setGetUpgradeMult pattern
+- buttons.js <-> events.js: setModalFunctions pattern
+- core.js <-> ai-strategy.js: setRunAI pattern
+
+All dependencies wired in main.js at startup.
+
+IMPORTANT FIX (2024-03-11):
+- Original refactor used ES modules (import/export) which fail with file:// URLs
+  due to CORS restrictions in browsers
+- Converted all files to use regular script tags loaded in dependency order
+- Removed all import/export statements, everything in global scope
+- index.html now loads scripts in order: ordinal -> data -> state -> util ->
+  core -> buttons -> ai-strategy -> render -> events -> main
+
+Tested: Game loads and runs correctly with no JavaScript errors from file://.

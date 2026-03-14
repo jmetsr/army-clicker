@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Helper Strategy Comparison v2</title>
+  <style>
+    body {
+      font-family: 'Consolas', 'Monaco', monospace;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 20px;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+    h1 { color: #00d4ff; text-align: center; }
+    h2 { color: #ff6b6b; margin-top: 40px; border-bottom: 2px solid #ff6b6b; padding-bottom: 10px; }
+    .config {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .config p { margin: 5px 0; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 15px 0;
+      font-size: 12px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 5px 8px;
+      text-align: right;
+    }
+    th {
+      background: #2d2d44;
+      color: #00d4ff;
+    }
+    td:first-child {
+      text-align: left;
+      font-weight: bold;
+    }
+    tr:nth-child(even) { background: #252538; }
+    tr:nth-child(odd) { background: #1e1e30; }
+    tr:hover { background: #3a3a55; }
+    .winner { background: #1a4a1a !important; }
+    .summary {
+      background: #2d2d44;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Helper Strategy Comparison v2</h1>
+
+  <div class="config">
+    <p><strong>Fixed:</strong> VAL_SL=5, FARM_THRESHOLD=6, trainMult=0.01, CPS=25</p>
+    <p><strong>Testing:</strong> tierMult × divisor combinations</p>
+  </div>
+
+  <h2>Day 100</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>RP</th>
+      <th>SL Pwr</th>
+      <th>Bar Pwr</th>
+      <th>MB Pwr</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.85</td>
+      <td>4.36e+4</td>
+      <td>17,278</td>
+      <td>2.5</td>
+      <td>116.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>93</td>
+      <td>115</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>174</td>
+      <td>12</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.9</td>
+      <td>9.96e+3</td>
+      <td>5,269</td>
+      <td>1.9</td>
+      <td>84.0</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>64</td>
+      <td>83</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>53</td>
+      <td>7</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.95</td>
+      <td>3.08e+4</td>
+      <td>13,068</td>
+      <td>2.4</td>
+      <td>104.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>86</td>
+      <td>103</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>134</td>
+      <td>15</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1</td>
+      <td>3.25e+4</td>
+      <td>13,558</td>
+      <td>2.4</td>
+      <td>100.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>88</td>
+      <td>99</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>139</td>
+      <td>13</td>
+    </tr>
+    <tr class="winner">
+      <td>tm=70 div=1.1</td>
+      <td>6.24e+4</td>
+      <td>12,834</td>
+      <td>4.9</td>
+      <td>92.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>159</td>
+      <td>91</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>129</td>
+      <td>13</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1.2</td>
+      <td>1.30e+4</td>
+      <td>6,598</td>
+      <td>2.0</td>
+      <td>84.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>68</td>
+      <td>83</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>66</td>
+      <td>13</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.85</td>
+      <td>3.48e+4</td>
+      <td>15,408</td>
+      <td>2.3</td>
+      <td>116.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>82</td>
+      <td>115</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>142</td>
+      <td>11</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.9</td>
+      <td>3.88e+4</td>
+      <td>16,321</td>
+      <td>2.4</td>
+      <td>112.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>87</td>
+      <td>111</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>165</td>
+      <td>12</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.95</td>
+      <td>4.70e+4</td>
+      <td>12,630</td>
+      <td>3.7</td>
+      <td>104.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>132</td>
+      <td>103</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>131</td>
+      <td>13</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1</td>
+      <td>2.04e+4</td>
+      <td>9,279</td>
+      <td>2.2</td>
+      <td>100.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>79</td>
+      <td>99</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>103</td>
+      <td>11</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1.1</td>
+      <td>1.44e+4</td>
+      <td>7,156</td>
+      <td>2.0</td>
+      <td>92.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>70</td>
+      <td>91</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>79</td>
+      <td>14</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1.2</td>
+      <td>1.20e+4</td>
+      <td>6,144</td>
+      <td>1.9</td>
+      <td>84.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>1.00</td>
+      <td>67</td>
+      <td>83</td>
+      <td>3</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>62</td>
+      <td>14</td>
+    </tr>
+  </table>
+
+  <h2>Day 200</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>RP</th>
+      <th>SL Pwr</th>
+      <th>Bar Pwr</th>
+      <th>MB Pwr</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.85</td>
+      <td>1.40e+5</td>
+      <td>16,963</td>
+      <td>8.2</td>
+      <td>116.0</td>
+      <td>4.00</td>
+      <td>194.00</td>
+      <td>19.00</td>
+      <td>212</td>
+      <td>115</td>
+      <td>3</td>
+      <td>193</td>
+      <td>18</td>
+      <td>0</td>
+      <td>174</td>
+      <td>16</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.9</td>
+      <td>1.23e+5</td>
+      <td>15,980</td>
+      <td>7.7</td>
+      <td>112.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>12.00</td>
+      <td>205</td>
+      <td>111</td>
+      <td>3</td>
+      <td>3</td>
+      <td>11</td>
+      <td>0</td>
+      <td>161</td>
+      <td>16</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.95</td>
+      <td>1.13e+5</td>
+      <td>14,351</td>
+      <td>7.8</td>
+      <td>104.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>17.00</td>
+      <td>207</td>
+      <td>103</td>
+      <td>3</td>
+      <td>3</td>
+      <td>16</td>
+      <td>0</td>
+      <td>142</td>
+      <td>19</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1</td>
+      <td>1.20e+5</td>
+      <td>14,650</td>
+      <td>8.2</td>
+      <td>100.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>18.00</td>
+      <td>211</td>
+      <td>99</td>
+      <td>3</td>
+      <td>3</td>
+      <td>17</td>
+      <td>0</td>
+      <td>147</td>
+      <td>15</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1.1</td>
+      <td>1.05e+5</td>
+      <td>13,148</td>
+      <td>8.0</td>
+      <td>92.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>18.00</td>
+      <td>209</td>
+      <td>91</td>
+      <td>3</td>
+      <td>3</td>
+      <td>17</td>
+      <td>0</td>
+      <td>129</td>
+      <td>17</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1.2</td>
+      <td>6.34e+4</td>
+      <td>9,104</td>
+      <td>7.0</td>
+      <td>84.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>12.00</td>
+      <td>195</td>
+      <td>83</td>
+      <td>3</td>
+      <td>3</td>
+      <td>11</td>
+      <td>0</td>
+      <td>92</td>
+      <td>22</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.85</td>
+      <td>1.44e+5</td>
+      <td>17,243</td>
+      <td>8.3</td>
+      <td>116.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>19.00</td>
+      <td>213</td>
+      <td>115</td>
+      <td>3</td>
+      <td>3</td>
+      <td>18</td>
+      <td>0</td>
+      <td>174</td>
+      <td>16</td>
+    </tr>
+    <tr class="winner">
+      <td>tm=100 div=0.9</td>
+      <td>1.47e+5</td>
+      <td>16,974</td>
+      <td>8.7</td>
+      <td>112.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>19.00</td>
+      <td>217</td>
+      <td>111</td>
+      <td>3</td>
+      <td>3</td>
+      <td>18</td>
+      <td>0</td>
+      <td>165</td>
+      <td>16</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.95</td>
+      <td>1.04e+5</td>
+      <td>13,054</td>
+      <td>8.0</td>
+      <td>104.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>17.00</td>
+      <td>209</td>
+      <td>103</td>
+      <td>3</td>
+      <td>3</td>
+      <td>16</td>
+      <td>0</td>
+      <td>131</td>
+      <td>17</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1</td>
+      <td>1.04e+5</td>
+      <td>13,199</td>
+      <td>7.8</td>
+      <td>100.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>16.00</td>
+      <td>207</td>
+      <td>99</td>
+      <td>3</td>
+      <td>3</td>
+      <td>15</td>
+      <td>0</td>
+      <td>127</td>
+      <td>16</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1.1</td>
+      <td>9.07e+4</td>
+      <td>11,794</td>
+      <td>7.7</td>
+      <td>92.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>15.00</td>
+      <td>205</td>
+      <td>91</td>
+      <td>3</td>
+      <td>3</td>
+      <td>14</td>
+      <td>0</td>
+      <td>116</td>
+      <td>21</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1.2</td>
+      <td>6.62e+4</td>
+      <td>9,317</td>
+      <td>7.1</td>
+      <td>84.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>13.00</td>
+      <td>197</td>
+      <td>83</td>
+      <td>3</td>
+      <td>3</td>
+      <td>12</td>
+      <td>0</td>
+      <td>97</td>
+      <td>22</td>
+    </tr>
+  </table>
+
+  <h2>Day 300</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>RP</th>
+      <th>SL Pwr</th>
+      <th>Bar Pwr</th>
+      <th>MB Pwr</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="winner">
+      <td>tm=70 div=0.85</td>
+      <td>1.03e+10</td>
+      <td>73,482,142</td>
+      <td>140.5</td>
+      <td>2409460.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>497</td>
+      <td>2,409,459</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>730,054</td>
+      <td>26</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.9</td>
+      <td>1.37e+9</td>
+      <td>57,191,779</td>
+      <td>23.9</td>
+      <td>302064.0</td>
+      <td>10784.00</td>
+      <td>308.00</td>
+      <td>19.00</td>
+      <td>319</td>
+      <td>302,063</td>
+      <td>10783</td>
+      <td>307</td>
+      <td>18</td>
+      <td>3</td>
+      <td>571,729</td>
+      <td>27</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.95</td>
+      <td>6.03e+9</td>
+      <td>66,482,776</td>
+      <td>90.7</td>
+      <td>2136424.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>453</td>
+      <td>2,136,423</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>666,286</td>
+      <td>25</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1</td>
+      <td>9.65e+9</td>
+      <td>70,728,757</td>
+      <td>136.4</td>
+      <td>2034628.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>494</td>
+      <td>2,034,627</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>705,355</td>
+      <td>22</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1.1</td>
+      <td>8.57e+9</td>
+      <td>70,823,903</td>
+      <td>121.0</td>
+      <td>1852604.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>482</td>
+      <td>1,852,603</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>710,477</td>
+      <td>26</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1.2</td>
+      <td>6.79e+4</td>
+      <td>9,092</td>
+      <td>7.5</td>
+      <td>10308.0</td>
+      <td>10224.00</td>
+      <td>292.00</td>
+      <td>18.00</td>
+      <td>202</td>
+      <td>10,307</td>
+      <td>10223</td>
+      <td>291</td>
+      <td>17</td>
+      <td>0</td>
+      <td>92</td>
+      <td>24</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.85</td>
+      <td>5.39e+7</td>
+      <td>5,797,963</td>
+      <td>9.3</td>
+      <td>903236.0</td>
+      <td>30104.00</td>
+      <td>602.00</td>
+      <td>26.00</td>
+      <td>224</td>
+      <td>903,235</td>
+      <td>30103</td>
+      <td>601</td>
+      <td>25</td>
+      <td>0</td>
+      <td>59,015</td>
+      <td>18</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.9</td>
+      <td>1.47e+5</td>
+      <td>15,805</td>
+      <td>9.3</td>
+      <td>361360.0</td>
+      <td>30104.00</td>
+      <td>602.00</td>
+      <td>26.00</td>
+      <td>224</td>
+      <td>361,359</td>
+      <td>30103</td>
+      <td>601</td>
+      <td>25</td>
+      <td>0</td>
+      <td>4,223</td>
+      <td>19</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.95</td>
+      <td>1.14e+5</td>
+      <td>12,692</td>
+      <td>9.0</td>
+      <td>104.0</td>
+      <td>16258.00</td>
+      <td>602.00</td>
+      <td>26.00</td>
+      <td>221</td>
+      <td>103</td>
+      <td>16257</td>
+      <td>601</td>
+      <td>25</td>
+      <td>0</td>
+      <td>131</td>
+      <td>20</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1</td>
+      <td>1.14e+5</td>
+      <td>12,849</td>
+      <td>8.8</td>
+      <td>100.0</td>
+      <td>4.00</td>
+      <td>472.00</td>
+      <td>26.00</td>
+      <td>219</td>
+      <td>99</td>
+      <td>3</td>
+      <td>471</td>
+      <td>25</td>
+      <td>0</td>
+      <td>127</td>
+      <td>19</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1.1</td>
+      <td>9.86e+4</td>
+      <td>11,266</td>
+      <td>8.8</td>
+      <td>92.0</td>
+      <td>4.00</td>
+      <td>368.00</td>
+      <td>26.00</td>
+      <td>218</td>
+      <td>91</td>
+      <td>3</td>
+      <td>367</td>
+      <td>25</td>
+      <td>0</td>
+      <td>116</td>
+      <td>25</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1.2</td>
+      <td>7.63e+4</td>
+      <td>9,260</td>
+      <td>8.2</td>
+      <td>84.0</td>
+      <td>4.00</td>
+      <td>4.00</td>
+      <td>24.00</td>
+      <td>212</td>
+      <td>83</td>
+      <td>3</td>
+      <td>3</td>
+      <td>23</td>
+      <td>0</td>
+      <td>97</td>
+      <td>26</td>
+    </tr>
+  </table>
+
+  <h2>Day 400</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>RP</th>
+      <th>SL Pwr</th>
+      <th>Bar Pwr</th>
+      <th>MB Pwr</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.85</td>
+      <td>2.69e+10</td>
+      <td>83,119,982</td>
+      <td>324.1</td>
+      <td>2409460.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>581</td>
+      <td>2,409,459</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>842,106</td>
+      <td>26</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.9</td>
+      <td>2.22e+10</td>
+      <td>81,778,739</td>
+      <td>271.0</td>
+      <td>2307664.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>563</td>
+      <td>2,307,663</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>821,533</td>
+      <td>27</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.95</td>
+      <td>2.40e+10</td>
+      <td>83,574,168</td>
+      <td>287.6</td>
+      <td>2136424.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>569</td>
+      <td>2,136,423</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>825,626</td>
+      <td>25</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1</td>
+      <td>2.48e+10</td>
+      <td>82,936,525</td>
+      <td>299.3</td>
+      <td>2034628.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>573</td>
+      <td>2,034,627</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>833,855</td>
+      <td>22</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1.1</td>
+      <td>2.64e+10</td>
+      <td>83,792,131</td>
+      <td>314.6</td>
+      <td>1852604.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>578</td>
+      <td>1,852,603</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>845,145</td>
+      <td>26</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1.2</td>
+      <td>1.27e+10</td>
+      <td>71,887,652</td>
+      <td>176.7</td>
+      <td>1791427.0</td>
+      <td>82981.00</td>
+      <td>2347.00</td>
+      <td>137.00</td>
+      <td>520</td>
+      <td>1,791,426</td>
+      <td>82980</td>
+      <td>2346</td>
+      <td>136</td>
+      <td>6</td>
+      <td>725,860</td>
+      <td>31</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.85</td>
+      <td>4.46e+10</td>
+      <td>156,638,375</td>
+      <td>284.8</td>
+      <td>903236.0</td>
+      <td>30104.00</td>
+      <td>5018.00</td>
+      <td>276.00</td>
+      <td>568</td>
+      <td>903,235</td>
+      <td>30103</td>
+      <td>5017</td>
+      <td>275</td>
+      <td>9</td>
+      <td>1,568,591</td>
+      <td>18</td>
+    </tr>
+    <tr class="winner">
+      <td>tm=100 div=0.9</td>
+      <td>4.71e+10</td>
+      <td>157,326,113</td>
+      <td>299.3</td>
+      <td>1025534.0</td>
+      <td>36502.00</td>
+      <td>6398.00</td>
+      <td>276.00</td>
+      <td>573</td>
+      <td>1,025,533</td>
+      <td>36501</td>
+      <td>6397</td>
+      <td>275</td>
+      <td>9</td>
+      <td>1,576,698</td>
+      <td>19</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.95</td>
+      <td>2.68e+10</td>
+      <td>147,499,504</td>
+      <td>182.0</td>
+      <td>7831040.0</td>
+      <td>292422.00</td>
+      <td>6398.00</td>
+      <td>276.00</td>
+      <td>523</td>
+      <td>7,831,039</td>
+      <td>292421</td>
+      <td>6397</td>
+      <td>275</td>
+      <td>9</td>
+      <td>1,461,011</td>
+      <td>25</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1</td>
+      <td>1.02e+10</td>
+      <td>126,676,635</td>
+      <td>80.5</td>
+      <td>752700.0</td>
+      <td>30104.00</td>
+      <td>602.00</td>
+      <td>26.00</td>
+      <td>441</td>
+      <td>752,699</td>
+      <td>30103</td>
+      <td>601</td>
+      <td>25</td>
+      <td>6</td>
+      <td>1,268,252</td>
+      <td>20</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1.1</td>
+      <td>6.40e+9</td>
+      <td>117,227,459</td>
+      <td>54.6</td>
+      <td>692484.0</td>
+      <td>30104.00</td>
+      <td>602.00</td>
+      <td>26.00</td>
+      <td>402</td>
+      <td>692,483</td>
+      <td>30103</td>
+      <td>601</td>
+      <td>25</td>
+      <td>3</td>
+      <td>1,170,849</td>
+      <td>29</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1.2</td>
+      <td>1.42e+8</td>
+      <td>17,231,100</td>
+      <td>8.2</td>
+      <td>632268.0</td>
+      <td>30104.00</td>
+      <td>602.00</td>
+      <td>26.00</td>
+      <td>212</td>
+      <td>632,267</td>
+      <td>30103</td>
+      <td>601</td>
+      <td>25</td>
+      <td>0</td>
+      <td>170,533</td>
+      <td>26</td>
+    </tr>
+  </table>
+
+  <h2>Day 500</h2>
+  <table>
+    <tr>
+      <th>Strategy</th>
+      <th>Power</th>
+      <th>Troops</th>
+      <th>PPT</th>
+      <th>RP</th>
+      <th>SL Pwr</th>
+      <th>Bar Pwr</th>
+      <th>MB Pwr</th>
+      <th>Train</th>
+      <th>SL</th>
+      <th>Bar</th>
+      <th>MB</th>
+      <th>King</th>
+      <th>Emp</th>
+      <th>Farms</th>
+      <th>Starve</th>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.85</td>
+      <td>4.00e+10</td>
+      <td>87,938,902</td>
+      <td>454.6</td>
+      <td>2409460.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>615</td>
+      <td>2,409,459</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>890,422</td>
+      <td>26</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.9</td>
+      <td>3.58e+10</td>
+      <td>88,701,731</td>
+      <td>403.4</td>
+      <td>2307664.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>603</td>
+      <td>2,307,663</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>884,241</td>
+      <td>27</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=0.95</td>
+      <td>3.76e+10</td>
+      <td>87,847,016</td>
+      <td>428.3</td>
+      <td>2136424.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>609</td>
+      <td>2,136,423</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>880,110</td>
+      <td>25</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1</td>
+      <td>3.97e+10</td>
+      <td>89,040,409</td>
+      <td>445.7</td>
+      <td>2034628.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>613</td>
+      <td>2,034,627</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>884,227</td>
+      <td>22</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1.1</td>
+      <td>3.98e+10</td>
+      <td>89,349,943</td>
+      <td>445.7</td>
+      <td>1852604.0</td>
+      <td>80224.00</td>
+      <td>2240.00</td>
+      <td>138.00</td>
+      <td>613</td>
+      <td>1,852,603</td>
+      <td>80223</td>
+      <td>2239</td>
+      <td>137</td>
+      <td>6</td>
+      <td>896,545</td>
+      <td>26</td>
+    </tr>
+    <tr class="">
+      <td>tm=70 div=1.2</td>
+      <td>2.68e+10</td>
+      <td>82,636,214</td>
+      <td>324.1</td>
+      <td>1791427.0</td>
+      <td>82981.00</td>
+      <td>2347.00</td>
+      <td>137.00</td>
+      <td>581</td>
+      <td>1,791,426</td>
+      <td>82980</td>
+      <td>2346</td>
+      <td>136</td>
+      <td>6</td>
+      <td>826,604</td>
+      <td>31</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.85</td>
+      <td>8.62e+10</td>
+      <td>173,453,467</td>
+      <td>497.2</td>
+      <td>1085746.0</td>
+      <td>36502.00</td>
+      <td>6398.00</td>
+      <td>276.00</td>
+      <td>624</td>
+      <td>1,085,745</td>
+      <td>36501</td>
+      <td>6397</td>
+      <td>275</td>
+      <td>9</td>
+      <td>1,732,940</td>
+      <td>18</td>
+    </tr>
+    <tr class="winner">
+      <td>tm=100 div=0.9</td>
+      <td>8.69e+10</td>
+      <td>174,760,191</td>
+      <td>497.2</td>
+      <td>1025534.0</td>
+      <td>36502.00</td>
+      <td>6398.00</td>
+      <td>276.00</td>
+      <td>624</td>
+      <td>1,025,533</td>
+      <td>36501</td>
+      <td>6397</td>
+      <td>275</td>
+      <td>9</td>
+      <td>1,743,076</td>
+      <td>19</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=0.95</td>
+      <td>7.18e+10</td>
+      <td>170,992,624</td>
+      <td>419.8</td>
+      <td>7831040.0</td>
+      <td>292422.00</td>
+      <td>6398.00</td>
+      <td>276.00</td>
+      <td>607</td>
+      <td>7,831,039</td>
+      <td>292421</td>
+      <td>6397</td>
+      <td>275</td>
+      <td>9</td>
+      <td>1,734,926</td>
+      <td>25</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1</td>
+      <td>6.73e+10</td>
+      <td>166,699,501</td>
+      <td>403.4</td>
+      <td>2904982.0</td>
+      <td>113278.00</td>
+      <td>6398.00</td>
+      <td>276.00</td>
+      <td>603</td>
+      <td>2,904,981</td>
+      <td>113277</td>
+      <td>6397</td>
+      <td>275</td>
+      <td>9</td>
+      <td>1,674,052</td>
+      <td>20</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1.1</td>
+      <td>6.37e+10</td>
+      <td>165,881,603</td>
+      <td>383.9</td>
+      <td>5389284.0</td>
+      <td>234840.00</td>
+      <td>6398.00</td>
+      <td>276.00</td>
+      <td>598</td>
+      <td>5,389,283</td>
+      <td>234839</td>
+      <td>6397</td>
+      <td>275</td>
+      <td>9</td>
+      <td>1,663,896</td>
+      <td>29</td>
+    </tr>
+    <tr class="">
+      <td>tm=100 div=1.2</td>
+      <td>4.61e+10</td>
+      <td>161,977,506</td>
+      <td>284.8</td>
+      <td>6796096.0</td>
+      <td>324412.00</td>
+      <td>6398.00</td>
+      <td>276.00</td>
+      <td>568</td>
+      <td>6,796,095</td>
+      <td>324411</td>
+      <td>6397</td>
+      <td>275</td>
+      <td>9</td>
+      <td>1,607,065</td>
+      <td>30</td>
+    </tr>
+  </table>
+
+  <h2>Power Rankings Summary</h2>
+  <div class="summary">
+    <table>
+      <tr><th>Day</th><th>Winner</th><th>Power</th></tr>
+      <tr><td>100</td><td>tm=70 div=1.1</td><td>6.24e+4</td></tr>
+      <tr><td>200</td><td>tm=100 div=0.9</td><td>1.47e+5</td></tr>
+      <tr><td>300</td><td>tm=70 div=0.85</td><td>1.03e+10</td></tr>
+      <tr><td>400</td><td>tm=100 div=0.9</td><td>4.71e+10</td></tr>
+      <tr><td>500</td><td>tm=100 div=0.9</td><td>8.69e+10</td></tr>
+    </table>
+  </div>
+
+
+  <h2>Worst-Day Robustness Ranking</h2>
+  <p>Ranked by best "worst performance" - ratio vs day's best performer</p>
+  <div class="summary">
+    <table>
+      <tr><th>Rank</th><th>Strategy</th><th>Worst Ratio</th><th>Worst Day</th><th>Power That Day</th></tr>
+      <tr><td>1</td><td>tm=70 div=0.85</td><td>46.01%</td><td>500</td><td>4.00e+10</td></tr>
+      <tr><td>2</td><td>tm=70 div=1.1</td><td>45.83%</td><td>500</td><td>3.98e+10</td></tr>
+      <tr><td>3</td><td>tm=70 div=1</td><td>45.67%</td><td>500</td><td>3.97e+10</td></tr>
+      <tr><td>4</td><td>tm=70 div=0.95</td><td>43.30%</td><td>500</td><td>3.76e+10</td></tr>
+      <tr><td>5</td><td>tm=70 div=0.9</td><td>13.24%</td><td>300</td><td>1.37e+9</td></tr>
+      <tr><td>6</td><td>tm=100 div=0.85</td><td>0.52%</td><td>300</td><td>5.39e+7</td></tr>
+      <tr><td>7</td><td>tm=100 div=0.9</td><td>0.00%</td><td>300</td><td>1.47e+5</td></tr>
+      <tr><td>8</td><td>tm=100 div=0.95</td><td>0.00%</td><td>300</td><td>1.14e+5</td></tr>
+      <tr><td>9</td><td>tm=100 div=1</td><td>0.00%</td><td>300</td><td>1.14e+5</td></tr>
+      <tr><td>10</td><td>tm=100 div=1.1</td><td>0.00%</td><td>300</td><td>9.86e+4</td></tr>
+      <tr><td>11</td><td>tm=100 div=1.2</td><td>0.00%</td><td>300</td><td>7.63e+4</td></tr>
+      <tr><td>12</td><td>tm=70 div=1.2</td><td>0.00%</td><td>300</td><td>6.79e+4</td></tr>
+    </table>
+  </div>
+
+</body>
+</html>

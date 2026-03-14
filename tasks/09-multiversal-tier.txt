@@ -1,0 +1,30 @@
+New Multiversal Tier
+====================
+
+STATUS: COMPLETE
+================
+Implemented in buttons.js lines 161-269:
+- 5 units: Observable Universe, Full Universe, Quantum Multiverse,
+  Cosmological Multiverse, Mathematical Multiverse
+- Unlock button costs 4 magic, requires Astronomical tier first
+- Chain connects Observable Universe -> Supercluster
+
+---
+
+Cost: 4 magic
+Prerequisite: Must buy Astronomical tier first
+
+New Units (in order from strongest to weakest):
+1. Mathematical Multiverses
+2. Cosmological Multiverses
+3. Quantum Multiverses
+4. Full Universes
+5. Observable Universes
+
+Chain:
+- Each unit affects the one below it
+- Observable Universes (lowest) affects Super Clusters (from Astronomical tier)
+
+So the full chain becomes:
+Mathematical Multiverses -> Cosmological Multiverses -> Quantum Multiverses
+-> Full Universes -> Observable Universes -> Super Clusters -> ...

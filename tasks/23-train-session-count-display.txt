@@ -1,0 +1,44 @@
+Train session count only shows +1 despite high upgrade multiplier
+================================================================
+
+SYMPTOM: User has high upgrade level on Train (via auto-upgraders), but
+clicking Train only adds 1 to the displayed session count.
+
+INVESTIGATION:
+
+1. **Display comparison bug (render.js:390)**:
+   ```javascript
+   var c = cnt(btn.id);
+   document.getElementById("cnt_" + btn.id).textContent = c > 0 ? fmt(c) + " " + (btn.cw || "") : "";
+   ```
+   If c is an OrdinalNumber (layer 1+), `c > 0` fails because OrdinalNumber
+   has no valueOf() method. Comparison becomes NaN > 0 = false.
+
+   BUT: This would make display empty, not show +1.
+
+2. **Possibly related to bug #22** (corrupted upgrade levels):
+   If user used auto³+ upgraders, G.upgradeLevels['train'] may be corrupted
+   due to `(number) + OrdinalNumber` not working. Then getUpgradeMult()
+   returns NaN, and mult becomes garbage.
+
+3. **applyEffect seems correct**:
+   Lines 283-289 in state.js handle OrdinalNumber gain correctly.
+   The count SHOULD be updated with the full mult value.
+
+NEEDS CLARIFICATION:
+- What is G.upgradeLevels['train'] value? (check in browser console)
+- Did user use auto³+ upgraders on Train?
+- Does the count actually change in G.counts['train'] (check console)?
+- Is it the internal value or just the display that's wrong?
+
+POTENTIAL FIXES:
+1. Add valueOf() to OrdinalNumber class that returns toNumber()
+2. Change render.js:390 to use proper comparison:
+   ```javascript
+   var c = cnt(btn.id);
+   var hasCount = c instanceof OrdinalNumber ? c.gt(0) : c > 0;
+   document.getElementById("cnt_" + btn.id).textContent = hasCount ? fmt(c) + " " + (btn.cw || "") : "";
+   ```
+3. Fix bug #22 first - may resolve this issue
+
+RELATED: Task 22 (OrdinalNumber operator bugs) - same root cause
