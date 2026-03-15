@@ -1,0 +1,43 @@
+High layer approximation, UI collapsing, and path to omega
+==========================================================
+
+CONTEXT: After implementing Task 25 (recursive arrows/height), we'll eventually
+hit performance and UX issues at high layers (7+). This task addresses that.
+
+PROBLEM:
+1. Deep recursive OrdinalNumber objects become unwieldy
+2. Human player can't track auto^7_train, auto^8_train, etc.
+3. Need a clean path to ω without infinite hardcoding
+
+SOLUTION: APPROXIMATION & COLLAPSING AT MULTIPLE LEVELS
+
+1. MATH LEVEL: Collapse deep structures
+   - If arrows > threshold, flatten recursive height to single number
+   - Accept loss of precision - already approximate anyway
+   - Example: {arrows: 10, height: {arrows: 8, height: {arrows: 5...}}}
+            → {arrows: 10, height: some_big_number}
+   - This keeps JS objects manageable
+
+2. GAME UI LEVEL: Collapse auto-tiers into single button
+   - After N auto-tiers, offer "collapse to meta-button"
+   - Meta-button represents the whole chain with single upgrade level
+   - Simplifies UI while preserving power scaling
+   - Example: auto^5_train becomes "hyper-train" with its own upgrade level
+
+3. PATH TO OMEGA: Collapsing IS diagonalization
+   - "Collapse all auto-tiers" = apply function that iterates over tiers
+   - That's f_ω(n) = f_n(n) - using n to pick which tier
+   - Game mechanic for ω: a button that collapses/diagonalizes
+   - This provides clean path to ω without infinite hardcoding
+   - Beyond ω: ω+1, ω+2, ω·2, ω², etc. follow same pattern
+
+IMPLEMENTATION IDEAS:
+- "Transcend" button in magic tier that collapses all auto-chains
+- Transcend gives you ω-level power but resets the auto-tier structure
+- Can then build auto-transcend, auto-auto-transcend... (ω+1, ω+2...)
+- Eventually offer another collapse → ω·2
+- Pattern continues: collapse mechanic IS the ordinal successor
+
+DEPENDENCIES:
+- Task 25 must be done first (recursive arrows/height)
+- This is future work, not immediate priority

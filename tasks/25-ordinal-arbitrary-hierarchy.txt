@@ -138,6 +138,8 @@ CHALLENGES:
 3. Display needs to be readable at high levels
 4. Performance - deep recursion could be slow (probably fine for game)
 
+NOTE: See Task 26 for future approximation/collapsing at high layers and path to ω
+
 IMPLEMENTATION PLAN:
 1. Create new OrdinalNumber class with {arrows, height} structure
 2. Implement recursive compare(), add(), mul(), exp10(), format()
