@@ -28,6 +28,17 @@ class OrdinalNumber {
         : (typeof val.height === 'object' && val.height !== null && 'arrows' in val.height)
           ? new OrdinalNumber(val.height)
           : val.height;
+    } else if (typeof val === 'bigint') {
+      // Convert BigInt to Number for processing
+      const num = Number(val);
+      if (!isFinite(num) || num >= 1e12) {
+        this.arrows = 1;
+        const s = val.toString();
+        this.height = s.length - 1 + Math.log10(parseFloat(s.slice(0, 15)) / Math.pow(10, Math.min(14, s.length - 1)));
+      } else {
+        this.arrows = 0;
+        this.height = Math.max(0, Math.floor(num));
+      }
     } else if (typeof val === 'number') {
       if (!isFinite(val) || isNaN(val)) {
         this.arrows = 0;
@@ -526,6 +537,64 @@ class OrdinalNumber {
   }
 
   // ================================================================
+  // COMPATIBILITY METHODS (for game integration)
+  // ================================================================
+
+  clone() {
+    return new OrdinalNumber(this);
+  }
+
+  isZero() {
+    return this.arrows === 0 && this.height === 0;
+  }
+
+  floor() {
+    // At arrows=0, floor the height
+    if (this.arrows === 0) {
+      const r = new OrdinalNumber(this);
+      r.height = Math.floor(r.height);
+      return r;
+    }
+    // Higher arrows are conceptually integers already
+    return this.clone();
+  }
+
+  // Returns {mantissa, exponent} for compatibility with old code
+  toSci() {
+    if (this.arrows === 0) {
+      if (this.height === 0) return { mantissa: 0, exponent: 0 };
+      const exp = Math.floor(Math.log10(this.height));
+      const mant = this.height / Math.pow(10, exp);
+      return { mantissa: mant, exponent: exp };
+    }
+    if (this.arrows === 1) {
+      const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      // mantissa is always ~1 for pure powers of 10
+      return { mantissa: 1, exponent: h };
+    }
+    // Higher arrows - return huge exponent
+    return { mantissa: 1, exponent: 1e15 };
+  }
+
+  // For debugging/display - what notation level are we at
+  notationName() {
+    if (this.arrows === 0) {
+      if (this.height < 1000000) return 'Standard';
+      return 'Named';
+    }
+    if (this.arrows === 1) {
+      const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      if (h <= 33) return 'Named';
+      if (h <= 1000000) return 'Scientific';
+      return 'Double Exponential';
+    }
+    if (this.arrows === 2) return 'Tetration';
+    if (this.arrows === 3) return 'Pentation';
+    if (this.arrows === 4) return 'Hexation';
+    return 'Arrow-' + this.arrows;
+  }
+
+  // ================================================================
   // STATIC HELPERS
   // ================================================================
 
@@ -533,9 +602,70 @@ class OrdinalNumber {
     if (val instanceof OrdinalNumber) return val;
     return new OrdinalNumber(val);
   }
+
+  // Alias for compatibility
+  static _wrap(val) {
+    return OrdinalNumber.from(val);
+  }
+
+  static fromNumber(n) {
+    return new OrdinalNumber(n);
+  }
+
+  static fromBigInt(n) {
+    // Convert BigInt to Number
+    const num = Number(n);
+    return new OrdinalNumber(num);
+  }
+
+  static fromSci(mantissa, exponent) {
+    // Handle BigInt exponent (backwards compat)
+    const exp = typeof exponent === 'bigint' ? Number(exponent) : exponent;
+
+    if (exp < 12 && mantissa * Math.pow(10, exp) < 1e12) {
+      // Small enough to be arrows=0
+      return new OrdinalNumber(mantissa * Math.pow(10, exp));
+    }
+
+    // Create as arrows=1 with appropriate height
+    // 10^exp * mantissa = 10^(exp + log10(mantissa))
+    const height = exp + Math.log10(mantissa);
+    return new OrdinalNumber({ arrows: 1, height: height }).normalize();
+  }
+
+  static fromTower(levels) {
+    // levels is an array like [a] meaning 10^10^...^a
+    // The length of the array determines the tower height
+    if (!Array.isArray(levels) || levels.length === 0) {
+      return new OrdinalNumber(0);
+    }
+
+    // For a tower [a], this means 10^a at tower level = length
+    // Actually in old code: tower[0] is the "top" value
+    // So [100] means 10^100 (tower of 1 level with top=100)
+    // And the tower length indicates how many 10^'s
+
+    // In our representation:
+    // - Tower of 1: arrows=1, height=levels[0] (just 10^a)
+    // - Tower of 2+: arrows=2, height=levels.length with top value encoded
+    // This is approximate - the old tower notation stored more info
+
+    if (levels.length === 1) {
+      // 10^levels[0]
+      return new OrdinalNumber({ arrows: 1, height: levels[0] }).normalize();
+    }
+
+    // For longer towers, treat as tetration
+    // The old code stored tower[0] as the top value
+    // We approximate as arrows=2, height = number of levels + log adjustment
+    return new OrdinalNumber({ arrows: 2, height: levels.length + Math.log10(Math.max(1, levels[0])) }).normalize();
+  }
 }
+
+// Helper to create OrdinalNumber easily (must be after class definition for browser)
+function ON(val) { return new OrdinalNumber(val); }
 
 // Export for Node.js
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { OrdinalNumber };
+  module.exports = { OrdinalNumber, ON };
 }

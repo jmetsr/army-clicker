@@ -1,520 +1,696 @@
 // ================================================================
-//  ORDINAL NUMBER ENGINE - handles numbers across regimes
-//  NO BIGINT - uses native Number for performance
+// Recursive Arrow/Height OrdinalNumber
+//
+// Representation: {arrows: Number, height: OrdinalNumber|Number}
+// - arrows=0: height is a plain number (base case)
+// - arrows=1: 10^height (scientific notation)
+// - arrows=2: 10^^height (tetration)
+// - arrows=k: 10↑^k height
+//
+// Key insight: arrows and height TRADE OFF
+//   {arrows: k, height: 10} ≈ {arrows: k+1, height: 1}
+// So we normalize to keep height in [1, 10)
 // ================================================================
 
 class OrdinalNumber {
-  // Layer 0: Number (exact up to ~10^15, we promote at 10^12 for nice display)
-  // Layer 1: {mantissa, exponent} both Number - covers up to 10^308
-  // Layer 2: {tower: [a,b,c,...]} meaning 10^10^10^...^a - for beyond 10^308
-
-  // Threshold for promoting from layer 0 to layer 1
-  static PROMOTE_THRESHOLD = 1e12;  // 1 trillion
-
-  // If exponent difference > this, ignore the smaller value in add/sub
-  static SIGNIFICANCE_THRESHOLD = 7;  // ~1/10 million
-
   constructor(val) {
     if (val instanceof OrdinalNumber) {
-      this.layer = val.layer;
-      this.value = this._cloneValue(val);
+      this.arrows = val.arrows;
+      // Deep copy height if it's an OrdinalNumber
+      this.height = (val.height instanceof OrdinalNumber)
+        ? new OrdinalNumber(val.height)
+        : val.height;
+    } else if (typeof val === 'object' && val !== null && 'arrows' in val) {
+      // Raw {arrows, height} object
+      this.arrows = val.arrows;
+      this.height = (val.height instanceof OrdinalNumber)
+        ? new OrdinalNumber(val.height)
+        : (typeof val.height === 'object' && val.height !== null && 'arrows' in val.height)
+          ? new OrdinalNumber(val.height)
+          : val.height;
     } else if (typeof val === 'bigint') {
-      // Convert BigInt to Number (for backwards compatibility during transition)
-      var n = Number(val);
-      if (!isFinite(n) || n >= OrdinalNumber.PROMOTE_THRESHOLD) {
-        this.layer = 1;
-        var s = val.toString();
-        var exp = s.length - 1;
-        var mant = parseFloat(s.slice(0, 16)) / Math.pow(10, Math.min(15, s.length - 1));
-        this.value = { mantissa: mant, exponent: exp };
+      // Convert BigInt to Number for processing
+      const num = Number(val);
+      if (!isFinite(num) || num >= 1e12) {
+        this.arrows = 1;
+        const s = val.toString();
+        this.height = s.length - 1 + Math.log10(parseFloat(s.slice(0, 15)) / Math.pow(10, Math.min(14, s.length - 1)));
       } else {
-        this.layer = 0;
-        this.value = Math.max(0, Math.floor(n));
+        this.arrows = 0;
+        this.height = Math.max(0, Math.floor(num));
       }
     } else if (typeof val === 'number') {
       if (!isFinite(val) || isNaN(val)) {
-        this.layer = 1;
-        this.value = { mantissa: 9.999, exponent: 999999999 };
-      } else if (val >= OrdinalNumber.PROMOTE_THRESHOLD) {
-        this.layer = 1;
-        var exp = Math.floor(Math.log10(val));
-        var mant = val / Math.pow(10, exp);
-        this.value = { mantissa: mant, exponent: exp };
+        this.arrows = 0;
+        this.height = 0;
+      } else if (val < 1e12) {
+        this.arrows = 0;
+        this.height = val;
+      } else if (val < 1e308) {
+        this.arrows = 1;
+        this.height = Math.log10(val);
       } else {
-        this.layer = 0;
-        this.value = Math.max(0, Math.floor(val));
+        // Infinity or very large - treat as 10^308
+        this.arrows = 1;
+        this.height = 308;
       }
     } else {
-      this.layer = 0;
-      this.value = 0;
+      this.arrows = 0;
+      this.height = 0;
     }
   }
 
-  _cloneValue(other) {
-    if (other.layer === 0) return other.value;
-    if (other.layer === 1) return { mantissa: other.value.mantissa, exponent: other.value.exponent };
-    if (other.layer === 2) return { tower: [...other.value.tower] };
-    return JSON.parse(JSON.stringify(other.value));
-  }
+  // ================================================================
+  // NORMALIZATION - the key operation
+  // Keep height in [1, 10) by trading with arrows
+  // ================================================================
 
-  static fromBigInt(n) { return new OrdinalNumber(n); }
-  static fromNumber(n) { return new OrdinalNumber(n); }
-
-  static fromSci(mantissa, exponent) {
-    var r = new OrdinalNumber(0);
-    // Convert BigInt exponent if passed (backwards compat)
-    var exp = typeof exponent === 'bigint' ? Number(exponent) : exponent;
-    if (exp < 12 && mantissa * Math.pow(10, exp) < OrdinalNumber.PROMOTE_THRESHOLD) {
-      r.layer = 0;
-      r.value = Math.floor(mantissa * Math.pow(10, exp));
-    } else {
-      r.layer = 1;
-      r.value = { mantissa: mantissa, exponent: exp };
-      r.normalize();
-    }
-    return r;
-  }
-
-  static fromTower(levels) {
-    var r = new OrdinalNumber(0);
-    r.layer = 2;
-    r.value = { tower: levels };
-    return r;
-  }
-
-  clone() {
-    var r = new OrdinalNumber(0);
-    r.layer = this.layer;
-    r.value = this._cloneValue(this);
-    return r;
-  }
-
-  // Normalize mantissa to [1, 10) and check for layer promotion
   normalize() {
-    if (this.layer === 0) {
-      if (this.value >= OrdinalNumber.PROMOTE_THRESHOLD) {
-        var exp = Math.floor(Math.log10(this.value));
-        var mant = this.value / Math.pow(10, exp);
-        this.layer = 1;
-        this.value = { mantissa: mant, exponent: exp };
+    // Base case: arrows=0, height is plain number
+    if (this.arrows === 0) {
+      if (this.height >= 1e12) {
+        // Promote to arrows=1
+        this.arrows = 1;
+        this.height = Math.log10(this.height);
+        return this.normalize(); // Recurse in case height is still big
+      }
+      return this;
+    }
+
+    // Recursive case: height might be OrdinalNumber
+    if (this.height instanceof OrdinalNumber) {
+      this.height.normalize();
+
+      // If height has arrows > 0, we have nested structure
+      // {arrows: k, height: {arrows: j, height: h}}
+      // This is fine - comparison will recurse
+      return this;
+    }
+
+    // Height is a number, arrows > 0
+    // Only normalize when height is HUGE (>= 1e12)
+    // This keeps 10^100 as {arrows:1, height:100} which is readable
+    // But 10^(1e15) becomes {arrows:2, height:15}
+    while (this.height >= 1e12) {
+      this.arrows += 1;
+      this.height = Math.log10(this.height);
+    }
+
+    // Denormalize if height too small (< 1) and we can reduce arrows
+    while (this.height < 1 && this.arrows > 0) {
+      this.arrows -= 1;
+      if (this.arrows === 0) {
+        // Back to plain number
+        this.height = Math.pow(10, this.height);
+      } else {
+        this.height = Math.pow(10, this.height);
       }
     }
-    if (this.layer === 1) {
-      // Normalize mantissa to [1, 10)
-      if (this.value.mantissa >= 10) {
-        while (this.value.mantissa >= 10) {
-          this.value.mantissa /= 10;
-          this.value.exponent += 1;
-        }
-      } else if (this.value.mantissa < 1 && this.value.mantissa > 0) {
-        while (this.value.mantissa < 1 && this.value.exponent > 0) {
-          this.value.mantissa *= 10;
-          this.value.exponent -= 1;
-        }
-      }
-      // Check for promotion to layer 2 (tower)
-      // Only promote when exponent itself is huge (> 1e15), not just > 308
-      // JS Number can represent exponents up to ~10^15 safely
-      if (this.value.exponent > 1e15) {
-        this.layer = 2;
-        this.value = { tower: [this.value.exponent] };
-      }
-      // Check for demotion back to layer 0
-      if (this.value.exponent < 12) {
-        var num = this.value.mantissa * Math.pow(10, this.value.exponent);
-        if (num < OrdinalNumber.PROMOTE_THRESHOLD) {
-          this.layer = 0;
-          this.value = Math.floor(num);
-        }
-      }
-    }
+
     return this;
   }
 
-  // === COMPARISON ===
-  gte(other) {
-    other = OrdinalNumber._wrap(other);
-    if (this.layer !== other.layer) return this.layer > other.layer;
-    if (this.layer === 0) return this.value >= other.value;
-    if (this.layer === 1) {
-      if (this.value.exponent !== other.value.exponent) return this.value.exponent > other.value.exponent;
-      return this.value.mantissa >= other.value.mantissa;
-    }
-    if (this.layer === 2) return this.value.tower.length >= other.value.tower.length;
-    return true;
-  }
+  // ================================================================
+  // COMPARISON
+  // ================================================================
 
-  gt(other) { other = OrdinalNumber._wrap(other); return this.gte(other) && !this.eq(other); }
-  lte(other) { return !this.gt(other); }
-  lt(other) { return !this.gte(other); }
+  cmp(other) {
+    other = OrdinalNumber.from(other);
 
-  eq(other) {
-    other = OrdinalNumber._wrap(other);
-    if (this.layer !== other.layer) return false;
-    if (this.layer === 0) return this.value === other.value;
-    if (this.layer === 1) return this.value.exponent === other.value.exponent && Math.abs(this.value.mantissa - other.value.mantissa) < 0.0001;
-    return false;
-  }
+    const a = new OrdinalNumber(this).normalize();
+    const b = new OrdinalNumber(other).normalize();
 
-  isZero() { return this.layer === 0 && this.value === 0; }
+    // Get effective comparison values
+    // We flatten the structure to (arrows, numericHeight) pairs
+    const aFlat = this._flatten(a);
+    const bFlat = this._flatten(b);
 
-  static _wrap(x) {
-    if (x instanceof OrdinalNumber) return x;
-    return new OrdinalNumber(x);
-  }
+    // Compare arrows first
+    if (aFlat.arrows !== bFlat.arrows) {
+      // Different arrow counts - need to check if lower arrow count can win
+      // 10^^^2 = 10^^10, 10^^^3 = 10^^(10^^10) = 10^^(huge)
+      // Generally: {k+1, h} > {k, any} when h >= 2
+      // But: {k+1, 2} = {k, 10} approximately
+      // And: {k, 1000} > {k+1, 2} because 1000 > 10
 
-  // === ARITHMETIC ===
-  add(other) {
-    other = OrdinalNumber._wrap(other);
+      const higherArrow = aFlat.arrows > bFlat.arrows ? aFlat : bFlat;
+      const lowerArrow = aFlat.arrows > bFlat.arrows ? bFlat : aFlat;
+      const diff = higherArrow.arrows - lowerArrow.arrows;
 
-    // Layer 0 + Layer 0
-    if (this.layer === 0 && other.layer === 0) {
-      return new OrdinalNumber(this.value + other.value);
-    }
-
-    // Layer 2 dominates everything
-    if (this.layer === 2 && other.layer < 2) return this.clone();
-    if (other.layer === 2 && this.layer < 2) return other.clone();
-
-    // Layer 0 + Layer 1: convert layer 0 to scientific and add
-    if (this.layer === 0 && other.layer === 1) {
-      var sci = this.toSci();
-      var expDiff = sci.exponent - other.value.exponent;
-      if (expDiff < -OrdinalNumber.SIGNIFICANCE_THRESHOLD) return other.clone();
-      if (expDiff > OrdinalNumber.SIGNIFICANCE_THRESHOLD) return this.clone();
-      var r = other.clone();
-      r.value.mantissa += sci.mantissa / Math.pow(10, -expDiff);
-      return r.normalize();
-    }
-    if (this.layer === 1 && other.layer === 0) {
-      var sci = other.toSci();
-      var expDiff = this.value.exponent - sci.exponent;
-      if (expDiff > OrdinalNumber.SIGNIFICANCE_THRESHOLD) return this.clone();
-      if (expDiff < -OrdinalNumber.SIGNIFICANCE_THRESHOLD) return other.clone();
-      var r = this.clone();
-      r.value.mantissa += sci.mantissa / Math.pow(10, expDiff);
-      return r.normalize();
-    }
-
-    // Both layer 1
-    if (this.layer === 1) {
-      var expDiff = this.value.exponent - other.value.exponent;
-      // If difference > threshold, smaller is negligible
-      if (expDiff > OrdinalNumber.SIGNIFICANCE_THRESHOLD) return this.clone();
-      if (expDiff < -OrdinalNumber.SIGNIFICANCE_THRESHOLD) return other.clone();
-
-      // Close enough to add - align exponents
-      var r = this.clone();
-      if (expDiff >= 0) {
-        r.value.mantissa += other.value.mantissa / Math.pow(10, expDiff);
+      if (diff === 1) {
+        // Compare {k+1, h1} vs {k, h2}
+        // {k+1, h} ≈ {k, 10^(h-1) iterated} which is roughly {k, 10^h} for comparison
+        // So {k+1, h1} wins if 10^h1 > h2, i.e., h1 > log10(h2)
+        const expandedHeight = Math.pow(10, higherArrow.height);
+        if (expandedHeight > lowerArrow.height * 1e6) {
+          // Higher arrow clearly wins
+          return aFlat.arrows > bFlat.arrows ? 1 : -1;
+        } else if (lowerArrow.height > expandedHeight * 1e6) {
+          // Lower arrow wins
+          return aFlat.arrows > bFlat.arrows ? -1 : 1;
+        }
+        // Close - expand another level for precision
+        // For simplicity, use log comparison
+        if (higherArrow.height > Math.log10(lowerArrow.height) + 0.01) {
+          return aFlat.arrows > bFlat.arrows ? 1 : -1;
+        } else if (Math.log10(lowerArrow.height) > higherArrow.height + 0.01) {
+          return aFlat.arrows > bFlat.arrows ? -1 : 1;
+        }
+        // Very close, call it equal (rare)
+        return 0;
       } else {
-        r.value.exponent = other.value.exponent;
-        r.value.mantissa = other.value.mantissa + this.value.mantissa / Math.pow(10, -expDiff);
+        // diff >= 2, higher arrow almost always wins
+        // Exception: height is 1 or less
+        if (higherArrow.height <= 1) {
+          // 10^^^1 = 10, so lower arrow likely wins
+          return aFlat.arrows > bFlat.arrows ? -1 : 1;
+        }
+        return aFlat.arrows > bFlat.arrows ? 1 : -1;
       }
-      return r.normalize();
     }
 
-    // Layer 2 - just return the larger one
-    return this.clone();
+    // Same arrows - compare heights
+    return aFlat.height - bFlat.height;
   }
+
+  // Flatten nested height to simple (arrows, numericHeight)
+  _flatten(n) {
+    if (n.height instanceof OrdinalNumber) {
+      // Recursively flatten height
+      const inner = this._flatten(n.height);
+      // {arrows: k, height: {arrows: j, height: h}}
+      // = 10↑^k(10↑^j(h))
+      // We need to combine these into a single level
+      // For comparison purposes, treat inner as "10^inner.height" if inner.arrows=1
+      // This is approximate but works for comparison
+      if (inner.arrows === 0) {
+        return { arrows: n.arrows, height: inner.height };
+      } else {
+        // Nested structure - approximate by boosting outer arrows
+        // {k, {j, h}} ≈ {k+j, h} roughly (very rough!)
+        return { arrows: n.arrows + inner.arrows, height: inner.height };
+      }
+    } else {
+      return { arrows: n.arrows, height: n.height };
+    }
+  }
+
+  lt(other) { return this.cmp(other) < 0; }
+  lte(other) { return this.cmp(other) <= 0; }
+  gt(other) { return this.cmp(other) > 0; }
+  gte(other) { return this.cmp(other) >= 0; }
+  eq(other) { return this.cmp(other) === 0; }
+
+  // ================================================================
+  // ADDITION (approximate - take max since larger dominates)
+  // ================================================================
+
+  add(other) {
+    other = OrdinalNumber.from(other);
+
+    // At high levels, sum ≈ max
+    // But at arrows=0, we can do exact addition
+    if (this.arrows === 0 && other.arrows === 0) {
+      return new OrdinalNumber(this.height + other.height);
+    }
+
+    // Otherwise take the larger
+    return this.cmp(other) >= 0 ? new OrdinalNumber(this) : new OrdinalNumber(other);
+  }
+
+  // ================================================================
+  // SUBTRACTION (approximate)
+  // ================================================================
 
   sub(other) {
-    other = OrdinalNumber._wrap(other);
+    other = OrdinalNumber.from(other);
 
-    // Layer 0 - Layer 0
-    if (this.layer === 0 && other.layer === 0) {
-      var v = this.value - other.value;
-      return new OrdinalNumber(v < 0 ? 0 : v);
+    if (this.arrows === 0 && other.arrows === 0) {
+      return new OrdinalNumber(Math.max(0, this.height - other.height));
     }
 
-    // Layer 2 handling
-    if (this.layer === 2 && other.layer < 2) return this.clone();
-    if (other.layer === 2 && this.layer < 2) return new OrdinalNumber(0);
+    // If this >> other, result ≈ this
+    // If this ≈ other, result ≈ 0 (but we can't know exactly)
+    // If this < other, result = 0
+    const cmp = this.cmp(other);
+    if (cmp <= 0) return new OrdinalNumber(0);
 
-    // Layer 1 - Layer 0: convert and subtract
-    if (this.layer === 1 && other.layer === 0) {
-      var sci = other.toSci();
-      var expDiff = this.value.exponent - sci.exponent;
-      if (expDiff > OrdinalNumber.SIGNIFICANCE_THRESHOLD) return this.clone();
-      if (expDiff < -OrdinalNumber.SIGNIFICANCE_THRESHOLD) return new OrdinalNumber(0);
-      var r = this.clone();
-      r.value.mantissa -= sci.mantissa / Math.pow(10, expDiff);
-      if (r.value.mantissa <= 0) return new OrdinalNumber(0);
-      return r.normalize();
-    }
-    // Layer 0 - Layer 1: usually 0 unless layer 0 is bigger
-    if (this.layer === 0 && other.layer === 1) {
-      var sci = this.toSci();
-      var expDiff = sci.exponent - other.value.exponent;
-      if (expDiff < -OrdinalNumber.SIGNIFICANCE_THRESHOLD) return new OrdinalNumber(0);
-      if (expDiff > OrdinalNumber.SIGNIFICANCE_THRESHOLD) return this.clone();
-      // They're close - do the subtraction
-      var result = sci.mantissa * Math.pow(10, expDiff) - other.value.mantissa;
-      if (result <= 0) return new OrdinalNumber(0);
-      return OrdinalNumber.fromSci(result, other.value.exponent);
+    // this > other
+    // If arrows differ by 2+, result ≈ this
+    const a = new OrdinalNumber(this).normalize();
+    const b = new OrdinalNumber(other).normalize();
+
+    if (a.arrows > b.arrows + 1) {
+      return new OrdinalNumber(this);
     }
 
-    // Both layer 1
-    if (this.layer === 1) {
-      var expDiff = this.value.exponent - other.value.exponent;
-      // If we're much bigger, subtraction is negligible
-      if (expDiff > OrdinalNumber.SIGNIFICANCE_THRESHOLD) return this.clone();
-      // If they're much bigger, result is 0
-      if (expDiff < -OrdinalNumber.SIGNIFICANCE_THRESHOLD) return new OrdinalNumber(0);
-
-      var r = this.clone();
-      r.value.mantissa -= other.value.mantissa / Math.pow(10, expDiff);
-      if (r.value.mantissa <= 0) return new OrdinalNumber(0);
-      return r.normalize();
-    }
-
-    return this.clone();
+    // Close values - approximate as this (imprecise but safe)
+    return new OrdinalNumber(this);
   }
+
+  // ================================================================
+  // MULTIPLICATION
+  // ================================================================
 
   mul(other) {
-    // Handle plain number multiplier (common case: percentages, factors)
-    if (typeof other === 'number') {
-      if (this.layer === 0) {
-        var result = this.value * other;
-        return new OrdinalNumber(result);
-      }
-      if (this.layer === 1) {
-        var r = this.clone();
-        r.value.mantissa *= other;
-        return r.normalize();
-      }
-      if (this.layer === 2) {
-        // For tower notation, multiplying by a number adds log10(number) to the top
-        // But this is usually negligible - only matters if number is huge
-        if (other > 1e10) {
-          var r = this.clone();
-          r.value.tower[0] += Math.log10(other);
-          return r;
-        }
-        return this.clone();
-      }
-      return this.clone();
+    other = OrdinalNumber.from(other);
+
+    // Plain numbers: exact multiplication
+    if (this.arrows === 0 && other.arrows === 0) {
+      return new OrdinalNumber(this.height * other.height);
     }
 
-    other = OrdinalNumber._wrap(other);
-
-    // Layer 0 * Layer 0
-    if (this.layer === 0 && other.layer === 0) {
-      return new OrdinalNumber(this.value * other.value);
+    // 10^a * 10^b = 10^(a+b)
+    // At arrows=1: multiply = add exponents
+    if (this.arrows === 1 && other.arrows === 1) {
+      const result = new OrdinalNumber({arrows: 1, height: 0});
+      // Add the heights (exponents)
+      if (typeof this.height === 'number' && typeof other.height === 'number') {
+        result.height = this.height + other.height;
+      } else {
+        result.height = OrdinalNumber.from(this.height).add(other.height);
+      }
+      return result.normalize();
     }
 
-    // Layer 2 handling
-    if (this.layer === 2 || other.layer === 2) {
-      // Layer 2 * Layer 2: combine towers (take max, they're so big it doesn't matter much)
-      if (this.layer === 2 && other.layer === 2) {
-        var r = this.clone();
-        // Just take the larger tower
-        if (other.value.tower[0] > this.value.tower[0]) {
-          r.value.tower[0] = other.value.tower[0];
+    // Mixed: one is arrows=0, other is arrows=1
+    if (this.arrows === 0 && other.arrows === 1) {
+      // n * 10^k = 10^(k + log10(n))
+      const result = new OrdinalNumber(other);
+      if (this.height > 0) {
+        const logN = Math.log10(this.height);
+        if (typeof result.height === 'number') {
+          result.height += logN;
         }
-        return r;
       }
-      // Layer 2 * Layer 1: add the exponent to tower[0] (it's usually negligible but let's do it right)
-      if (this.layer === 2) {
-        var r = this.clone();
-        var otherExp = other.toSci().exponent;
-        // 10^(10^a) * 10^e = 10^(10^a + e), but 10^a >> e usually, so just add e/10^a which rounds to 0
-        // However, if e is significant compared to 10^a, we should note it
-        // For simplicity: just add log10(e) to tower if e > 1e10
-        if (otherExp > 1e10) {
-          r.value.tower[0] += Math.log10(otherExp);
-        }
-        return r;
-      }
-      // Layer 1 * Layer 2
-      if (other.layer === 2) {
-        var r = other.clone();
-        var thisExp = this.toSci().exponent;
-        if (thisExp > 1e10) {
-          r.value.tower[0] += Math.log10(thisExp);
-        }
-        return r;
-      }
+      return result.normalize();
+    }
+    if (this.arrows === 1 && other.arrows === 0) {
+      return other.mul(this); // Commutative
     }
 
-    // Both layer 0 or layer 1: convert to scientific and multiply
-    var a = this.toSci();
-    var b = other.toSci();
-    var mant = a.mantissa * b.mantissa;
-    var exp = a.exponent + b.exponent;
-
-    // Normalize mantissa
-    if (mant >= 10) { mant /= 10; exp += 1; }
-    if (mant < 1 && mant > 0) { mant *= 10; exp -= 1; }
-
-    return OrdinalNumber.fromSci(mant, exp);
+    // Higher arrows: larger one dominates
+    // 10^^a * 10^^b ≈ 10^^max(a,b) for very different a,b
+    // More precisely: 10^^a * 10^^b = 10^^a * 10^^b, but approximation is ok
+    return this.cmp(other) >= 0 ? new OrdinalNumber(this) : new OrdinalNumber(other);
   }
+
+  // ================================================================
+  // DIVISION (approximate)
+  // ================================================================
 
   div(other) {
-    other = OrdinalNumber._wrap(other);
-    if (other.isZero()) return new OrdinalNumber(0);
+    other = OrdinalNumber.from(other);
 
-    // Layer 0 / Layer 0
-    if (this.layer === 0 && other.layer === 0) {
-      return new OrdinalNumber(Math.floor(this.value / other.value));
+    if (other.arrows === 0 && other.height === 0) {
+      // Division by zero - return infinity-ish
+      return new OrdinalNumber({arrows: 10, height: 9});
     }
 
-    // Layer 2 handling
-    if (this.layer === 2 || other.layer === 2) {
-      // Layer 2 / Layer 2: subtract towers (result depends on which is bigger)
-      if (this.layer === 2 && other.layer === 2) {
-        if (this.value.tower[0] > other.value.tower[0]) {
-          return this.clone(); // Dividing by smaller tower is negligible
-        }
-        return new OrdinalNumber(0); // Dividing by larger tower gives ~0
+    if (this.arrows === 0 && other.arrows === 0) {
+      return new OrdinalNumber(this.height / other.height);
+    }
+
+    // 10^a / 10^b = 10^(a-b)
+    if (this.arrows === 1 && other.arrows === 1) {
+      if (typeof this.height === 'number' && typeof other.height === 'number') {
+        const newHeight = this.height - other.height;
+        if (newHeight < 0) return new OrdinalNumber(0);
+        return new OrdinalNumber({arrows: 1, height: newHeight}).normalize();
       }
-      // Layer 2 / Layer 1: still huge, return this
-      if (this.layer === 2) {
-        return this.clone();
+    }
+
+    // Higher arrows: if this >> other, result ≈ this
+    const cmp = this.cmp(other);
+    if (cmp < 0) return new OrdinalNumber(0);
+    if (cmp === 0) return new OrdinalNumber(1);
+    return new OrdinalNumber(this);
+  }
+
+  // ================================================================
+  // EXPONENTIATION: 10^this
+  // ================================================================
+
+  exp10() {
+    const result = new OrdinalNumber(this);
+
+    if (result.arrows === 0) {
+      // 10^n where n is a plain number
+      if (result.height < 308) {
+        const val = Math.pow(10, result.height);
+        return new OrdinalNumber(val);
+      } else {
+        // 10^(big number) - becomes arrows=1
+        return new OrdinalNumber({arrows: 1, height: result.height}).normalize();
       }
-      // Layer 1 / Layer 2: result is ~0
-      return new OrdinalNumber(0);
     }
 
-    // Convert to scientific and divide
-    var a = this.toSci();
-    var b = other.toSci();
-    var mant = a.mantissa / b.mantissa;
-    var exp = a.exponent - b.exponent;
-
-    // Normalize mantissa
-    while (mant >= 10) { mant /= 10; exp += 1; }
-    while (mant < 1 && mant > 0 && exp > 0) { mant *= 10; exp -= 1; }
-
-    if (exp < 0) return new OrdinalNumber(0);
-    return OrdinalNumber.fromSci(mant, exp);
+    // 10^(10^h) = 10^^2 with height adjustment
+    // More generally: 10^(10↑^k h)
+    // This increases the tower by 1
+    result.arrows += 1;
+    return result.normalize();
   }
 
-  // Multiply by fraction (for percentage operations like drain)
-  mulFraction(numerator, denominator) {
-    if (this.layer === 0) {
-      return new OrdinalNumber(Math.floor(this.value * numerator / denominator));
+  // ================================================================
+  // FRACTION OPERATIONS (for game compatibility)
+  // ================================================================
+
+  mulFraction(num, denom) {
+    // this * (num/denom)
+    if (this.arrows === 0) {
+      return new OrdinalNumber(this.height * num / denom);
     }
-    if (this.layer === 1) {
-      var r = this.clone();
-      r.value.mantissa *= (numerator / denominator);
-      return r.normalize();
+    // At higher levels, fraction is negligible unless num/denom ≈ 1
+    if (num === denom) return new OrdinalNumber(this);
+    if (num === 0) return new OrdinalNumber(0);
+    // Approximate: adjust exponent
+    const factor = num / denom;
+    if (this.arrows === 1 && typeof this.height === 'number') {
+      return new OrdinalNumber({arrows: 1, height: this.height + Math.log10(factor)}).normalize();
     }
-    // Layer 2: fractions are negligible on tower numbers
-    // e.g., 10^10^1000 * 0.5 ≈ 10^10^1000 (the 0.5 doesn't matter)
-    return this.clone();
+    return new OrdinalNumber(this);
   }
 
-  toSci() {
-    if (this.layer === 0) {
-      if (this.value === 0) return { mantissa: 0, exponent: 0 };
-      var exp = Math.floor(Math.log10(this.value));
-      var mant = this.value / Math.pow(10, exp);
-      return { mantissa: mant, exponent: exp };
-    }
-    if (this.layer === 1) return { mantissa: this.value.mantissa, exponent: this.value.exponent };
-    return { mantissa: 1, exponent: 999999999 };
-  }
+  // ================================================================
+  // CONVERSION
+  // ================================================================
 
   toNumber() {
-    if (this.layer === 0) {
-      return this.value;
+    if (this.arrows === 0) {
+      return this.height;
     }
-    if (this.layer === 1) {
-      if (this.value.exponent > 308) return Infinity;
-      return this.value.mantissa * Math.pow(10, this.value.exponent);
+    if (this.arrows === 1) {
+      const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      if (h < 308) {
+        return Math.pow(10, h);
+      }
+      return Infinity;
     }
     return Infinity;
   }
 
-  floor() {
-    if (this.layer === 0) return this.clone();
-    return this.clone(); // higher layers are already "integers" conceptually
+  // ================================================================
+  // FORMATTING - "notation strains before it breaks"
+  // ================================================================
+
+  // Named number thresholds
+  static NAMES = [
+    { exp: 3, name: 'thousand' },
+    { exp: 6, name: 'million' },
+    { exp: 9, name: 'billion' },
+    { exp: 12, name: 'trillion' },
+    { exp: 15, name: 'quadrillion' },
+    { exp: 18, name: 'quintillion' },
+    { exp: 21, name: 'sextillion' },
+    { exp: 24, name: 'septillion' },
+    { exp: 27, name: 'octillion' },
+    { exp: 30, name: 'nonillion' },
+    { exp: 33, name: 'decillion' },
+  ];
+
+  // Helper: format number with commas
+  static _commas(n) {
+    return Math.floor(n).toLocaleString();
   }
 
-  // === DISPLAY ===
+  // Helper: format as named number (thousand to decillion)
+  static _named(value) {
+    // value is a plain number
+    if (value < 1000) return OrdinalNumber._commas(value);
+
+    const exp = Math.floor(Math.log10(value));
+    // Find the largest name that fits
+    let bestName = null;
+    let bestExp = 0;
+    for (const n of OrdinalNumber.NAMES) {
+      if (n.exp <= exp) {
+        bestName = n.name;
+        bestExp = n.exp;
+      }
+    }
+    if (!bestName) return OrdinalNumber._commas(value);
+
+    const scaled = value / Math.pow(10, bestExp);
+    if (scaled >= 100) {
+      return Math.floor(scaled).toLocaleString() + ' ' + bestName;
+    } else if (scaled >= 10) {
+      return scaled.toFixed(1) + ' ' + bestName;
+    } else {
+      return scaled.toFixed(2) + ' ' + bestName;
+    }
+  }
+
   format() {
-    if (this.layer === 0) {
-      var n = this.value;
-      if (n < 1000) return n.toLocaleString('en-US');
-      if (n < 1000000) return n.toLocaleString('en-US');
+    const n = new OrdinalNumber(this).normalize();
+    const h = (n.height instanceof OrdinalNumber)
+      ? n.height.normalize().toNumber()
+      : n.height;
 
-      // Use word format for readability
-      var words = [[33,'decillion'],[30,'nonillion'],[27,'octillion'],[24,'septillion'],
-                   [21,'sextillion'],[18,'quintillion'],[15,'quadrillion'],[12,'trillion'],
-                   [9,'billion'],[6,'million'],[3,'thousand']];
-      for (var i = 0; i < words.length; i++) {
-        var exp = words[i][0], word = words[i][1];
-        var threshold = Math.pow(10, exp);
-        if (n >= threshold) {
-          var scaled = n / threshold;
-          if (scaled < 10) return scaled.toFixed(2) + ' ' + word;
-          if (scaled < 100) return scaled.toFixed(1) + ' ' + word;
-          return Math.floor(scaled).toLocaleString('en-US') + ' ' + word;
-        }
+    // arrows=0: plain or named
+    if (n.arrows === 0) {
+      if (h < 1000) {
+        return OrdinalNumber._commas(h);
       }
-      return n.toLocaleString('en-US');
+      return OrdinalNumber._named(h);
     }
 
-    if (this.layer === 1) {
-      var exp = this.value.exponent;
-      var mant = this.value.mantissa;
-
-      // If mantissa is essentially 0 (would display as 0.000), just show 0
-      if (mant < 0.0005) return '0';
-
-      // Use word names for exponents up to decillion (1e33)
-      if (exp <= 33) {
-        var words = [[33,'decillion'],[30,'nonillion'],[27,'octillion'],[24,'septillion'],
-                     [21,'sextillion'],[18,'quintillion'],[15,'quadrillion'],[12,'trillion'],
-                     [9,'billion'],[6,'million'],[3,'thousand']];
-        for (var i = 0; i < words.length; i++) {
-          var wordExp = words[i][0], word = words[i][1];
-          if (exp >= wordExp) {
-            var displayExp = exp - wordExp;
-            var displayVal = mant * Math.pow(10, displayExp);
-            if (displayVal < 10) return displayVal.toFixed(2) + ' ' + word;
-            if (displayVal < 100) return displayVal.toFixed(1) + ' ' + word;
-            return Math.floor(displayVal).toLocaleString('en-US') + ' ' + word;
-          }
-        }
-        // Below thousand - just show as number
-        var val = mant * Math.pow(10, exp);
-        return val < 10 ? val.toFixed(2) : Math.floor(val).toLocaleString('en-US');
+    // arrows=1: named, scientific, or scientific with commas
+    if (n.arrows === 1) {
+      if (h <= 33) {
+        // Named range (up to decillion = 10^33)
+        const value = Math.pow(10, h);
+        return OrdinalNumber._named(value);
       }
-
-      // Scientific for larger exponents
-      if (exp <= 1000000) return mant.toFixed(3) + 'e' + exp;
-
-      // Double exponential
-      var eExp = Math.floor(Math.log10(exp));
-      var eMant = exp / Math.pow(10, eExp);
-      return '10^(' + eMant.toFixed(3) + 'e' + eExp + ')';
+      if (h < 1000) {
+        // Scientific: 10^500
+        return '10^' + Math.floor(h);
+      }
+      if (h < 10000000) {
+        // Scientific with commas: 10^1,250,000
+        return '10^' + OrdinalNumber._commas(h);
+      }
+      // Very large exponent - will be handled by promotion to arrows=2
+      return '10^' + OrdinalNumber._commas(h);
     }
 
-    if (this.layer === 2) {
-      var t = this.value.tower;
-      if (t.length <= 4) return '10' + '^10'.repeat(t.length - 1) + '^' + t[0];
-      return '10\u2191\u21912' + t.length + '(' + t[0] + ')';
+    // arrows=2 (tetration): tower of ^, then ↑ strain, then clean ↑↑
+    if (n.arrows === 2) {
+      const height = Math.floor(h);
+      if (height <= 6) {
+        // Tower of ^s: 10^10^10^10^10^10
+        return '10' + '^10'.repeat(height - 1);
+      }
+      if (height <= 12) {
+        // ↑ strain: 10↑10↑10↑10↑10↑10↑10
+        return Array(height).fill('10').join('↑');
+      }
+      // Clean ↑↑
+      return '10↑↑' + height;
     }
 
-    return '???';
+    // arrows=3 (pentation): chain of ↑↑, then clean ↑↑↑
+    if (n.arrows === 3) {
+      const height = Math.floor(h);
+      if (height <= 5) {
+        // ↑↑ strain: 10↑↑10↑↑10↑↑10↑↑10
+        return Array(height).fill('10').join('↑↑');
+      }
+      // Clean ↑↑↑
+      return '10↑↑↑' + height;
+    }
+
+    // arrows=4: chain of ↑↑↑, then clean ↑↑↑↑
+    if (n.arrows === 4) {
+      const height = Math.floor(h);
+      if (height <= 5) {
+        // ↑↑↑ strain: 10↑↑↑10↑↑↑10↑↑↑10
+        return Array(height).fill('10').join('↑↑↑');
+      }
+      // Clean ↑↑↑↑
+      return '10↑↑↑↑' + height;
+    }
+
+    // arrows=5: last level before ↑^n notation
+    if (n.arrows === 5) {
+      const height = Math.floor(h);
+      if (height <= 5) {
+        return Array(height).fill('10').join('↑↑↑↑');
+      }
+      return '10↑↑↑↑↑' + height;
+    }
+
+    // arrows >= 6: use ↑^n notation
+    const height = Math.floor(h);
+    const arrowStr = '↑^' + n.arrows;
+    if (height <= 5) {
+      // Still show some strain
+      const prevArrow = '↑'.repeat(n.arrows - 1);
+      return Array(height).fill('10').join(prevArrow);
+    }
+    return '10' + arrowStr + ' ' + height;
   }
 
-  notationName() {
-    if (this.layer === 0) {
-      if (this.value < 1000000) return 'Standard';
-      if (this.value < 1e15) return 'Named';
-      return 'Scientific';
+  // Short format for display
+  fmt() {
+    return this.format();
+  }
+
+  // ================================================================
+  // COMPATIBILITY PROPERTIES (for old code accessing .layer/.value)
+  // ================================================================
+
+  get layer() {
+    // Map arrows to old layer concept
+    // Old: layer 0 = plain number, layer 1 = scientific, layer 2 = tower
+    // New: arrows 0 = plain, arrows 1 = scientific, arrows 2+ = tower/higher
+    return this.arrows;
+  }
+
+  get value() {
+    // Map to old value concept
+    if (this.arrows === 0) {
+      return this.height;
     }
-    if (this.layer === 1) {
-      if (this.value.exponent <= 1000000) return 'Scientific';
+    if (this.arrows === 1) {
+      const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      return { mantissa: 1, exponent: h };
+    }
+    // arrows 2+: tower format
+    const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+    return { tower: [h] };
+  }
+
+  // ================================================================
+  // COMPATIBILITY METHODS (for game integration)
+  // ================================================================
+
+  clone() {
+    return new OrdinalNumber(this);
+  }
+
+  isZero() {
+    return this.arrows === 0 && this.height === 0;
+  }
+
+  floor() {
+    // At arrows=0, floor the height
+    if (this.arrows === 0) {
+      const r = new OrdinalNumber(this);
+      r.height = Math.floor(r.height);
+      return r;
+    }
+    // Higher arrows are conceptually integers already
+    return this.clone();
+  }
+
+  // Returns {mantissa, exponent} for compatibility with old code
+  toSci() {
+    if (this.arrows === 0) {
+      if (this.height === 0) return { mantissa: 0, exponent: 0 };
+      const exp = Math.floor(Math.log10(this.height));
+      const mant = this.height / Math.pow(10, exp);
+      return { mantissa: mant, exponent: exp };
+    }
+    if (this.arrows === 1) {
+      const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      // mantissa is always ~1 for pure powers of 10
+      return { mantissa: 1, exponent: h };
+    }
+    // Higher arrows - return huge exponent
+    return { mantissa: 1, exponent: 1e15 };
+  }
+
+  // For debugging/display - what notation level are we at
+  notationName() {
+    if (this.arrows === 0) {
+      if (this.height < 1000000) return 'Standard';
+      return 'Named';
+    }
+    if (this.arrows === 1) {
+      const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      if (h <= 33) return 'Named';
+      if (h <= 1000000) return 'Scientific';
       return 'Double Exponential';
     }
-    if (this.layer === 2) return 'Tetration';
-    return 'Beyond';
+    if (this.arrows === 2) return 'Tetration';
+    if (this.arrows === 3) return 'Pentation';
+    if (this.arrows === 4) return 'Hexation';
+    return 'Arrow-' + this.arrows;
+  }
+
+  // ================================================================
+  // STATIC HELPERS
+  // ================================================================
+
+  static from(val) {
+    if (val instanceof OrdinalNumber) return val;
+    return new OrdinalNumber(val);
+  }
+
+  // Alias for compatibility
+  static _wrap(val) {
+    return OrdinalNumber.from(val);
+  }
+
+  static fromNumber(n) {
+    return new OrdinalNumber(n);
+  }
+
+  static fromBigInt(n) {
+    // Convert BigInt to Number
+    const num = Number(n);
+    return new OrdinalNumber(num);
+  }
+
+  static fromSci(mantissa, exponent) {
+    // Handle BigInt exponent (backwards compat)
+    const exp = typeof exponent === 'bigint' ? Number(exponent) : exponent;
+
+    if (exp < 12 && mantissa * Math.pow(10, exp) < 1e12) {
+      // Small enough to be arrows=0
+      return new OrdinalNumber(mantissa * Math.pow(10, exp));
+    }
+
+    // Create as arrows=1 with appropriate height
+    // 10^exp * mantissa = 10^(exp + log10(mantissa))
+    const height = exp + Math.log10(mantissa);
+    return new OrdinalNumber({ arrows: 1, height: height }).normalize();
+  }
+
+  static fromTower(levels) {
+    // levels is an array like [a] meaning 10^10^...^a
+    // The length of the array determines the tower height
+    if (!Array.isArray(levels) || levels.length === 0) {
+      return new OrdinalNumber(0);
+    }
+
+    // For a tower [a], this means 10^a at tower level = length
+    // Actually in old code: tower[0] is the "top" value
+    // So [100] means 10^100 (tower of 1 level with top=100)
+    // And the tower length indicates how many 10^'s
+
+    // In our representation:
+    // - Tower of 1: arrows=1, height=levels[0] (just 10^a)
+    // - Tower of 2+: arrows=2, height=levels.length with top value encoded
+    // This is approximate - the old tower notation stored more info
+
+    if (levels.length === 1) {
+      // 10^levels[0]
+      return new OrdinalNumber({ arrows: 1, height: levels[0] }).normalize();
+    }
+
+    // For longer towers, treat as tetration
+    // The old code stored tower[0] as the top value
+    // We approximate as arrows=2, height = number of levels + log adjustment
+    return new OrdinalNumber({ arrows: 2, height: levels.length + Math.log10(Math.max(1, levels[0])) }).normalize();
   }
 }
 
-// Helper to create OrdinalNumber easily
+// Helper to create OrdinalNumber easily (must be after class definition for browser)
 function ON(val) { return new OrdinalNumber(val); }
+
+// Export for Node.js
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { OrdinalNumber, ON };
+}
