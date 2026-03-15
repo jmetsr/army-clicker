@@ -197,10 +197,35 @@ test("toNumber plain", ON(12345).toNumber() === 12345);
 test("toNumber scientific", Math.abs(ON({arrows: 1, height: 6}).toNumber() - 1e6) < 1);
 test("toNumber tower = Infinity", ON({arrows: 2, height: 5}).toNumber() === Infinity);
 
-test("format plain", ON(1000).format() === "1,000");
-test("format scientific", ON({arrows: 1, height: 50}).format().includes("10^"));
-test("format tower", ON({arrows: 2, height: 5}).format().includes("10^^"));
-test("format higher arrows", ON({arrows: 4, height: 3}).format().includes("↑^4"));
+// New "strain before break" display tests
+console.log("\n--- Display progression demo ---");
+console.log("Plain:", ON(847).format());
+console.log("Named (thousand):", ON(5200).format());
+console.log("Named (trillion):", ON(5.2e12).format());
+console.log("Named (decillion):", ON({arrows: 1, height: 33}).format());
+console.log("Scientific:", ON({arrows: 1, height: 500}).format());
+console.log("Sci+commas:", ON({arrows: 1, height: 1250000}).format());
+console.log("Tower (5):", ON({arrows: 2, height: 5}).format());
+console.log("↑ strain (9):", ON({arrows: 2, height: 9}).format());
+console.log("Clean ↑↑:", ON({arrows: 2, height: 15}).format());
+console.log("↑↑ strain (4):", ON({arrows: 3, height: 4}).format());
+console.log("Clean ↑↑↑:", ON({arrows: 3, height: 8}).format());
+console.log("↑↑↑ strain (3):", ON({arrows: 4, height: 3}).format());
+console.log("Clean ↑↑↑↑:", ON({arrows: 4, height: 7}).format());
+console.log("↑^6 notation:", ON({arrows: 6, height: 10}).format());
+console.log("");
+
+test("format plain", ON(500).format() === "500");
+test("format named thousand", ON(5200).format() === "5.20 thousand");
+test("format named trillion", ON(5.2e12).format() === "5.20 trillion");
+test("format scientific", ON({arrows: 1, height: 500}).format() === "10^500");
+test("format sci+commas", ON({arrows: 1, height: 1250000}).format() === "10^1,250,000");
+test("format tower", ON({arrows: 2, height: 5}).format() === "10^10^10^10^10");
+test("format ↑ strain", ON({arrows: 2, height: 9}).format() === "10↑10↑10↑10↑10↑10↑10↑10↑10");
+test("format clean ↑↑", ON({arrows: 2, height: 15}).format() === "10↑↑15");
+test("format ↑↑ strain", ON({arrows: 3, height: 4}).format() === "10↑↑10↑↑10↑↑10");
+test("format clean ↑↑↑", ON({arrows: 3, height: 8}).format() === "10↑↑↑8");
+test("format ↑^n", ON({arrows: 6, height: 10}).format() === "10↑^6 10");
 
 // ================================================================
 // FRACTION OPERATIONS

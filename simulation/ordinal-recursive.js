@@ -380,32 +380,144 @@ class OrdinalNumber {
   }
 
   // ================================================================
-  // FORMATTING
+  // FORMATTING - "notation strains before it breaks"
   // ================================================================
+
+  // Named number thresholds
+  static NAMES = [
+    { exp: 3, name: 'thousand' },
+    { exp: 6, name: 'million' },
+    { exp: 9, name: 'billion' },
+    { exp: 12, name: 'trillion' },
+    { exp: 15, name: 'quadrillion' },
+    { exp: 18, name: 'quintillion' },
+    { exp: 21, name: 'sextillion' },
+    { exp: 24, name: 'septillion' },
+    { exp: 27, name: 'octillion' },
+    { exp: 30, name: 'nonillion' },
+    { exp: 33, name: 'decillion' },
+  ];
+
+  // Helper: format number with commas
+  static _commas(n) {
+    return Math.floor(n).toLocaleString();
+  }
+
+  // Helper: format as named number (thousand to decillion)
+  static _named(value) {
+    // value is a plain number
+    if (value < 1000) return OrdinalNumber._commas(value);
+
+    const exp = Math.floor(Math.log10(value));
+    // Find the largest name that fits
+    let bestName = null;
+    let bestExp = 0;
+    for (const n of OrdinalNumber.NAMES) {
+      if (n.exp <= exp) {
+        bestName = n.name;
+        bestExp = n.exp;
+      }
+    }
+    if (!bestName) return OrdinalNumber._commas(value);
+
+    const scaled = value / Math.pow(10, bestExp);
+    if (scaled >= 100) {
+      return Math.floor(scaled).toLocaleString() + ' ' + bestName;
+    } else if (scaled >= 10) {
+      return scaled.toFixed(1) + ' ' + bestName;
+    } else {
+      return scaled.toFixed(2) + ' ' + bestName;
+    }
+  }
 
   format() {
     const n = new OrdinalNumber(this).normalize();
+    const h = (n.height instanceof OrdinalNumber)
+      ? n.height.normalize().toNumber()
+      : n.height;
 
+    // arrows=0: plain or named
     if (n.arrows === 0) {
-      if (Number.isInteger(n.height) && n.height < 1e6) {
-        return n.height.toLocaleString();
+      if (h < 1000) {
+        return OrdinalNumber._commas(h);
       }
-      return n.height.toFixed(2);
+      return OrdinalNumber._named(h);
     }
 
+    // arrows=1: named, scientific, or scientific with commas
     if (n.arrows === 1) {
-      const h = (n.height instanceof OrdinalNumber) ? n.height.format() : n.height.toFixed(2);
-      return `10^${h}`;
+      if (h <= 33) {
+        // Named range (up to decillion = 10^33)
+        const value = Math.pow(10, h);
+        return OrdinalNumber._named(value);
+      }
+      if (h < 1000) {
+        // Scientific: 10^500
+        return '10^' + Math.floor(h);
+      }
+      if (h < 10000000) {
+        // Scientific with commas: 10^1,250,000
+        return '10^' + OrdinalNumber._commas(h);
+      }
+      // Very large exponent - will be handled by promotion to arrows=2
+      return '10^' + OrdinalNumber._commas(h);
     }
 
+    // arrows=2 (tetration): tower of ^, then ↑ strain, then clean ↑↑
     if (n.arrows === 2) {
-      const h = (n.height instanceof OrdinalNumber) ? n.height.format() : n.height.toFixed(2);
-      return `10^^${h}`;
+      const height = Math.floor(h);
+      if (height <= 6) {
+        // Tower of ^s: 10^10^10^10^10^10
+        return '10' + '^10'.repeat(height - 1);
+      }
+      if (height <= 12) {
+        // ↑ strain: 10↑10↑10↑10↑10↑10↑10
+        return Array(height).fill('10').join('↑');
+      }
+      // Clean ↑↑
+      return '10↑↑' + height;
     }
 
-    // Higher arrows
-    const h = (n.height instanceof OrdinalNumber) ? n.height.format() : n.height.toFixed(2);
-    return `10↑^${n.arrows} ${h}`;
+    // arrows=3 (pentation): chain of ↑↑, then clean ↑↑↑
+    if (n.arrows === 3) {
+      const height = Math.floor(h);
+      if (height <= 5) {
+        // ↑↑ strain: 10↑↑10↑↑10↑↑10↑↑10
+        return Array(height).fill('10').join('↑↑');
+      }
+      // Clean ↑↑↑
+      return '10↑↑↑' + height;
+    }
+
+    // arrows=4: chain of ↑↑↑, then clean ↑↑↑↑
+    if (n.arrows === 4) {
+      const height = Math.floor(h);
+      if (height <= 5) {
+        // ↑↑↑ strain: 10↑↑↑10↑↑↑10↑↑↑10
+        return Array(height).fill('10').join('↑↑↑');
+      }
+      // Clean ↑↑↑↑
+      return '10↑↑↑↑' + height;
+    }
+
+    // arrows=5: last level before ↑^n notation
+    if (n.arrows === 5) {
+      const height = Math.floor(h);
+      if (height <= 5) {
+        return Array(height).fill('10').join('↑↑↑↑');
+      }
+      return '10↑↑↑↑↑' + height;
+    }
+
+    // arrows >= 6: use ↑^n notation
+    const height = Math.floor(h);
+    const arrowStr = '↑^' + n.arrows;
+    if (height <= 5) {
+      // Still show some strain
+      const prevArrow = '↑'.repeat(n.arrows - 1);
+      return Array(height).fill('10').join(prevArrow);
+    }
+    return '10' + arrowStr + ' ' + height;
   }
 
   // Short format for display
