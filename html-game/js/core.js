@@ -359,10 +359,15 @@ function doBattle() {
         }
       }
       // AI vanquish check - only if AI has recruited at least once (don't vanquish before game starts)
-      if (isAIMode() && G.ai && G.ai.troops.lt(1) && (G.ai.counts["recruit"] || 0) > 0) {
+      // Must also check dragonCohorts and enemyUnvanquishable like non-AI mode
+      if (isAIMode() && G.ai && G.ai.troops.lt(1) && G.dragonCohorts.length === 0 && (G.ai.counts["recruit"] || 0) > 0) {
         G.ai.troops = ON(0);
-        G.enemyVanquished = true;
-        log("\ud83c\udf89 TOTAL VICTORY! The AI opponent has been defeated!", "milestone");
+        if (!G.enemyUnvanquishable) {
+          G.enemyVanquished = true;
+          log("\ud83c\udf89 TOTAL VICTORY! The AI opponent has been defeated!", "milestone");
+        } else {
+          log("\ud83c\udf89 VICTORY! AI forces destroyed... but darkness will bring them back.", "milestone");
+        }
       }
     } else {
       // Defeat
