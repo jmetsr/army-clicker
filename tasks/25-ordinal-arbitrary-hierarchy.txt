@@ -51,12 +51,44 @@ Examples:
 - 10↑↑↑5         = {arrows: 3, height: 5}
 - 10↑↑(10↑↑100)  = {arrows: 2, height: {arrows: 2, height: 100}}
 
+CRITICAL INSIGHT - NORMALIZATION:
+
+Arrows and height TRADE OFF. These are equivalent:
+  {arrows: k, height: 10} ≈ {arrows: k+1, height: 1}
+
+Because 10^10 = 10^10 (tautology when you expand the tower).
+
+This means "compare arrows first" is WRONG without normalization:
+  {arrows: 2, height: 100} = 10^10^100 = 10^(googol)
+  {arrows: 3, height: 1}   = 10^10^10  = 10^(10 billion)
+  The FIRST is bigger despite fewer arrows!
+
+SOLUTION: Normalize to keep height in range [1, 10):
+
+```javascript
+normalize(a) {
+  // Height too big -> increment arrows
+  while (a.height >= 10) {
+    a.arrows += 1;
+    a.height = Math.log10(a.height);  // or recurse if height is OrdinalNumber
+  }
+  // Height too small -> decrement arrows
+  while (a.height < 1 && a.arrows > 0) {
+    a.arrows -= 1;
+    a.height = Math.pow(10, a.height);
+  }
+  return a;
+}
+```
+
 GENERIC OPERATIONS (no per-layer code!):
 
 ```javascript
 compare(a, b) {
+  a = normalize(a);
+  b = normalize(b);
   if (a.arrows != b.arrows) return a.arrows - b.arrows;
-  return compare(a.height, b.height);  // recurse
+  return compare(a.height, b.height);  // recurse if height is OrdinalNumber
 }
 
 add(a, b) {
@@ -64,17 +96,19 @@ add(a, b) {
 }
 
 exp10(a) {
-  return {arrows: a.arrows + 1, height: a.height};  // increment arrows
+  return normalize({arrows: a.arrows + 1, height: a.height});
 }
 
 format(a) {
+  a = normalize(a);
   if (a.arrows == 0) return a.height.toString();
   if (a.arrows == 1) return "10^" + format(a.height);
   return "10↑^" + a.arrows + " " + format(a.height);
 }
 ```
 
-This is ONE implementation that handles ALL finite arrow levels automatically.
+This handles ALL finite arrow levels with ONE implementation.
+The key is normalize() which keeps height in [1, 10) by trading with arrows.
 
 RECURSIVE OPERATIONS:
 
