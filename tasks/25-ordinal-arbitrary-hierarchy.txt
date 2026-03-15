@@ -25,27 +25,56 @@ f5(n) = ...
 Game auto-upgrader chains naturally climb this hierarchy!
 
 SCOPE:
-- Handle arbitrary FINITE arrow counts (arrows can itself be OrdinalNumber)
-- This covers everything the game can currently produce
+- Handle arbitrary FINITE arrow counts with NO per-layer hardcoding
+- One set of operations works for ALL levels
 - ω-level (infinite ordinals) is a FUTURE goal when game mechanics support it
-- We accept that ω will require another research/redesign phase
 
-PROPOSED SOLUTION - KNUTH ARROW NOTATION:
+KEY INSIGHT (from prototype testing):
+- Current Tower and Arrow notations collapse to same thing: (arrows, height)
+- The game's non-uniform structure (sums + exponentiations) doesn't matter
+  because we approximate anyway - larger terms dominate
+- We DON'T need a fundamental redesign, just make height RECURSIVE
 
-Unified representation:
+PROPOSED SOLUTION - RECURSIVE HEIGHT:
+
 ```javascript
 {
-  arrows: OrdinalNumber,  // can itself be huge (10↑↑100 arrows)
-  base: 10,               // always 10 for our purposes
-  height: OrdinalNumber   // the "argument"
+  arrows: Number,         // finite: 0, 1, 2, 3... (not reaching ω yet)
+  height: OrdinalNumber   // RECURSIVE - can itself be {arrows, height}
 }
 ```
 
-Meaning: 10 ↑^arrows height
-- arrows=1, height=6 → 10^6 = million
-- arrows=2, height=3 → 10↑↑3 = 10^10^10
-- arrows=3, height=2 → 10↑↑↑2 = 10↑↑10 = 10^10^10^...^10 (10 times)
-- arrows=10↑↑5, height=10 → 10 ↑^(10↑↑5) 10 (arrow count is huge)
+Examples:
+- 10^100         = {arrows: 1, height: 100}
+- 10^10^100      = {arrows: 1, height: {arrows: 1, height: 100}}
+- 10↑↑5          = {arrows: 2, height: 5}
+- 10↑↑↑5         = {arrows: 3, height: 5}
+- 10↑↑(10↑↑100)  = {arrows: 2, height: {arrows: 2, height: 100}}
+
+GENERIC OPERATIONS (no per-layer code!):
+
+```javascript
+compare(a, b) {
+  if (a.arrows != b.arrows) return a.arrows - b.arrows;
+  return compare(a.height, b.height);  // recurse
+}
+
+add(a, b) {
+  return compare(a, b) > 0 ? a : b;  // take max (approximation)
+}
+
+exp10(a) {
+  return {arrows: a.arrows + 1, height: a.height};  // increment arrows
+}
+
+format(a) {
+  if (a.arrows == 0) return a.height.toString();
+  if (a.arrows == 1) return "10^" + format(a.height);
+  return "10↑^" + a.arrows + " " + format(a.height);
+}
+```
+
+This is ONE implementation that handles ALL finite arrow levels automatically.
 
 RECURSIVE OPERATIONS:
 
@@ -70,20 +99,18 @@ Display:
 - Or use ordinal names: ε₀, ω, etc. for very high
 
 CHALLENGES:
-1. Both arrows AND height can be OrdinalNumbers (recursive structure)
-2. Operations become approximate at high levels - need good heuristics
-3. Comparison is critical for game mechanics - must be reliable
-4. Display needs to be readable (arrow notation? names?)
-5. Bootstrap problem: how do we represent arrows=10↑↑5 without circular dependency?
-   - Maybe: arrows stored as {layer, value} tuple, height as full OrdinalNumber
-   - Or: arrows maxes out at some reasonable cap before ω redesign
+1. Recursion depth - need base case (arrows=0, height=Number)
+2. Operations are approximate - comparison must still be reliable
+3. Display needs to be readable at high levels
+4. Performance - deep recursion could be slow (probably fine for game)
 
-PHASES:
-1. Research/design the representation thoroughly
-2. Implement basic structure with arrows field
-3. Port existing layer 0/1/2 operations to new system
-4. Add layer 3+ support (should be mostly automatic)
-5. Test with game's auto-upgrader chains
+IMPLEMENTATION PLAN:
+1. Create new OrdinalNumber class with {arrows, height} structure
+2. Implement recursive compare(), add(), mul(), exp10(), format()
+3. Add base case: arrows=0 means height is plain Number
+4. Test with game's auto-upgrader chains
+5. Replace current OrdinalNumber once validated
+6. Fix JS operator bugs (task 22) in game code that uses it
 
 REFERENCES:
 - Knuth up-arrow notation
