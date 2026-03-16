@@ -387,7 +387,8 @@ function updateUI() {
     var costStr = displayCost instanceof OrdinalNumber ? fmt(displayCost) : fmt(Math.ceil(displayCost));
     r.el.querySelector(".btn-cost").textContent = (btn.isMagic ? costStr + " magic" : costStr + " coins");
     var c = cnt(btn.id);
-    document.getElementById("cnt_" + btn.id).textContent = c > 0 ? fmt(c) + " " + (btn.cw || "") : "";
+    var hasCount = c instanceof OrdinalNumber ? c.gt(0) : c > 0;
+    document.getElementById("cnt_" + btn.id).textContent = hasCount ? fmt(c) + " " + (btn.cw || "") : "";
 
     // Auto-upgrader buttons
     if (!btn.isMagic) {
