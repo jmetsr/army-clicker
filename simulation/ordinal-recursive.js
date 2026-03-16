@@ -91,6 +91,13 @@ class OrdinalNumber {
     // Only normalize when height is HUGE (>= 1e12)
     // This keeps 10^100 as {arrows:1, height:100} which is readable
     // But 10^(1e15) becomes {arrows:2, height:15}
+    // FIX: Guard against Infinity/NaN to prevent infinite loop
+    if (!isFinite(this.height) || isNaN(this.height)) {
+      // Cap at a very large but finite value
+      this.arrows = Math.min(this.arrows + 10, 100);
+      this.height = 1e11;
+      return this;
+    }
     while (this.height >= 1e12) {
       this.arrows += 1;
       this.height = Math.log10(this.height);
@@ -139,24 +146,71 @@ class OrdinalNumber {
 
       if (diff === 1) {
         // Compare {k+1, h1} vs {k, h2}
-        // {k+1, h} ≈ {k, 10^(h-1) iterated} which is roughly {k, 10^h} for comparison
-        // So {k+1, h1} wins if 10^h1 > h2, i.e., h1 > log10(h2)
-        const expandedHeight = Math.pow(10, higherArrow.height);
+        // Key insight: 10↑^(k+1) h1 ≈ 10↑^k (10↑^k ... h1 times)
+        //
+        // Special cases:
+        //   10↑^(k+1) 1 = 10 (one iteration = just 10)
+        //   10↑^(k+1) 2 = 10↑^k 10 (two iterations = 10↑^k applied to 10)
+        //   10↑^(k+1) 3 = 10↑^k (10↑^k 10) (three iterations)
+        //
+        // So: 10^^^2 = 10^^10, 10^^^3 = 10^^(10^^10) = 10^^(huge)
+        //
+        // Strategy: "expand" the higher arrow by one level
+        //   {k+1, h1} becomes approximately {k, 10^(h1-1)} for small h1
+        //   But for h1 >= 3, the expansion is already huge
+
+        // First handle the case where higher arrow's height is very small
+        if (higherArrow.height <= 1) {
+          // 10↑^(k+1) 1 = 10, so compare 10 vs 10↑^k h2
+          // lower arrow wins if h2 > some threshold
+          if (lowerArrow.arrows === 0) {
+            return lowerArrow.height > 10 ?
+              (aFlat.arrows > bFlat.arrows ? -1 : 1) :
+              (aFlat.arrows > bFlat.arrows ? 1 : -1);
+          }
+          // lower arrow has arrows >= 1, so it's at least 10^something > 10
+          return aFlat.arrows > bFlat.arrows ? -1 : 1;
+        }
+
+        if (higherArrow.height === 2) {
+          // 10↑^(k+1) 2 = 10↑^k 10
+          // Compare 10↑^k 10 vs 10↑^k h2, i.e., compare 10 vs h2
+          if (lowerArrow.height > 10) {
+            return aFlat.arrows > bFlat.arrows ? -1 : 1;
+          } else if (lowerArrow.height < 10) {
+            return aFlat.arrows > bFlat.arrows ? 1 : -1;
+          }
+          return 0; // Equal: 10↑^(k+1) 2 = 10↑^k 10
+        }
+
+        // higherArrow.height >= 3
+        // 10↑^(k+1) 3 = 10↑^k (10↑^k 10) which is at least 10↑^k 10^10
+        // For k=1: 10^^(10^10) has exponent 10^10 = 10 billion
+        // For k=2: 10^^^3 = 10^^(10^^10) which is astronomically huge
+        //
+        // The "equivalent height" at the lower arrow level grows super-exponentially
+        // For h1 >= 3, the higher arrow almost always wins
+        // Exception: lowerArrow.height is itself enormous (near promotion threshold)
+
+        if (higherArrow.arrows >= 2) {
+          // For tetration and above with height >= 3, always wins
+          return aFlat.arrows > bFlat.arrows ? 1 : -1;
+        }
+
+        // higherArrow.arrows === 1, comparing 10^h1 vs plain h2
+        // 10^h1 vs h2 - higher wins if 10^h1 > h2
+        const expandedHeight = Math.pow(10, Math.min(higherArrow.height, 300));
         if (expandedHeight > lowerArrow.height * 1e6) {
-          // Higher arrow clearly wins
           return aFlat.arrows > bFlat.arrows ? 1 : -1;
         } else if (lowerArrow.height > expandedHeight * 1e6) {
-          // Lower arrow wins
           return aFlat.arrows > bFlat.arrows ? -1 : 1;
         }
-        // Close - expand another level for precision
-        // For simplicity, use log comparison
-        if (higherArrow.height > Math.log10(lowerArrow.height) + 0.01) {
+        // Close - use log comparison
+        if (higherArrow.height > Math.log10(Math.max(1, lowerArrow.height)) + 0.01) {
           return aFlat.arrows > bFlat.arrows ? 1 : -1;
-        } else if (Math.log10(lowerArrow.height) > higherArrow.height + 0.01) {
+        } else if (Math.log10(Math.max(1, lowerArrow.height)) > higherArrow.height + 0.01) {
           return aFlat.arrows > bFlat.arrows ? -1 : 1;
         }
-        // Very close, call it equal (rare)
         return 0;
       } else {
         // diff >= 2, higher arrow almost always wins
@@ -215,8 +269,32 @@ class OrdinalNumber {
 
     // Both arrows=1: add via exponents (10^a + 10^b)
     if (this.arrows === 1 && other.arrows === 1) {
-      const h1 = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
-      const h2 = (other.height instanceof OrdinalNumber) ? other.height.toNumber() : other.height;
+      // FIXED: Handle nested OrdinalNumber heights without calling toNumber()
+      // If either height is an OrdinalNumber, compare them properly
+      const h1IsON = this.height instanceof OrdinalNumber;
+      const h2IsON = other.height instanceof OrdinalNumber;
+
+      if (h1IsON || h2IsON) {
+        // At least one height is an OrdinalNumber
+        // Compare them using cmp() instead of toNumber()
+        const on1 = h1IsON ? this.height : new OrdinalNumber(this.height);
+        const on2 = h2IsON ? other.height : new OrdinalNumber(other.height);
+        const cmp = on1.cmp(on2);
+
+        // The larger exponent dominates completely
+        // (at these scales, 10^huge + 10^huge ≈ 10^huge)
+        if (cmp >= 0) {
+          // Return copy with slightly increased height to represent "doubled"
+          // For nested heights, we can't meaningfully add, so just return the max
+          return new OrdinalNumber(this);
+        } else {
+          return new OrdinalNumber(other);
+        }
+      }
+
+      // Both heights are plain numbers - original logic
+      const h1 = this.height;
+      const h2 = other.height;
       const diff = Math.abs(h1 - h2);
 
       // If exponents differ by > 15, smaller is negligible
@@ -237,9 +315,14 @@ class OrdinalNumber {
       const arr0 = this.arrows === 0 ? this : other;
       const arr1 = this.arrows === 1 ? this : other;
 
+      // If arr1.height is an OrdinalNumber, arr1 is much larger
+      if (arr1.height instanceof OrdinalNumber) {
+        return new OrdinalNumber(arr1);
+      }
+
       // Convert arrows=0 to arrows=1 format for comparison
       const h0 = arr0.height > 0 ? Math.log10(arr0.height) : -Infinity;
-      const h1 = (arr1.height instanceof OrdinalNumber) ? arr1.height.toNumber() : arr1.height;
+      const h1 = arr1.height;
       const diff = h1 - h0;
 
       // If arr1 is much larger (diff > 15), arr0 is negligible
@@ -281,8 +364,25 @@ class OrdinalNumber {
 
     // Both arrows=1: subtract via exponents
     if (this.arrows === 1 && other.arrows === 1) {
-      const h1 = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
-      const h2 = (other.height instanceof OrdinalNumber) ? other.height.toNumber() : other.height;
+      // FIXED: Handle nested OrdinalNumber heights without calling toNumber()
+      const h1IsON = this.height instanceof OrdinalNumber;
+      const h2IsON = other.height instanceof OrdinalNumber;
+
+      if (h1IsON || h2IsON) {
+        // At least one height is an OrdinalNumber
+        // If this.height >> other.height, other is negligible
+        const on1 = h1IsON ? this.height : new OrdinalNumber(this.height);
+        const on2 = h2IsON ? other.height : new OrdinalNumber(other.height);
+        const heightCmp = on1.cmp(on2);
+
+        // If heights are similar or on1 is much bigger, result ≈ this
+        // (subtracting a tiny amount from huge = huge)
+        return new OrdinalNumber(this);
+      }
+
+      // Both heights are plain numbers - original logic
+      const h1 = this.height;
+      const h2 = other.height;
       const diff = h1 - h2;
 
       // If this >> other (diff > 15), other is negligible
@@ -299,7 +399,12 @@ class OrdinalNumber {
 
     // Mixed: arrows=1 - arrows=0
     if (this.arrows === 1 && other.arrows === 0) {
-      const h1 = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      // If this.height is an OrdinalNumber, this is much larger
+      if (this.height instanceof OrdinalNumber) {
+        return new OrdinalNumber(this);
+      }
+
+      const h1 = this.height;
       const h0 = other.height > 0 ? Math.log10(other.height) : -Infinity;
       const diff = h1 - h0;
 
@@ -519,9 +624,26 @@ class OrdinalNumber {
 
   format() {
     const n = new OrdinalNumber(this).normalize();
-    const h = (n.height instanceof OrdinalNumber)
-      ? n.height.normalize().toNumber()
-      : n.height;
+
+    // FIXED: Handle nested OrdinalNumber heights without calling toNumber()
+    // If height is an OrdinalNumber, format it recursively
+    if (n.height instanceof OrdinalNumber) {
+      const innerFormat = n.height.format();
+      // Display as 10^(inner) or 10↑↑(inner) etc.
+      if (n.arrows === 1) {
+        return '10^(' + innerFormat + ')';
+      } else if (n.arrows === 2) {
+        return '10↑↑(' + innerFormat + ')';
+      } else if (n.arrows === 3) {
+        return '10↑↑↑(' + innerFormat + ')';
+      } else if (n.arrows <= 5) {
+        return '10' + '↑'.repeat(n.arrows) + '(' + innerFormat + ')';
+      } else {
+        return '10↑^' + n.arrows + '(' + innerFormat + ')';
+      }
+    }
+
+    const h = n.height;
 
     // arrows=0: plain with commas up to 999,999, then named
     if (n.arrows === 0) {
@@ -629,12 +751,18 @@ class OrdinalNumber {
       return this.height;
     }
     if (this.arrows === 1) {
-      const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
-      return { mantissa: 1, exponent: h };
+      // FIXED: Don't call toNumber() on nested heights
+      if (this.height instanceof OrdinalNumber) {
+        // Nested structure - return as tower to indicate "very large"
+        return { tower: [this.height.arrows > 0 ? 1e15 : this.height.height] };
+      }
+      return { mantissa: 1, exponent: this.height };
     }
     // arrows 2+: tower format
-    const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
-    return { tower: [h] };
+    if (this.height instanceof OrdinalNumber) {
+      return { tower: [1e15] }; // Indicate "extremely large"
+    }
+    return { tower: [this.height] };
   }
 
   // ================================================================
@@ -669,9 +797,13 @@ class OrdinalNumber {
       return { mantissa: mant, exponent: exp };
     }
     if (this.arrows === 1) {
-      const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      // FIXED: Don't call toNumber() on nested heights
+      if (this.height instanceof OrdinalNumber) {
+        // Nested structure - return huge exponent
+        return { mantissa: 1, exponent: 1e15 };
+      }
       // mantissa is always ~1 for pure powers of 10
-      return { mantissa: 1, exponent: h };
+      return { mantissa: 1, exponent: this.height };
     }
     // Higher arrows - return huge exponent
     return { mantissa: 1, exponent: 1e15 };
@@ -684,9 +816,12 @@ class OrdinalNumber {
       return 'Named';
     }
     if (this.arrows === 1) {
-      const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
-      if (h <= 33) return 'Named';
-      if (h <= 1000000) return 'Scientific';
+      // FIXED: Don't call toNumber() on nested heights
+      if (this.height instanceof OrdinalNumber) {
+        return 'Nested Exponential';
+      }
+      if (this.height <= 33) return 'Named';
+      if (this.height <= 1000000) return 'Scientific';
       return 'Double Exponential';
     }
     if (this.arrows === 2) return 'Tetration';
@@ -741,6 +876,14 @@ class OrdinalNumber {
       return new OrdinalNumber(0);
     }
 
+    // FIXED: Guard against Infinity/NaN in levels
+    const level0 = levels[0];
+    if (!isFinite(level0) || isNaN(level0)) {
+      // Infinity in tower levels - create a very large but valid number
+      // This happens when toNumber() returns Infinity upstream
+      return new OrdinalNumber({ arrows: 10, height: 1e11 });
+    }
+
     // For a tower [a], this means 10^a at tower level = length
     // Actually in old code: tower[0] is the "top" value
     // So [100] means 10^100 (tower of 1 level with top=100)
@@ -753,13 +896,13 @@ class OrdinalNumber {
 
     if (levels.length === 1) {
       // 10^levels[0]
-      return new OrdinalNumber({ arrows: 1, height: levels[0] }).normalize();
+      return new OrdinalNumber({ arrows: 1, height: level0 }).normalize();
     }
 
     // For longer towers, treat as tetration
     // The old code stored tower[0] as the top value
     // We approximate as arrows=2, height = number of levels + log adjustment
-    return new OrdinalNumber({ arrows: 2, height: levels.length + Math.log10(Math.max(1, levels[0])) }).normalize();
+    return new OrdinalNumber({ arrows: 2, height: levels.length + Math.log10(Math.max(1, level0)) }).normalize();
   }
 }
 

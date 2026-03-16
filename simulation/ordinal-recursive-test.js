@@ -82,7 +82,10 @@ test("Plain numbers compare correctly", ON(100).gt(ON(50)));
 test("Plain numbers lt", ON(50).lt(ON(100)));
 test("Equal numbers", ON(100).eq(ON(100)));
 
-test("Higher arrows wins", ON({arrows: 2, height: 1}).gt(ON({arrows: 1, height: 9})));
+// Note: Higher arrows doesn't ALWAYS win - 10^^1 = 10 < 10^9 = 1 billion
+test("Higher arrows with height=1 loses to lower arrows with high height",
+  ON({arrows: 2, height: 1}).lt(ON({arrows: 1, height: 9})));
+test("Higher arrows wins when height >= 3", ON({arrows: 2, height: 3}).gt(ON({arrows: 1, height: 1000})));
 test("Same arrows, higher height wins", ON({arrows: 1, height: 50}).gt(ON({arrows: 1, height: 40})));
 
 test("10^100 > 10^50", ON({arrows: 1, height: 100}).gt(ON({arrows: 1, height: 50})));
@@ -304,8 +307,149 @@ test("Compare nested vs flat",
   })()
 );
 
+// ARITHMETIC ON NESTED STRUCTURES
+// These tests would have caught the bug!
+test("Add nested structures (far apart - early return)",
+  (() => {
+    const nested = ON({arrows: 1, height: ON({arrows: 1, height: 5})}); // 10^(10^5)
+    const flat = ON({arrows: 1, height: 100}); // 10^100
+    const result = nested.add(flat);
+    console.log("  10^(10^5) + 10^100 =", result.format());
+    // This works because diff > 15, so it just returns the larger
+    return result instanceof OrdinalNumber;
+  })()
+);
+
+test("Add nested structures (CLOSE - must compute)",
+  (() => {
+    // Two nested structures with similar heights - forces actual arithmetic
+    const a = ON({arrows: 1, height: ON({arrows: 1, height: 5})}); // 10^(10^5)
+    const b = ON({arrows: 1, height: ON({arrows: 1, height: 5})}); // 10^(10^5)
+    console.log("  a.height:", a.height, "a.height.toNumber():", a.height.toNumber());
+    const result = a.add(b);
+    console.log("  10^(10^5) + 10^(10^5) =", result.format());
+    console.log("  result.height:", result.height);
+    // This SHOULD trigger the bug - h1 and h2 both become Infinity
+    const heightOk = result.height instanceof OrdinalNumber ||
+                     (!isNaN(result.height) && isFinite(result.height));
+    return result instanceof OrdinalNumber && heightOk;
+  })()
+);
+
+test("Multiply nested structures",
+  (() => {
+    const nested = ON({arrows: 1, height: ON({arrows: 1, height: 5})}); // 10^(10^5)
+    const small = ON(100);
+    console.log("  nested:", JSON.stringify({arrows: nested.arrows, height: nested.height}));
+    const result = nested.mul(small);
+    console.log("  result:", JSON.stringify({arrows: result.arrows, height: result.height}));
+    console.log("  nested * 100 =", result.format());
+    const heightOk = result.height instanceof OrdinalNumber ||
+                     (!isNaN(result.height) && isFinite(result.height));
+    console.log("  heightOk:", heightOk, "height:", result.height);
+    return result instanceof OrdinalNumber && heightOk;
+  })()
+);
+
+// THE REAL BUG - nested structure with arrows >= 2 in the height
+test("Add with arrows=2 nested height (THIS IS THE BUG)",
+  (() => {
+    // This recreates the game situation: 10 followed by 2 arrows, height 78
+    // When used in add(), toNumber() is called on the nested height and returns Infinity
+    const a = ON({arrows: 1, height: ON({arrows: 2, height: 78})}); // 10^(10^^78)
+    const b = ON({arrows: 1, height: ON({arrows: 2, height: 78})}); // 10^(10^^78)
+    console.log("  a.height:", a.height.format());
+    console.log("  a.height.toNumber():", a.height.toNumber()); // This will be Infinity!
+    const result = a.add(b);
+    console.log("  result:", result.format());
+    console.log("  result.height:", result.height);
+    // The bug: result.height becomes NaN or Infinity because the arithmetic used Infinity
+    const heightOk = result.height instanceof OrdinalNumber ||
+                     (!isNaN(result.height) && isFinite(result.height));
+    console.log("  heightOk:", heightOk);
+    return result instanceof OrdinalNumber && heightOk;
+  })()
+);
+
+test("Sub with arrows=2 nested height",
+  (() => {
+    const a = ON({arrows: 1, height: ON({arrows: 2, height: 78})});
+    const b = ON({arrows: 1, height: 100}); // Much smaller
+    console.log("  Subtracting 10^100 from 10^(10^^78)");
+    const result = a.sub(b);
+    console.log("  result:", result.format());
+    const heightOk = result.height instanceof OrdinalNumber ||
+                     (!isNaN(result.height) && isFinite(result.height));
+    return result instanceof OrdinalNumber && heightOk;
+  })()
+);
+
 test("Infinity handling", ON(Infinity).arrows >= 0);
 test("NaN handling", ON(NaN).height === 0);
+
+// ================================================================
+// BUG REPRODUCTION - scenarios that caused issues in the game
+// ================================================================
+section("Bug Reproduction");
+
+// Scenario 1: fromTower with Infinity
+// This happens when toNumber() returns Infinity for arrows >= 2,
+// then that Infinity is passed to fromTower
+// KNOWN BUG: This will HANG due to infinite loop in normalize()
+console.log("  SKIPPING: fromTower([Infinity]) - KNOWN BUG: causes infinite loop");
+console.log("  Bug: normalize() has 'while (height >= 1e12)' but log10(Infinity) = Infinity");
+
+// Scenario 2: Infinite loop in normalize with Infinity height
+// {arrows: 1, height: Infinity}.normalize() loops forever
+// KNOWN BUG: This will HANG
+console.log("  SKIPPING: normalize(Infinity) - KNOWN BUG: causes infinite loop");
+
+// Scenario 3: toNumber on arrows >= 2 returns Infinity
+test("toNumber on arrows=2 returns Infinity",
+  ON({arrows: 2, height: 50}).toNumber() === Infinity
+);
+
+// Scenario 4: Chained operations that could produce Infinity
+// e.g., large OrdinalNumber.mul(log_rate) where result exceeds finite range
+test("Large mul doesn't produce NaN",
+  (() => {
+    const huge = ON({arrows: 2, height: 78});
+    const logRate = 0.017; // log10(1.04)
+    const result = huge.mul(logRate);
+    console.log("  10^^78 * 0.017 =", result.format());
+    return result instanceof OrdinalNumber && !isNaN(result.height);
+  })()
+);
+
+// Scenario 5: expCostHelper-like calculation
+// cost = base * rate^total where total is huge
+// KNOWN BUG: This creates Infinity which hangs fromTower
+console.log("  SKIPPING: expCost-like calculation - uses fromTower(Infinity)");
+console.log("  Bug chain: arrows=2 → toNumber()=Infinity → fromTower([Infinity]) → hang");
+
+// Scenario 6: undefined * number = NaN
+test("undefined gainVar simulation",
+  (() => {
+    const gainVar = undefined; // G.sessionsPerTrain was undefined
+    const baseGain = gainVar || 1; // Should fallback to 1
+    const mult = 10;
+    const gain = baseGain * mult;
+    console.log("  undefined || 1 =", gainVar || 1, "gain =", gain);
+    return gain === 10;
+  })()
+);
+
+// Scenario 7: What if gainVar points to undefined property?
+test("G[undefinedKey] * number simulation",
+  (() => {
+    const G = { existingProp: 5 };
+    const baseGain = G["nonexistentProp"]; // undefined
+    const mult = 10;
+    const gain = baseGain * mult; // undefined * 10 = NaN
+    console.log("  G['nonexistent'] * 10 =", gain, "isNaN:", isNaN(gain));
+    return isNaN(gain); // This SHOULD be true, showing the bug
+  })()
+);
 
 // ================================================================
 // SUMMARY

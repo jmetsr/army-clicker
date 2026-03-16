@@ -250,6 +250,16 @@ function updateUI() {
   // Enemy display
   var showEnemy = G.difficulty && (G.difficulty !== 'practice' || G.darkRitualDays.length > 0);
   if (showEnemy) {
+    // Check for permanent surrender
+    if (G.enemySurrendered) {
+      document.getElementById("enemyTroops").textContent = "\ud83c\udff3\ufe0f SURRENDERED";
+      document.getElementById("enemyTroops").style.whiteSpace = "normal";
+      document.getElementById("enemyTroopType").style.display = "none";
+      document.getElementById("enemyPower").textContent = "0";
+      document.getElementById("dayCounter").textContent = G.day;
+      var aiStatsDiv = document.getElementById("aiStats");
+      if (aiStatsDiv) aiStatsDiv.style.display = "none";
+    } else {
     var enemyTroopName = "Troops";
     if (isAIMode() && G.ai) {
       enemyTroopName = getTN(G.ai.ppt);
@@ -330,6 +340,7 @@ function updateUI() {
     } else {
       aiStatsDiv.style.display = "none";
     }
+    } // end else (not surrendered)
   }
 
   // Update timer

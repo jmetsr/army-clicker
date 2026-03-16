@@ -3,6 +3,49 @@
 //  VERSION: troop-loss-fix-v2 (2024-03-12)
 // ================================================================
 
+// Consolidate dragon cohorts to reduce iteration overhead
+// Only runs when: cohorts > 15 AND enemy power < player power / 1000
+function consolidateDragonCohorts() {
+  if (G.dragonCohorts.length <= 15) return;
+
+  var playerPower = tp();
+  var enemyPower = G.enemyPower;
+
+  // Check if enemy is insignificant (< 1/1000 of player power)
+  // Use div to get ratio, then check if < 0.001
+  if (playerPower.lte(0)) return;
+  var ratio = enemyPower.div(playerPower);
+  if (ratio.gte(0.001)) return; // Enemy still significant, don't consolidate
+
+  // Group cohorts by troop name tier (based on PPT)
+  var grouped = {};
+  for (var i = 0; i < G.dragonCohorts.length; i++) {
+    var cohort = G.dragonCohorts[i];
+    if (cohort.count.lt(1)) continue;
+
+    // Use PPT tier as key (group similar power levels)
+    var tierKey = Math.floor(Math.log10(Math.max(1, cohort.ppt)));
+    if (!grouped[tierKey]) {
+      grouped[tierKey] = { count: ON(0), ppt: cohort.ppt };
+    }
+    grouped[tierKey].count = grouped[tierKey].count.add(cohort.count);
+    // Keep highest PPT in tier
+    if (cohort.ppt > grouped[tierKey].ppt) {
+      grouped[tierKey].ppt = cohort.ppt;
+    }
+  }
+
+  // Rebuild cohorts array from groups
+  G.dragonCohorts = [];
+  var keys = Object.keys(grouped);
+  for (var k = 0; k < keys.length; k++) {
+    var g = grouped[keys[k]];
+    if (g.count.gte(1)) {
+      G.dragonCohorts.push({ count: g.count, ppt: g.ppt });
+    }
+  }
+}
+
 // References to functions from other modules (set from main.js)
 var runAIRef = null;
 var updateUIRef = null;
@@ -154,8 +197,8 @@ function tick() {
   }
   ch = true;
 
-  // Calculate daily dragon spawn from dark rituals
-  if (G.darkRitualDays.length > 0) {
+  // Calculate daily dragon spawn from dark rituals (skip if enemy permanently surrendered)
+  if (G.darkRitualDays.length > 0 && !G.enemySurrendered) {
     var newDragons = ON(0);
     for (var i = 0; i < G.darkRitualDays.length; i++) {
       var daysSince = G.day - G.darkRitualDays[i];
@@ -189,11 +232,38 @@ function tick() {
     for (var c = 0; c < G.dragonCohorts.length; c++) {
       G.enemyDragons = G.enemyDragons.add(G.dragonCohorts[c].count);
     }
+    // Consolidate cohorts if too many and enemy is trivial
+    consolidateDragonCohorts();
   }
 
   // Enemy growth based on difficulty
   var hasEnemy = G.difficulty && !G.enemyVanquished &&
                  (G.difficulty !== 'practice' || G.darkRitualDays.length > 0);
+
+  // Auto-vanquish: if player power > enemy power * 1 quadrillion, enemy is irrelevant
+  // Only check after magic unlocked (player is powerful enough by then)
+  if (hasEnemy && G.magicOn && G.troops.gte(1)) {
+    var playerPow = tp();
+    var enemyPow = G.enemyPower || ON(0);
+    // Check if player power / enemy power > 1e15 (quadrillion)
+    if (enemyPow.gt(0)) {
+      var ratio = playerPow.div(enemyPow);
+      if (ratio.gte(1e15)) {
+        G.enemyVanquished = true;
+        G.enemySurrendered = true;  // Flag for permanent surrender screen
+        G.enemyTroops = ON(0);
+        G.enemyPower = ON(0);
+        G.enemyDragons = ON(0);
+        G.dragonCohorts = [];
+        if (G.ai) {
+          G.ai.troops = ON(0);
+        }
+        log("\ud83c\udf1f OVERWHELMING VICTORY! The enemy surrenders permanently.", "milestone");
+        hasEnemy = false;
+      }
+    }
+  }
+
   if (hasEnemy) {
     var enemyGain = ON(0);
     var enemyPptGain = 0;

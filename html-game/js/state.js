@@ -44,6 +44,7 @@ var G = {
 
   // Training multipliers
   trainMult: C.train_multiplier,    // Multiplier applied to ppt each train session
+  sessionsPerTrain: 1,              // Sessions per train click (1 + sapphire count)
 
   // Enemy system
   difficulty: null,                 // 'practice', 'easy', 'medium', 'hard'
@@ -58,6 +59,7 @@ var G = {
   lossStreak: 0,                    // Consecutive defeats
   starvationStreak: 0,              // Consecutive days starving (escalates desertion)
   enemyVanquished: false,           // Whether enemy has been completely defeated
+  enemySurrendered: false,          // Whether enemy permanently surrendered (power ratio > 1e15)
   enemyUnvanquishable: false,       // After first dark ritual, enemy can always respawn
   darkRitualDays: [],               // Days when dark rituals were bought
   enemyNoStarve: false,             // After first dark ritual, enemy doesn't need food
@@ -276,8 +278,13 @@ function applyEffect(opts, mult) {
   var isOrdMult = mult instanceof OrdinalNumber;
 
   // Calculate gain - handle OrdinalNumber mult
+  // Guard against undefined/NaN gainVar values
   var baseGain = opts.gainVar ? G[opts.gainVar] : 1;
+  if (baseGain === undefined || baseGain === null) baseGain = 1;
+  if (typeof baseGain === 'number' && isNaN(baseGain)) baseGain = 1;
   var gain = isOrdMult ? mult.mul(baseGain) : baseGain * mult;
+  // Guard against NaN gain
+  if (typeof gain === 'number' && isNaN(gain)) gain = mult;
 
   // Add to count - handle OrdinalNumber gain
   if (opts.countId) {
@@ -316,6 +323,11 @@ function applyEffect(opts, mult) {
   // Update recruits per click (for squad_leader)
   if (opts.updateRp) {
     G.rp = 1 + cnt("squad_leader");
+  }
+  // Update sessions per train click (for sapphire/forbidden_ritual)
+  if (opts.updateSessionsPerTrain) {
+    var sapphireCount = cnt("sapphire");
+    G.sessionsPerTrain = sapphireCount instanceof OrdinalNumber ? sapphireCount.add(1) : 1 + sapphireCount;
   }
   // Training: multiply ppt by trainMult^mult
   if (opts.trainMult) {

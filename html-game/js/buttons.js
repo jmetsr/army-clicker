@@ -57,6 +57,7 @@ function defChain(b, section, clickPool, costFnGen, unlockCheck) {
       var opts = { countId: b.id, gainVar: gainVar, clickPool: clickPool };
       if (b.boosts) opts.boostVar = b.boosts;
       if (b.updateRp) opts.updateRp = true;
+      if (b.updateSessionsPerTrain) opts.updateSessionsPerTrain = true;
       if (b.trainMult) opts.trainMult = true;
       if (b.trainMultBoost) opts.trainMultBoost = b.trainMultBoost;
       applyEffect(opts, mult);
@@ -166,7 +167,7 @@ function initButtons() {
     {id:"mathematical_multiverse", name:"Mathematical Multiverse", cw:"realized", base:1e27, unlock:"cosmological_multiverse", boosts:"cosmologicalMultiversePower"}
   ].forEach(function(b){ defChain(b, "army", "_armyClicks", armyCost, function(){return G.multiversalUnlocked}); });
 
-  // TRAIN (special - not a chain)
+  // TRAIN (special - not a chain, but uses sessionsPerTrain like recruit uses rp)
   def({id:"train", name:"Train", s:"training", cw:"sessions",
     descFn:function(){
       var tm = G.trainMult;
@@ -176,7 +177,7 @@ function initButtons() {
     showFn:function(){return G.troops.gte(C.train_unlockTroops)||cntGt("train",0)},
     effectFn:function(mult){
       var first=(cnt("train")===0);
-      applyEffect({countId:"train",trainMult:true,clickPool:"_trainClicks"},mult);
+      applyEffect({countId:"train",gainVar:"sessionsPerTrain",trainMult:true,clickPool:"_trainClicks"},mult);
       if(first)log("Training begins.","milestone");
     }});
 
@@ -184,7 +185,7 @@ function initButtons() {
   [
     {id:"sapphire", name:"Forbidden Ritual", cw:"preformed", base:1e10,
      showFn:function(){return G.mysticalUnlocked&&(cntGte("train",50)||cntGt("sapphire",0))},
-     trainMultBoost:0.005, descFn:function(power){return "Train mult +"+(0.005*power).toFixed(4)+" per click"}},
+     trainMultBoost:0.005, updateSessionsPerTrain:true, descFn:function(power){return "Train mult +"+(0.005*power).toFixed(4)+" per click"}},
     {id:"emerald", name:"School for the Mystic Arts", cw:"built", base:1e13, unlock:"sapphire", boosts:"sapphirePower"},
     {id:"ruby", name:"Mystical Dimension", cw:"conquered", base:1e17, unlock:"emerald", boosts:"emeraldPower"},
   ].forEach(function(b){
@@ -217,8 +218,8 @@ function initButtons() {
         log("\u26a0 The enemy stirs! They no longer need food and will spawn dragons!","danger-msg");
         G.enemyUnvanquishable = true;
         G.enemyNoStarve = true;
-        // Un-vanquish enemy if vanquished
-        if(G.enemyVanquished) {
+        // Un-vanquish enemy if vanquished (but not if permanently surrendered)
+        if(G.enemyVanquished && !G.enemySurrendered) {
           G.enemyVanquished = false;
           log("The vanquished enemy rises again!","danger-msg");
         }
@@ -232,8 +233,8 @@ function initButtons() {
         }
       } else {
         log("\u2620 Another ritual completed. Enemy dragons grow stronger!","danger-msg");
-        // Un-vanquish if vanquished (can always respawn after first ritual)
-        if(G.enemyVanquished) {
+        // Un-vanquish if vanquished (can always respawn after first ritual, unless permanently surrendered)
+        if(G.enemyVanquished && !G.enemySurrendered) {
           G.enemyVanquished = false;
           log("The enemy rises once more!","danger-msg");
         }
@@ -275,7 +276,7 @@ function initButtons() {
   def({id:"mystical_tier",name:"\ud83d\udc8e Forbidden Rituals",s:"magic",isMagic:true,
     desc:"Unlock Forbidden rituals to boost troop power.",cw:"unlocked",
     descFn:function(){return G.mysticalUnlocked?"UNLOCKED":"Unlock rituals to boost training"},
-    costFn:function(){return 4},
+    costFn:function(){return 5},
     showFn:function(){return G.magicOn&&!G.mysticalUnlocked},
     effectFn:function(){
       G.mysticalUnlocked=true;

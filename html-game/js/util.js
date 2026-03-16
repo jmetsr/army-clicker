@@ -10,8 +10,8 @@ function fmt(n) {
   if (!isFinite(n) || isNaN(n)) return "???";
   if (n < 0) return "0";
   if (n >= 1e36) return ON(n).format();  // Beyond decillion, use OrdinalNumber format
-  if (n < 1000) return n % 1 === 0 ? Math.floor(n).toLocaleString("en-US") : n.toFixed(1);
-  // Use words for thousands and above
+  if (n < 1e6) return n % 1 === 0 ? Math.floor(n).toLocaleString("en-US") : n.toFixed(1);
+  // Use words for millions and above
   for (var i = 0; i < WORDS.length; i++) {
     var t = WORDS[i][0], w = WORDS[i][1];
     if (n >= t) {
