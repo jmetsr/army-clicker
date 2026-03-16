@@ -447,18 +447,18 @@ class OrdinalNumber {
       ? n.height.normalize().toNumber()
       : n.height;
 
-    // arrows=0: plain or named
+    // arrows=0: plain with commas up to 999,999, then named
     if (n.arrows === 0) {
-      if (h < 1000) {
+      if (h < 1000000) {
         return OrdinalNumber._commas(h);
       }
       return OrdinalNumber._named(h);
     }
 
-    // arrows=1: named, scientific, or scientific with commas
+    // arrows=1: named up to 999.9 decillion (~10^35.9999), then scientific
     if (n.arrows === 1) {
-      if (h <= 33) {
-        // Named range (up to decillion = 10^33)
+      if (h < 36) {
+        // Named range (up to 999.9 decillion ≈ 10^35.9999)
         const value = Math.pow(10, h);
         return OrdinalNumber._named(value);
       }

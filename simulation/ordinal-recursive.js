@@ -447,18 +447,18 @@ class OrdinalNumber {
       ? n.height.normalize().toNumber()
       : n.height;
 
-    // arrows=0: plain or named
+    // arrows=0: plain with commas up to 999,999, then named
     if (n.arrows === 0) {
-      if (h < 1000) {
+      if (h < 1000000) {
         return OrdinalNumber._commas(h);
       }
       return OrdinalNumber._named(h);
     }
 
-    // arrows=1: named, scientific, or scientific with commas
+    // arrows=1: named up to 999.9 decillion (~10^35.9999), then scientific
     if (n.arrows === 1) {
-      if (h <= 33) {
-        // Named range (up to decillion = 10^33)
+      if (h < 36) {
+        // Named range (up to 999.9 decillion ≈ 10^35.9999)
         const value = Math.pow(10, h);
         return OrdinalNumber._named(value);
       }
@@ -534,6 +534,31 @@ class OrdinalNumber {
   // Short format for display
   fmt() {
     return this.format();
+  }
+
+  // ================================================================
+  // COMPATIBILITY PROPERTIES (for old code accessing .layer/.value)
+  // ================================================================
+
+  get layer() {
+    // Map arrows to old layer concept
+    // Old: layer 0 = plain number, layer 1 = scientific, layer 2 = tower
+    // New: arrows 0 = plain, arrows 1 = scientific, arrows 2+ = tower/higher
+    return this.arrows;
+  }
+
+  get value() {
+    // Map to old value concept
+    if (this.arrows === 0) {
+      return this.height;
+    }
+    if (this.arrows === 1) {
+      const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      return { mantissa: 1, exponent: h };
+    }
+    // arrows 2+: tower format
+    const h = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+    return { tower: [h] };
   }
 
   // ================================================================

@@ -200,9 +200,11 @@ test("toNumber tower = Infinity", ON({arrows: 2, height: 5}).toNumber() === Infi
 // New "strain before break" display tests
 console.log("\n--- Display progression demo ---");
 console.log("Plain:", ON(847).format());
-console.log("Named (thousand):", ON(5200).format());
+console.log("Plain with commas:", ON(999999).format());
+console.log("Named (million):", ON(1.5e6).format());
 console.log("Named (trillion):", ON(5.2e12).format());
-console.log("Named (decillion):", ON({arrows: 1, height: 33}).format());
+console.log("Named (decillion):", ON(1e33).format());
+console.log("Named (999 decillion):", ON(9.99e35).format());
 console.log("Scientific:", ON({arrows: 1, height: 500}).format());
 console.log("Sci+commas:", ON({arrows: 1, height: 1250000}).format());
 console.log("Tower (5):", ON({arrows: 2, height: 5}).format());
@@ -216,7 +218,8 @@ console.log("↑^6 notation:", ON({arrows: 6, height: 10}).format());
 console.log("");
 
 test("format plain", ON(500).format() === "500");
-test("format named thousand", ON(5200).format() === "5.20 thousand");
+test("format plain with commas", ON(999999).format() === "999,999");
+test("format named million", ON(1500000).format() === "1.50 million");
 test("format named trillion", ON(5.2e12).format() === "5.20 trillion");
 test("format scientific", ON({arrows: 1, height: 500}).format() === "10^500");
 test("format sci+commas", ON({arrows: 1, height: 1250000}).format() === "10^1,250,000");
