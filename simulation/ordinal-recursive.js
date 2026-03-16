@@ -208,13 +208,58 @@ class OrdinalNumber {
   add(other) {
     other = OrdinalNumber.from(other);
 
-    // At high levels, sum ≈ max
-    // But at arrows=0, we can do exact addition
+    // Both arrows=0: exact addition
     if (this.arrows === 0 && other.arrows === 0) {
       return new OrdinalNumber(this.height + other.height);
     }
 
-    // Otherwise take the larger
+    // Both arrows=1: add via exponents (10^a + 10^b)
+    if (this.arrows === 1 && other.arrows === 1) {
+      const h1 = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      const h2 = (other.height instanceof OrdinalNumber) ? other.height.toNumber() : other.height;
+      const diff = Math.abs(h1 - h2);
+
+      // If exponents differ by > 15, smaller is negligible
+      if (diff > 15) {
+        return h1 > h2 ? new OrdinalNumber(this) : new OrdinalNumber(other);
+      }
+
+      // Close enough to add properly: 10^a + 10^b = 10^a * (1 + 10^(b-a))
+      const maxH = Math.max(h1, h2);
+      const minH = Math.min(h1, h2);
+      const sum = Math.pow(10, minH - maxH) + 1; // 1 + 10^(min-max)
+      const newHeight = maxH + Math.log10(sum);
+      return new OrdinalNumber({ arrows: 1, height: newHeight }).normalize();
+    }
+
+    // Mixed: arrows=0 + arrows=1 (or vice versa)
+    if ((this.arrows === 0 && other.arrows === 1) || (this.arrows === 1 && other.arrows === 0)) {
+      const arr0 = this.arrows === 0 ? this : other;
+      const arr1 = this.arrows === 1 ? this : other;
+
+      // Convert arrows=0 to arrows=1 format for comparison
+      const h0 = arr0.height > 0 ? Math.log10(arr0.height) : -Infinity;
+      const h1 = (arr1.height instanceof OrdinalNumber) ? arr1.height.toNumber() : arr1.height;
+      const diff = h1 - h0;
+
+      // If arr1 is much larger (diff > 15), arr0 is negligible
+      if (diff > 15) {
+        return new OrdinalNumber(arr1);
+      }
+
+      // If arr0 is larger (shouldn't happen if arr1 >= 1e12 and arr0 < 1e12, but handle it)
+      if (diff < -15) {
+        return new OrdinalNumber(arr0);
+      }
+
+      // Close enough - do proper addition
+      // 10^h1 + arr0.height = 10^h1 * (1 + arr0.height / 10^h1) = 10^h1 * (1 + 10^(h0-h1))
+      const sum = 1 + Math.pow(10, h0 - h1);
+      const newHeight = h1 + Math.log10(sum);
+      return new OrdinalNumber({ arrows: 1, height: newHeight }).normalize();
+    }
+
+    // Higher arrows: larger dominates
     return this.cmp(other) >= 0 ? new OrdinalNumber(this) : new OrdinalNumber(other);
   }
 
@@ -225,26 +270,57 @@ class OrdinalNumber {
   sub(other) {
     other = OrdinalNumber.from(other);
 
+    // Both arrows=0: exact subtraction
     if (this.arrows === 0 && other.arrows === 0) {
       return new OrdinalNumber(Math.max(0, this.height - other.height));
     }
 
-    // If this >> other, result ≈ this
-    // If this ≈ other, result ≈ 0 (but we can't know exactly)
-    // If this < other, result = 0
+    // If this <= other, result is 0
     const cmp = this.cmp(other);
     if (cmp <= 0) return new OrdinalNumber(0);
 
-    // this > other
-    // If arrows differ by 2+, result ≈ this
-    const a = new OrdinalNumber(this).normalize();
-    const b = new OrdinalNumber(other).normalize();
+    // Both arrows=1: subtract via exponents
+    if (this.arrows === 1 && other.arrows === 1) {
+      const h1 = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      const h2 = (other.height instanceof OrdinalNumber) ? other.height.toNumber() : other.height;
+      const diff = h1 - h2;
 
-    if (a.arrows > b.arrows + 1) {
-      return new OrdinalNumber(this);
+      // If this >> other (diff > 15), other is negligible
+      if (diff > 15) {
+        return new OrdinalNumber(this);
+      }
+
+      // Close enough to subtract properly: 10^h1 - 10^h2 = 10^h1 * (1 - 10^(h2-h1))
+      const factor = 1 - Math.pow(10, h2 - h1);
+      if (factor <= 0) return new OrdinalNumber(0);
+      const newHeight = h1 + Math.log10(factor);
+      return new OrdinalNumber({ arrows: 1, height: newHeight }).normalize();
     }
 
-    // Close values - approximate as this (imprecise but safe)
+    // Mixed: arrows=1 - arrows=0
+    if (this.arrows === 1 && other.arrows === 0) {
+      const h1 = (this.height instanceof OrdinalNumber) ? this.height.toNumber() : this.height;
+      const h0 = other.height > 0 ? Math.log10(other.height) : -Infinity;
+      const diff = h1 - h0;
+
+      // If this >> other, other is negligible
+      if (diff > 15) {
+        return new OrdinalNumber(this);
+      }
+
+      // Close enough - do proper subtraction
+      const factor = 1 - Math.pow(10, h0 - h1);
+      if (factor <= 0) return new OrdinalNumber(0);
+      const newHeight = h1 + Math.log10(factor);
+      return new OrdinalNumber({ arrows: 1, height: newHeight }).normalize();
+    }
+
+    // arrows=0 - arrows=1: result is 0 (arrows=1 is always bigger)
+    if (this.arrows === 0 && other.arrows === 1) {
+      return new OrdinalNumber(0);
+    }
+
+    // Higher arrows: if this > other by a lot, result ≈ this
     return new OrdinalNumber(this);
   }
 
