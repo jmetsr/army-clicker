@@ -299,10 +299,18 @@ function updateMainAutoUpgraders() {
       recruitEl.disabled = !G.coins.gte(googol());
       var autoLvl = G.upgradeLevels['auto_recruit'] || 0;
       var currLvl = G.upgradeLevels['recruit'] || 0;
-      var addLvls = autoLvl > 300 ? "10^" + autoLvl : Math.pow(10, autoLvl);
-      var nextLvl = autoLvl > 50 ? currLvl + "+" + addLvls : currLvl + Math.pow(10, autoLvl);
-      var nextMultStr = typeof nextLvl === 'number' ? fmtMult(nextLvl) : "10^(" + nextLvl + ")";
-      var levelInfo = autoLvl > 0 ? ' (+' + addLvls + ')' : '';
+      // Handle OrdinalNumber levels
+      var autoIsON = autoLvl instanceof OrdinalNumber;
+      var currIsON = currLvl instanceof OrdinalNumber;
+      var addLvls = autoIsON ? autoLvl.format() : (autoLvl > 300 ? "10^" + autoLvl : Math.pow(10, autoLvl));
+      var nextMultStr;
+      if (currIsON || autoIsON) {
+        nextMultStr = currIsON ? currLvl.format() : fmtMult(currLvl);
+      } else {
+        var nextLvl = autoLvl > 50 ? currLvl + "+" + addLvls : currLvl + Math.pow(10, autoLvl);
+        nextMultStr = typeof nextLvl === 'number' ? fmtMult(nextLvl) : "10^(" + nextLvl + ")";
+      }
+      var levelInfo = (autoLvl > 0 || autoIsON) ? ' (+' + addLvls + ')' : '';
       recruitEl.innerHTML = '\u26a1 ' + nextMultStr + 'x' + levelInfo + '<div style="font-size:.85em;opacity:.7">1 Googol</div>';
     }
   }
@@ -318,10 +326,19 @@ function updateMainAutoUpgraders() {
       lootEl.disabled = !G.coins.gte(googol());
       var lootAutoLvl = G.upgradeLevels['auto_loot'] || 0;
       var lootCurrLvl = G.upgradeLevels['loot'] || 0;
-      var lootAddLvls = lootAutoLvl > 300 ? "10^" + lootAutoLvl : Math.pow(10, lootAutoLvl);
-      var lootNextLvl = lootAutoLvl > 50 ? lootCurrLvl + "+" + lootAddLvls : lootCurrLvl + Math.pow(10, lootAutoLvl);
-      var lootNextMultStr = typeof lootNextLvl === 'number' ? fmtMult(lootNextLvl) : "10^(" + lootNextLvl + ")";
-      var lootLevelInfo = lootAutoLvl > 0 ? ' (+' + lootAddLvls + ')' : '';
+      // Handle OrdinalNumber levels
+      var lootAutoIsON = lootAutoLvl instanceof OrdinalNumber;
+      var lootCurrIsON = lootCurrLvl instanceof OrdinalNumber;
+      var lootAddLvls = lootAutoIsON ? lootAutoLvl.format() : (lootAutoLvl > 300 ? "10^" + lootAutoLvl : Math.pow(10, lootAutoLvl));
+      var lootNextMultStr;
+      if (lootCurrIsON || lootAutoIsON) {
+        // When either is OrdinalNumber, just show current level format
+        lootNextMultStr = lootCurrIsON ? lootCurrLvl.format() : fmtMult(lootCurrLvl);
+      } else {
+        var lootNextLvl = lootAutoLvl > 50 ? lootCurrLvl + "+" + lootAddLvls : lootCurrLvl + Math.pow(10, lootAutoLvl);
+        lootNextMultStr = typeof lootNextLvl === 'number' ? fmtMult(lootNextLvl) : "10^(" + lootNextLvl + ")";
+      }
+      var lootLevelInfo = (lootAutoLvl > 0 || lootAutoIsON) ? ' (+' + lootAddLvls + ')' : '';
       lootEl.innerHTML = '\u26a1 Loot ' + lootNextMultStr + 'x' + lootLevelInfo + '<div style="font-size:.85em;opacity:.7">1 Googol</div>';
     }
   }
