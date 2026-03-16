@@ -277,12 +277,21 @@ function applyEffect(opts, mult) {
   mult = mult || 1;
   var isOrdMult = mult instanceof OrdinalNumber;
 
-  // Calculate gain - handle OrdinalNumber mult
+  // Calculate gain - handle OrdinalNumber mult OR baseGain
   // Guard against undefined/NaN gainVar values
   var baseGain = opts.gainVar ? G[opts.gainVar] : 1;
   if (baseGain === undefined || baseGain === null) baseGain = 1;
   if (typeof baseGain === 'number' && isNaN(baseGain)) baseGain = 1;
-  var gain = isOrdMult ? mult.mul(baseGain) : baseGain * mult;
+  var isOrdBase = baseGain instanceof OrdinalNumber;
+  var gain;
+  if (isOrdMult || isOrdBase) {
+    // Use OrdinalNumber arithmetic if either is an OrdinalNumber
+    var onMult = isOrdMult ? mult : ON(mult);
+    var onBase = isOrdBase ? baseGain : ON(baseGain);
+    gain = onMult.mul(onBase);
+  } else {
+    gain = baseGain * mult;
+  }
   // Guard against NaN gain
   if (typeof gain === 'number' && isNaN(gain)) gain = mult;
 
