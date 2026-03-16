@@ -9,7 +9,7 @@ function fmt(n) {
   if (typeof n === "bigint") n = Number(n);
   if (!isFinite(n) || isNaN(n)) return "???";
   if (n < 0) return "0";
-  if (n >= 1e36) return n.toExponential(2);  // Beyond decillion, use scientific
+  if (n >= 1e36) return ON(n).format();  // Beyond decillion, use OrdinalNumber format
   if (n < 1000) return n % 1 === 0 ? Math.floor(n).toLocaleString("en-US") : n.toFixed(1);
   // Use words for thousands and above
   for (var i = 0; i < WORDS.length; i++) {
@@ -140,14 +140,13 @@ function getUpgradeMult(id) {
 
 // Helper: format a multiplier for display (handles large numbers)
 function fmtMult(level) {
+  if (level instanceof OrdinalNumber) return level.format();
   if (!isFinite(level) || isNaN(level)) return "10^???";
-  if (level > 1e15) {
-    // Double exponential territory - format the exponent itself
-    var expExp = Math.floor(Math.log10(level));
-    var expMant = level / Math.pow(10, expExp);
-    return "10^(" + expMant.toFixed(2) + "e" + expExp + ")";
+  if (level > 1e12) {
+    // Very large exponent - use OrdinalNumber formatting
+    return ON({arrows: 1, height: level}).format();
   }
-  if (level > 1e6) return "10^" + level.toExponential(2);
+  if (level > 1e6) return "10^" + Math.floor(level).toLocaleString();
   if (level > 300) return "10^" + Math.floor(level);
   if (level > 15) return fmt(Math.pow(10, level));
   return Math.pow(10, level) + "";
@@ -209,9 +208,8 @@ function compoundedCost(baseCost, rate, numClicks) {
   return OrdinalNumber.fromSci(mantissa, Math.floor(exponent));
 }
 
-// Helper: format cost for display (use scientific for large numbers)
+// Helper: format cost for display
 function fmtCost(cost) {
   if (cost instanceof OrdinalNumber) return cost.format();
-  if (cost >= 1e12) return cost.toExponential(2);
   return fmt(cost);
 }
