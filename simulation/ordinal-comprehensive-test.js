@@ -220,6 +220,64 @@ console.log(`  10^^3 formatted: ${tet3.format()}`);
 test("10^(10^100) > 10^^3 (nested height wins)", sci_nested.gt(tet3));
 
 // ================================================================
+// TEST: Nested structure vs higher arrows (catches {k+j,h} bug)
+// The old formula {k+j, h} would convert {2, {1, 100}} to {3, 100}
+// which massively overestimates 10↑↑(10^100) as if it were 10↑↑↑100
+// ================================================================
+section("Nested Structure vs Higher Arrows (Flatten Bug Detection)");
+
+// 10↑↑(10^100) vs 10↑↑↑50
+// Left: tetration to a googol = tower of 10^100 tens
+// Right: pentation to 50 = insanely deeper nesting
+// Right should win BY FAR
+const tet_googol = ON({arrows: 2, height: ON({arrows: 1, height: 100})}); // 10↑↑(10^100)
+const pent50 = ON({arrows: 3, height: 50}); // 10↑↑↑50
+
+console.log(`  10↑↑(10^100): ${tet_googol.format()}`);
+console.log(`  10↑↑↑50: ${pent50.format()}`);
+test("10↑↑(10^100) < 10↑↑↑50 (pentation dominates)", tet_googol.lt(pent50));
+
+// 10↑↑(10^100) vs 10↑↑↑3
+// 10↑↑↑3 = 10↑↑(10↑↑10) = tower of (tower of 10 tens) tens
+// The HEIGHT of 10↑↑↑3's tower is 10↑↑10, which is way bigger than 10^100
+const pent3 = ON({arrows: 3, height: 3}); // 10↑↑↑3
+test("10↑↑(10^100) < 10↑↑↑3 (even small pentation wins)", tet_googol.lt(pent3));
+
+// But 10↑↑(10^100) SHOULD beat 10↑↑↑2 = 10↑↑10 (tower of 10 vs tower of googol)
+const pent2_check = ON({arrows: 3, height: 2}); // 10↑↑↑2 = 10↑↑10
+test("10↑↑(10^100) > 10↑↑↑2 (googol tower beats 10 tower)", tet_googol.gt(pent2_check));
+
+// More nested cases: {1, {2, 5}} = 10^(10↑↑5)
+// This is 10^(tower of 5 tens) = 10^(10^10^10^10^10)
+// vs 10↑↑↑10 which is incomprehensibly larger
+const sci_tet = ON({arrows: 1, height: ON({arrows: 2, height: 5})}); // 10^(10↑↑5)
+const pent10 = ON({arrows: 3, height: 10}); // 10↑↑↑10
+
+console.log(`  10^(10↑↑5): ${sci_tet.format()}`);
+console.log(`  10↑↑↑10: ${pent10.format()}`);
+test("10^(10↑↑5) < 10↑↑↑10", sci_tet.lt(pent10));
+
+// {2, {2, 5}} = 10↑↑(10↑↑5) vs 10↑↑↑10
+// 10↑↑(10↑↑5) = tower of (tower of 5) tens
+// 10↑↑↑10 = nested 10 levels deep
+const tet_tet = ON({arrows: 2, height: ON({arrows: 2, height: 5})}); // 10↑↑(10↑↑5)
+console.log(`  10↑↑(10↑↑5): ${tet_tet.format()}`);
+test("10↑↑(10↑↑5) < 10↑↑↑10", tet_tet.lt(pent10));
+
+// But 10↑↑(10↑↑5) should beat 10↑↑↑5 because:
+// 10↑↑↑5 = 10↑↑(10↑↑(10↑↑(10↑↑10))) (5 levels)
+// 10↑↑(10↑↑5) has height = 10↑↑5, while 10↑↑↑5 starts from 10↑↑10 at base
+// Actually 10↑↑↑5 >> 10↑↑(10↑↑5) because pentation builds towers recursively
+const pent5 = ON({arrows: 3, height: 5}); // 10↑↑↑5
+test("10↑↑(10↑↑5) < 10↑↑↑5", tet_tet.lt(pent5));
+
+// Edge case: 10↑↑(10↑↑5) vs 10↑↑↑3
+// 10↑↑↑3 = 10↑↑(10↑↑10), height is 10↑↑10
+// 10↑↑(10↑↑5) has height 10↑↑5
+// 10↑↑10 > 10↑↑5, so 10↑↑↑3 should win
+test("10↑↑(10↑↑5) < 10↑↑↑3", tet_tet.lt(pent3));
+
+// ================================================================
 // TEST: Nested structure operations
 // ================================================================
 section("Nested Structure Operations");

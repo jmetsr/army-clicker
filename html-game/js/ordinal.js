@@ -228,21 +228,67 @@ class OrdinalNumber {
   }
 
   // Flatten nested height to simple (arrows, numericHeight)
+  // Correctly handles {A, {j, h}} by bumping up to match arrow levels
   _flatten(n) {
     if (n.height instanceof OrdinalNumber) {
-      // Recursively flatten height
+      // Recursively flatten the inner height first
       const inner = this._flatten(n.height);
-      // {arrows: k, height: {arrows: j, height: h}}
-      // = 10↑^k(10↑^j(h))
-      // We need to combine these into a single level
-      // For comparison purposes, treat inner as "10^inner.height" if inner.arrows=1
-      // This is approximate but works for comparison
+      // {arrows: A, height: {arrows: j, height: h}}
+      // = 10↑^A(10↑^j(h))
+
       if (inner.arrows === 0) {
+        // Inner is just a plain number
         return { arrows: n.arrows, height: inner.height };
+      }
+
+      // inner.arrows >= 1
+      const A = n.arrows;
+      const j = inner.arrows;
+      const h = inner.height;
+
+      if (j >= A) {
+        // Inner arrows >= outer arrows
+        // {A, {j, h}} = 10↑^A(10↑^j(h))
+        //
+        // Convert to level j+1 using slog:
+        // slog_{j+1}(10↑^A(10↑^j(h))) counts slog_j applications:
+        //   - After (j-A+2) applications: we reach h
+        //   - If h <= 10: result = (j-A+2) + log10(h)
+
+        if (h <= 10) {
+          return { arrows: j + 1, height: (j - A + 2) + Math.log10(Math.max(1, h)) };
+        } else if (h <= 1e10) {
+          // h is moderate, add one more slog_j iteration
+          return { arrows: j + 1, height: (j - A + 3) + Math.log10(Math.log10(h)) };
+        } else {
+          // h is huge, approximate
+          return { arrows: j + 1, height: (j - A + 3) + Math.log10(Math.log10(h)) };
+        }
       } else {
-        // Nested structure - approximate by boosting outer arrows
-        // {k, {j, h}} ≈ {k+j, h} roughly (very rough!)
-        return { arrows: n.arrows + inner.arrows, height: inner.height };
+        // Inner arrows < outer arrows (j < A)
+        // {A, {j, h}} means 10↑^A with HEIGHT = 10↑^j(h)
+        // The inner structure IS the height of the outer operation.
+
+        if (j === 1) {
+          // Inner is 10^h, which IS the height of outer operation
+          if (h <= 308) {
+            // Computable as a number
+            return { arrows: A, height: Math.pow(10, h) };
+          } else {
+            // 10^h is too large - bump to level A+1 and compute slog
+            // slog_{A+1}(10↑^A(10^h)):
+            //   After 1 slog_A: 10^h (the height)
+            //   After 2 slog_A: slog_A(10^h) ≈ 2 + log10(log10(h)) for A >= 2
+            // Result: 2 + log10(that)
+            const innerSlog = 2 + Math.log10(Math.log10(h));
+            return { arrows: A + 1, height: 2 + Math.log10(Math.max(1, innerSlog)) };
+          }
+        } else {
+          // j >= 2 but j < A: inner is 10↑^j(h), which is huge
+          // Bump to level A+1 and approximate
+          // The height 10↑^j(h) is so large that slog_A gives roughly j + small
+          return { arrows: A + 1, height: 2 + Math.log10(j + Math.log10(Math.max(1, h))) };
+        }
       }
     } else {
       return { arrows: n.arrows, height: n.height };
