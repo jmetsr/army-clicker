@@ -331,7 +331,8 @@ function applyEffect(opts, mult) {
   }
   // Update recruits per click (for squad_leader)
   if (opts.updateRp) {
-    G.rp = 1 + cnt("squad_leader");
+    var slCount = cnt("squad_leader");
+    G.rp = slCount instanceof OrdinalNumber ? slCount.add(1) : 1 + slCount;
   }
   // Update sessions per train click (for sapphire/forbidden_ritual)
   if (opts.updateSessionsPerTrain) {
