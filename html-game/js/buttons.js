@@ -343,6 +343,6 @@ function initButtons() {
     descFn:function(){return"Pick a button \u2192 auto-upgrades when clicked [10 magic]"},
     costFn:function(){return 0},
     displayCost:10,
-    showFn:function(){return G.magicOn && Object.keys(G.upgradeLevels).some(function(k){return G.upgradeLevels[k]>=3})},
+    showFn:function(){return G.magicOn && Object.keys(G.upgradeLevels).some(function(k){var v=G.upgradeLevels[k];return v instanceof OrdinalNumber?v.gte(3):v>=3})},
     effectFn:function(){openAutoUpgraderModal()}});
 }

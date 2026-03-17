@@ -86,7 +86,9 @@ function openAutoUpgraderModal() {
 
   // Show buttons with 3+ upgrades that don't already have auto-upgrader
   Object.keys(G.upgradeLevels).forEach(function(id) {
-    if (G.upgradeLevels[id] >= 3 && !G.autoUpgraders[id]) {
+    var lvl = G.upgradeLevels[id];
+    var lvlGte3 = lvl instanceof OrdinalNumber ? lvl.gte(3) : lvl >= 3;
+    if (lvlGte3 && !G.autoUpgraders[id]) {
       var name = id.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
       var btn = BUTTONS.find(function(b) { return b.id === id; });
       if (btn) name = btn.name;
@@ -104,7 +106,8 @@ function openAutoUpgraderModal() {
 
       var el = document.createElement("button");
       el.className = "modal-btn";
-      el.innerHTML = name + ' <span style="color:var(--dim)">(' + G.upgradeLevels[id] + ' upgrades) \u2014 1 Googol</span>';
+      var lvlDisplay = G.upgradeLevels[id] instanceof OrdinalNumber ? G.upgradeLevels[id].format() : G.upgradeLevels[id];
+      el.innerHTML = name + ' <span style="color:var(--dim)">(' + lvlDisplay + ' upgrades) \u2014 1 Googol</span>';
       el.addEventListener("click", function() {
         if (G.magic < 10) {
           log("Not enough magic!", "danger-msg");
@@ -182,9 +185,9 @@ function createMainAutoUpgraders() {
       var oldLvl = G.upgradeLevels['recruit'] || 0;
       if (autoMult instanceof OrdinalNumber) {
         var newLvl = autoMult.add(ON(oldLvl));
-        G.upgradeLevels['recruit'] = newLvl.layer === 0 ? newLvl.value : newLvl.toNumber();
+        G.upgradeLevels['recruit'] = newLvl.layer === 0 ? newLvl.value : newLvl;
       } else {
-        G.upgradeLevels['recruit'] = oldLvl + autoMult;
+        G.upgradeLevels['recruit'] = oldLvl instanceof OrdinalNumber ? oldLvl.add(autoMult) : oldLvl + autoMult;
       }
       var autoMultGt1 = autoMult instanceof OrdinalNumber ? autoMult.gt(1) : autoMult > 1;
       var multStr = autoMult instanceof OrdinalNumber ? autoMult.format() : autoMult;
@@ -205,9 +208,9 @@ function createMainAutoUpgraders() {
       var oldLvl = G.upgradeLevels['auto_recruit'] || 0;
       if (auto2Mult instanceof OrdinalNumber) {
         var newLvl = auto2Mult.add(ON(oldLvl));
-        G.upgradeLevels['auto_recruit'] = newLvl.layer === 0 ? newLvl.value : newLvl.toNumber();
+        G.upgradeLevels['auto_recruit'] = newLvl.layer === 0 ? newLvl.value : newLvl;
       } else {
-        G.upgradeLevels['auto_recruit'] = oldLvl + auto2Mult;
+        G.upgradeLevels['auto_recruit'] = oldLvl instanceof OrdinalNumber ? oldLvl.add(auto2Mult) : oldLvl + auto2Mult;
       }
       var auto2MultGt1 = auto2Mult instanceof OrdinalNumber ? auto2Mult.gt(1) : auto2Mult > 1;
       var multStr = auto2Mult instanceof OrdinalNumber ? auto2Mult.format() : auto2Mult;
@@ -242,9 +245,9 @@ function createMainAutoUpgraders() {
       var oldLvl = G.upgradeLevels['loot'] || 0;
       if (autoMult instanceof OrdinalNumber) {
         var newLvl = autoMult.add(ON(oldLvl));
-        G.upgradeLevels['loot'] = newLvl.layer === 0 ? newLvl.value : newLvl.toNumber();
+        G.upgradeLevels['loot'] = newLvl.layer === 0 ? newLvl.value : newLvl;
       } else {
-        G.upgradeLevels['loot'] = oldLvl + autoMult;
+        G.upgradeLevels['loot'] = oldLvl instanceof OrdinalNumber ? oldLvl.add(autoMult) : oldLvl + autoMult;
       }
       var autoMultGt1 = autoMult instanceof OrdinalNumber ? autoMult.gt(1) : autoMult > 1;
       var multStr = autoMult instanceof OrdinalNumber ? autoMult.format() : autoMult;
@@ -265,9 +268,9 @@ function createMainAutoUpgraders() {
       var oldLvl = G.upgradeLevels['auto_loot'] || 0;
       if (auto2Mult instanceof OrdinalNumber) {
         var newLvl = auto2Mult.add(ON(oldLvl));
-        G.upgradeLevels['auto_loot'] = newLvl.layer === 0 ? newLvl.value : newLvl.toNumber();
+        G.upgradeLevels['auto_loot'] = newLvl.layer === 0 ? newLvl.value : newLvl;
       } else {
-        G.upgradeLevels['auto_loot'] = oldLvl + auto2Mult;
+        G.upgradeLevels['auto_loot'] = oldLvl instanceof OrdinalNumber ? oldLvl.add(auto2Mult) : oldLvl + auto2Mult;
       }
       var auto2MultGt1 = auto2Mult instanceof OrdinalNumber ? auto2Mult.gt(1) : auto2Mult > 1;
       var multStr = auto2Mult instanceof OrdinalNumber ? auto2Mult.format() : auto2Mult;

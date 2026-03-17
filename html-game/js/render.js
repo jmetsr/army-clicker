@@ -85,9 +85,9 @@ function buildButtons() {
         // Add levels - handle OrdinalNumber autoMult
         if (autoMult instanceof OrdinalNumber) {
           var newLvl = autoMult.add(ON(oldLvl));
-          G.upgradeLevels[btn.id] = newLvl.layer === 0 ? newLvl.value : newLvl.toNumber();
+          G.upgradeLevels[btn.id] = newLvl.layer === 0 ? newLvl.value : newLvl;
         } else {
-          G.upgradeLevels[btn.id] = oldLvl + autoMult;
+          G.upgradeLevels[btn.id] = oldLvl instanceof OrdinalNumber ? oldLvl.add(autoMult) : oldLvl + autoMult;
         }
         var autoMultGt1 = autoMult instanceof OrdinalNumber ? autoMult.gt(1) : autoMult > 1;
         var multStr = autoMult instanceof OrdinalNumber ? autoMult.format() : autoMult;
@@ -111,9 +111,9 @@ function buildButtons() {
         // Add levels - handle OrdinalNumber auto2Mult
         if (auto2Mult instanceof OrdinalNumber) {
           var newLvl = auto2Mult.add(ON(oldLvl));
-          G.upgradeLevels['auto_' + btn.id] = newLvl.layer === 0 ? newLvl.value : newLvl.toNumber();
+          G.upgradeLevels['auto_' + btn.id] = newLvl.layer === 0 ? newLvl.value : newLvl;
         } else {
-          G.upgradeLevels['auto_' + btn.id] = oldLvl + auto2Mult;
+          G.upgradeLevels['auto_' + btn.id] = oldLvl instanceof OrdinalNumber ? oldLvl.add(auto2Mult) : oldLvl + auto2Mult;
         }
         var auto2MultGt1 = auto2Mult instanceof OrdinalNumber ? auto2Mult.gt(1) : auto2Mult > 1;
         var multStr = auto2Mult instanceof OrdinalNumber ? auto2Mult.format() : auto2Mult;

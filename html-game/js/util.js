@@ -134,6 +134,10 @@ function initColorScheme() {
 // Helper: get upgrade multiplier for a button (returns ON for large values)
 function getUpgradeMult(id) {
   var level = G.upgradeLevels[id] || 0;
+  // Handle OrdinalNumber levels: 10^level = level.exp10()
+  if (level instanceof OrdinalNumber) {
+    return level.exp10();
+  }
   if (level > 300) return OrdinalNumber.fromSci(1, level);
   return Math.pow(10, level);
 }
