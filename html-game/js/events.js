@@ -302,18 +302,21 @@ function updateMainAutoUpgraders() {
       recruitEl.disabled = !G.coins.gte(googol());
       var autoLvl = G.upgradeLevels['auto_recruit'] || 0;
       var currLvl = G.upgradeLevels['recruit'] || 0;
-      // Handle OrdinalNumber levels
+      // Handle OrdinalNumber levels - always check instanceof before operations
       var autoIsON = autoLvl instanceof OrdinalNumber;
       var currIsON = currLvl instanceof OrdinalNumber;
-      var addLvls = autoIsON ? autoLvl.format() : (autoLvl > 300 ? "10^" + autoLvl : Math.pow(10, autoLvl));
-      var nextMultStr;
+      var nextMultStr, addLvls;
       if (currIsON || autoIsON) {
+        // When either is OrdinalNumber, format safely
         nextMultStr = currIsON ? currLvl.format() : fmtMult(currLvl);
+        addLvls = autoIsON ? autoLvl.exp10().format() : fmtMult(Math.pow(10, autoLvl));
       } else {
+        addLvls = autoLvl > 300 ? "10^" + autoLvl : Math.pow(10, autoLvl);
         var nextLvl = autoLvl > 50 ? currLvl + "+" + addLvls : currLvl + Math.pow(10, autoLvl);
         nextMultStr = typeof nextLvl === 'number' ? fmtMult(nextLvl) : "10^(" + nextLvl + ")";
       }
-      var levelInfo = (autoLvl > 0 || autoIsON) ? ' (+' + addLvls + ')' : '';
+      var autoGt0 = autoIsON ? autoLvl.gt(0) : autoLvl > 0;
+      var levelInfo = autoGt0 ? ' (+' + addLvls + ')' : '';
       recruitEl.innerHTML = '\u26a1 ' + nextMultStr + 'x' + levelInfo + '<div style="font-size:.85em;opacity:.7">1 Googol</div>';
     }
   }
@@ -329,19 +332,21 @@ function updateMainAutoUpgraders() {
       lootEl.disabled = !G.coins.gte(googol());
       var lootAutoLvl = G.upgradeLevels['auto_loot'] || 0;
       var lootCurrLvl = G.upgradeLevels['loot'] || 0;
-      // Handle OrdinalNumber levels
+      // Handle OrdinalNumber levels - always check instanceof before operations
       var lootAutoIsON = lootAutoLvl instanceof OrdinalNumber;
       var lootCurrIsON = lootCurrLvl instanceof OrdinalNumber;
-      var lootAddLvls = lootAutoIsON ? lootAutoLvl.format() : (lootAutoLvl > 300 ? "10^" + lootAutoLvl : Math.pow(10, lootAutoLvl));
-      var lootNextMultStr;
+      var lootNextMultStr, lootAddLvls;
       if (lootCurrIsON || lootAutoIsON) {
-        // When either is OrdinalNumber, just show current level format
+        // When either is OrdinalNumber, format safely
         lootNextMultStr = lootCurrIsON ? lootCurrLvl.format() : fmtMult(lootCurrLvl);
+        lootAddLvls = lootAutoIsON ? lootAutoLvl.exp10().format() : fmtMult(Math.pow(10, lootAutoLvl));
       } else {
+        lootAddLvls = lootAutoLvl > 300 ? "10^" + lootAutoLvl : Math.pow(10, lootAutoLvl);
         var lootNextLvl = lootAutoLvl > 50 ? lootCurrLvl + "+" + lootAddLvls : lootCurrLvl + Math.pow(10, lootAutoLvl);
         lootNextMultStr = typeof lootNextLvl === 'number' ? fmtMult(lootNextLvl) : "10^(" + lootNextLvl + ")";
       }
-      var lootLevelInfo = (lootAutoLvl > 0 || lootAutoIsON) ? ' (+' + lootAddLvls + ')' : '';
+      var lootAutoGt0 = lootAutoIsON ? lootAutoLvl.gt(0) : lootAutoLvl > 0;
+      var lootLevelInfo = lootAutoGt0 ? ' (+' + lootAddLvls + ')' : '';
       lootEl.innerHTML = '\u26a1 Loot ' + lootNextMultStr + 'x' + lootLevelInfo + '<div style="font-size:.85em;opacity:.7">1 Googol</div>';
     }
   }
@@ -354,7 +359,8 @@ function updateMainAutoUpgraders() {
     if (showRecruit2) {
       recruitAuto2El.disabled = !G.coins.gte(googol());
       var r2Lvl = G.upgradeLevels['auto_recruit'] || 0;
-      var r2NextMult = fmtMult(r2Lvl + 1);
+      var r2NextLvl = r2Lvl instanceof OrdinalNumber ? r2Lvl.add(1) : r2Lvl + 1;
+      var r2NextMult = r2NextLvl instanceof OrdinalNumber ? r2NextLvl.format() : fmtMult(r2NextLvl);
       recruitAuto2El.innerHTML = '\u26a1\u00b2 ' + r2NextMult + 'x<div style="font-size:.85em;opacity:.7">1 Googol</div>';
     }
   }
@@ -366,7 +372,8 @@ function updateMainAutoUpgraders() {
     if (showLoot2) {
       lootAuto2El.disabled = !G.coins.gte(googol());
       var l2Lvl = G.upgradeLevels['auto_loot'] || 0;
-      var l2NextMult = fmtMult(l2Lvl + 1);
+      var l2NextLvl = l2Lvl instanceof OrdinalNumber ? l2Lvl.add(1) : l2Lvl + 1;
+      var l2NextMult = l2NextLvl instanceof OrdinalNumber ? l2NextLvl.format() : fmtMult(l2NextLvl);
       lootAuto2El.innerHTML = '\u26a1\u00b2 ' + l2NextMult + 'x<div style="font-size:.85em;opacity:.7">1 Googol</div>';
     }
   }
@@ -391,7 +398,8 @@ function updateMainAutoUpgraders() {
         var targetId = btnId;
         for (var tt = 1; tt < tier; tt++) targetId = 'auto_' + targetId;
         var tierLvl = G.upgradeLevels[targetId] || 0;
-        var tierNextMult = fmtMult(tierLvl + 1);
+        var tierNextLvl = tierLvl instanceof OrdinalNumber ? tierLvl.add(1) : tierLvl + 1;
+        var tierNextMult = tierNextLvl instanceof OrdinalNumber ? tierNextLvl.format() : fmtMult(tierNextLvl);
         tierBtn.innerHTML = '\u26a1' + sup + ' ' + tierNextMult + 'x<div style="font-size:.85em;opacity:.7">1 Googol</div>';
       }
     }
@@ -427,7 +435,9 @@ function setupEventListeners() {
     if (G.coins.gte(totalCost)) {
       logClick("recruit");
       G.coins = G.coins.sub(totalCost);
-      G.troops = G.troops.add(G.rp * mult);
+      var rpIsOrd = G.rp instanceof OrdinalNumber;
+      var recruitsGained = rpIsOrd ? G.rp.mul(mult) : ON(G.rp * mult);
+      G.troops = G.troops.add(recruitsGained);
       G.counts["recruit"] = (G.counts["recruit"] || 0) + mult;
       updateUI();
     }

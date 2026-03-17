@@ -488,7 +488,8 @@ function doBattle() {
           }
         }
       });
-      G.rp = 1 + cnt("squad_leader");
+      var slCount = cnt("squad_leader");
+      G.rp = slCount instanceof OrdinalNumber ? slCount.add(1) : 1 + slCount;
 
       var streakMsg = G.lossStreak > 1 ? "<br><b>" + G.lossStreak + " defeats in a row! (-" + lossPct + "%)</b>" : "";
       var lossText = losses.slice(0, 5).join("<br>");
