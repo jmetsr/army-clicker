@@ -18,58 +18,35 @@ const { getFarmCost, getRecruitCost, getTrainCost, getSLCost, getBarracksCost,
 /**
  * Calculate the score for a potential action
  *
- * FORMULA:
+ * MATCHES GAME LOGIC EXACTLY:
  *   baseScore = value / sqrt(costPct)
  *   if unaffordable: baseScore *= decay^daysToWait
- *   apply modifiers (NO_INFLATE_BONUS, closeness, strain)
- *
- * WHY sqrt(costPct)?
- *   - Compresses differences at low cost (1% vs 5% = both cheap)
- *   - Still penalizes high cost (50% = expensive)
- *   - Continuous, no arbitrary thresholds
- *
- * WHY multiplicative decay?
- *   - Each day of waiting reduces value by 1% (decay = 0.99)
- *   - Prevents waiting forever for expensive items
- *   - Still allows saving for high-value items if close
+ *   if isImmediate: baseScore *= NO_INFLATE_BONUS
  *
  * @param {number} cost - Cost of the action
- * @param {number} value - Value of the action (from PARAMS)
+ * @param {number} value - Value of the action
  * @param {number} coins - Current coins
  * @param {number} incomePerDay - Expected daily income
- * @param {boolean} isArmy - True if army chain action
  * @param {boolean} isImmediate - True if train/recruit (no cost pool inflation)
- * @param {number} closeness - Battle closeness (0-1, higher = tighter battle)
- * @param {number} strain - Food strain (0-1, higher = more constrained)
  * @returns {number} Score (higher = better action)
  */
-function calcScore(cost, value, coins, incomePerDay, isArmy, isImmediate, closeness, strain) {
+function calcScore(cost, value, coins, incomePerDay, isImmediate) {
   if (cost <= 0) return -1;
 
   const currentCoins = Math.max(coins, 1);
   const costPct = cost / currentCoins;
 
-  // Base penalty: sqrt of cost percentage
   const penalty = Math.sqrt(costPct);
   let baseScore = value / penalty;
 
-  // Wait penalty: if unaffordable, apply decay per day of waiting
   if (costPct > 1) {
     const coinsNeeded = cost - currentCoins;
     const daysToWait = coinsNeeded / Math.max(incomePerDay, 1);
     baseScore *= Math.pow(PARAMS.WAIT_DECAY, daysToWait);
   }
 
-  // Modifiers
   if (isImmediate) {
-    // Train/recruit don't inflate building costs, so they get a bonus
     baseScore *= PARAMS.NO_INFLATE_BONUS;
-  }
-
-  // Removed closeness boost entirely - was causing AI to over-recruit vs human opponents
-  if (!isArmy) {
-    // Economy actions get bonus when food is constrained
-    baseScore *= (1 + strain * PARAMS.K_STRAIN);
   }
 
   return baseScore;
