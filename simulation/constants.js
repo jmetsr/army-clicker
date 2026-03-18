@@ -33,39 +33,35 @@ const C = {
 /**
  * AI Scoring Parameters
  *
- * These weights determine how the AI values different actions.
- * Higher values = AI prioritizes that action more.
+ * TUNED VERSION: urgency-farm-v1 (2026-03-12)
+ * Synced with html-game/js/ai-strategy.js
  *
- * The 10x ratio between tiers (not 3x) captures the TRUE compound value
- * of multipliers. Each barracks gives +1 SL per click, and each SL gives +1 rp,
- * so barracks value compounds over time.
+ * Key changes from old system:
+ * - tierMult=70 (not 10) for proper tier valuation
+ * - Urgency-based farm valuation (not static)
+ * - SL helper logic for smarter building decisions
  */
 const PARAMS = {
-  // --- ECONOMY CHAIN VALUES ---
-  // 10x per tier (same as army) so higher tiers are properly valued
-  VAL_FARM: 4,                  // Base value for farms
-  VAL_PLANTATION: 40,           // Plantations worth 10x farms
-  VAL_COLONY: 400,              // Colonies worth 10x plantations
+  // --- TUNING CONSTANTS (synced with game) ---
+  VAL_SL: 5,                    // Anchor value for squad leaders
+  TIER_MULT: 70,                // Each tier worth 70x the previous
+  FARM_THRESHOLD: 6,            // Urgency level where farms = SL value
+  TRAIN_MULT: 0.01,             // Train value multiplier (low but train still dominates)
+  DIVISOR: 1,                   // For SL helper formula
 
-  // --- ARMY CHAIN VALUES ---
-  // 10x per tier to properly weight multiplier chain
-  VAL_SL: 10,                   // Squad leaders
-  VAL_BARRACKS: 100,            // Barracks (10x SL)
-  VAL_MB: 1000,                 // Military bases (10x barracks)
-  VAL_KINGDOM: 10000,           // Kingdoms (10x MB)
+  // --- DERIVED VALUES (computed from VAL_SL and TIER_MULT) ---
+  // VAL_BARRACKS = TIER_MULT * VAL_SL = 350
+  // VAL_MB = TIER_MULT * VAL_BARRACKS = 24500
+  // VAL_KINGDOM = TIER_MULT * VAL_MB = 1715000
+  // VAL_EMPIRE = TIER_MULT * VAL_KINGDOM = 120050000
+  // VAL_FARM is dynamic based on urgency
 
   // --- SCORING MODIFIERS ---
-  K_CLOSENESS: 0.5,             // Army bonus when battle is close
-  K_STRAIN: 2.0,                // Economy bonus when food constrained
   NO_INFLATE_BONUS: 1.2,        // Bonus for train/recruit (don't inflate building costs)
-
-  // --- DECAY ---
   WAIT_DECAY: 0.99,             // Score multiplied by this per day of waiting
 
-  // --- PPT SCALING FIX ---
-  // When true, building values scale with ppt (fixes late-game undervaluation)
-  // Tuned with trainMult=0.3 via simulation testing
-  USE_PPT_SCALING: true,
+  // --- PPT SCALING ---
+  USE_PPT_SCALING: true,        // Building values scale with ppt
 };
 
 module.exports = { C, PARAMS };

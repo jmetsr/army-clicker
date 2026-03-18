@@ -1,29 +1,27 @@
 /**
  * AI Decision Engine
  *
- * This is the main AI logic. It decides what action to take each click.
+ * VERSION: urgency-farm-v1 (synced with html-game/js/ai-strategy.js)
+ * TUNED: tierMult=70, divisor=1, VAL_SL=5, FARM_THRESHOLD=6
  *
  * STRATEGY OVERVIEW:
  * 1. Handle emergencies (starvation prevention)
- * 2. Score all possible actions
- * 3. If best action is unaffordable building, check if train/recruit helps
+ * 2. Score all possible actions using urgency-based farm valuation
+ * 3. If best action is unaffordable building, check SL helper logic
  * 4. Execute best affordable action, or beg
- *
- * The AI uses a unified scoring system that compares all actions on the same scale.
- * Higher-tier buildings get higher values (10x per tier) to properly weight
- * the multiplier chain.
  */
 
 const { C, PARAMS } = require('./constants');
-const { getCount, getSLCost, getBarracksCost, getMBCost, getKingdomCost,
+const { getCount, getSLCost, getBarracksCost, getMBCost, getKingdomCost, getEmpireCost,
         getFarmCost, getPlantationCost, getColonyCost,
         getRecruitCost, getTrainCost } = require('./costs');
-const { buySL, buyBarracks, buyMB, buyKingdom,
+const { buySL, buyBarracks, buyMB, buyKingdom, buyEmpire,
         buyFarm, buyPlantation, buyColony,
         recruit, train, beg } = require('./actions');
-const { calcScore, getFoodMetrics, wouldSpendingCauseEmergency,
-        wouldRecruitCauseSuperEmergency, doesRecruitHelp, doesTrainHelp,
-        calculateStrain, calculateCloseness } = require('./scoring');
+const { calcScore, getFoodMetrics, getUrgencyMetrics,
+        wouldSpendingCauseEmergency, wouldRecruitCauseSuperEmergency,
+        doesRecruitHelp, doesTrainHelp, slBetterThanRecruit, doesSLHelp,
+        findBestMilitaryTarget } = require('./scoring');
 
 /**
  * Run AI for one click
@@ -65,9 +63,6 @@ function runAI(ai, clicks, enemyPower) {
   // =========================================================================
   // STEP 1.5: Check for "almost emergency" - recruit blocked by food constraints
   // =========================================================================
-  // If recruiting would cause starvation, we're food-constrained.
-  // In this state, prioritize economy buildings to increase food capacity.
-  // Otherwise, AI gets stuck spamming SLs forever while unable to grow troops.
   const isAlmostEmergency = wouldRecruitCauseSuperEmergency(ai);
 
   // =========================================================================
@@ -77,9 +72,18 @@ function runAI(ai, clicks, enemyPower) {
   const ppt = ai.ppt;
   const myPower = troopCount * ppt;
 
-  const strain = calculateStrain(ai);
-  const closeness = calculateCloseness(myPower, enemyPower);
+  // Get urgency-based farm values
+  const urgency = getUrgencyMetrics(ai, clicks);
   const incomePerDay = food.incomePerDay;
+
+  // Army chain values (derived from PARAMS)
+  const VAL_BARRACKS = PARAMS.TIER_MULT * PARAMS.VAL_SL;
+  const VAL_MB = PARAMS.TIER_MULT * VAL_BARRACKS;
+  const VAL_KINGDOM = PARAMS.TIER_MULT * VAL_MB;
+  const VAL_EMPIRE = PARAMS.TIER_MULT * VAL_KINGDOM;
+
+  // PPT scaling for building values
+  const pptMult = PARAMS.USE_PPT_SCALING ? ppt : 1;
 
   // =========================================================================
   // STEP 3: Score all possible actions
@@ -91,8 +95,8 @@ function runAI(ai, clicks, enemyPower) {
     // --- TRAIN ---
     if (troopCount >= 5) {
       const cost = getTrainCost(ai);
-      const value = troopCount * ppt * 0.3;  // Immediate power gain (tuned via simulation)
-      const score = calcScore(cost, value, coins, incomePerDay, true, true, closeness, strain);
+      const value = troopCount * ppt * PARAMS.TRAIN_MULT;
+      const score = calcScore(cost, value, coins, incomePerDay, true, true, 0, 0);
       if (score > 0) {
         actions.push({ name: 'train', score, cost, fn: () => train(ai) });
       }
@@ -101,11 +105,12 @@ function runAI(ai, clicks, enemyPower) {
     // --- RECRUIT ---
     {
       const cost = getRecruitCost(ai);
-      const value = ai.rp * ppt;  // Immediate power gain
-      let score = calcScore(cost, value, coins, incomePerDay, true, true, closeness, strain);
+      const value = ai.rp * ppt;
+      let score = calcScore(cost, value, coins, incomePerDay, true, true, 0, 0);
 
       // Penalize recruiting when near food capacity
-      const newStrain = food.farmProd > 0 ? (troopCount + ai.rp) / (food.farmProd / C.food_perTroopDay) : 1;
+      const maxSustainable = food.farmProd / C.food_perTroopDay;
+      const newStrain = maxSustainable > 0 ? (troopCount + ai.rp) / maxSustainable : 0;
       if (newStrain > 0.9) {
         score -= (newStrain - 0.9) * 5;
       }
@@ -116,13 +121,10 @@ function runAI(ai, clicks, enemyPower) {
     }
 
     // --- SQUAD LEADER ---
-    // PPT scaling: buildings that boost troop recruitment should scale with ppt
-    const pptMult = PARAMS.USE_PPT_SCALING ? ppt : 1;
-
     if (troopCount >= 2) {
       const cost = getSLCost(ai);
       const value = ai.squadLeaderPower * PARAMS.VAL_SL * pptMult;
-      const score = calcScore(cost, value, coins, incomePerDay, true, false, closeness, strain);
+      const score = calcScore(cost, value, coins, incomePerDay, true, false, 0, 0);
       if (score > 0) {
         actions.push({ name: 'sl', score, cost, fn: () => buySL(ai) });
       }
@@ -131,8 +133,8 @@ function runAI(ai, clicks, enemyPower) {
     // --- BARRACKS ---
     if (getCount(ai, "squad_leader") >= 3) {
       const cost = getBarracksCost(ai);
-      const value = ai.barracksPower * PARAMS.VAL_BARRACKS * pptMult;
-      const score = calcScore(cost, value, coins, incomePerDay, true, false, closeness, strain);
+      const value = ai.barracksPower * VAL_BARRACKS * pptMult;
+      const score = calcScore(cost, value, coins, incomePerDay, true, false, 0, 0);
       if (score > 0) {
         actions.push({ name: 'barracks', score, cost, fn: () => buyBarracks(ai) });
       }
@@ -141,8 +143,8 @@ function runAI(ai, clicks, enemyPower) {
     // --- MILITARY BASE ---
     if (getCount(ai, "barracks") >= 3) {
       const cost = getMBCost(ai);
-      const value = ai.militaryBasePower * PARAMS.VAL_MB * pptMult;
-      const score = calcScore(cost, value, coins, incomePerDay, true, false, closeness, strain);
+      const value = ai.militaryBasePower * VAL_MB * pptMult;
+      const score = calcScore(cost, value, coins, incomePerDay, true, false, 0, 0);
       if (score > 0) {
         actions.push({ name: 'mb', score, cost, fn: () => buyMB(ai) });
       }
@@ -151,22 +153,29 @@ function runAI(ai, clicks, enemyPower) {
     // --- KINGDOM ---
     if (getCount(ai, "military_base") >= 3) {
       const cost = getKingdomCost(ai);
-      const value = ai.kingdomPower * PARAMS.VAL_KINGDOM * pptMult;
-      const score = calcScore(cost, value, coins, incomePerDay, true, false, closeness, strain);
+      const value = ai.kingdomPower * VAL_KINGDOM * pptMult;
+      const score = calcScore(cost, value, coins, incomePerDay, true, false, 0, 0);
       if (score > 0) {
         actions.push({ name: 'kingdom', score, cost, fn: () => buyKingdom(ai) });
+      }
+    }
+
+    // --- EMPIRE ---
+    if (getCount(ai, "kingdom") >= 3) {
+      const cost = getEmpireCost(ai);
+      const value = ai.empirePower * VAL_EMPIRE * pptMult;
+      const score = calcScore(cost, value, coins, incomePerDay, true, false, 0, 0);
+      if (score > 0) {
+        actions.push({ name: 'empire', score, cost, fn: () => buyEmpire(ai) });
       }
     }
   }
 
   // --- FARM --- (always available, critical for almost emergency)
-  // Economy also scales with ppt - higher ppt troops need more food support
-  const econPptMult = PARAMS.USE_PPT_SCALING ? ppt : 1;
-
   {
     const cost = getFarmCost(ai);
-    const value = ai.fp * PARAMS.VAL_FARM * econPptMult;
-    const score = calcScore(cost, value, coins, incomePerDay, false, false, closeness, strain);
+    const value = ai.fp * urgency.VAL_FARM * pptMult;
+    const score = calcScore(cost, value, coins, incomePerDay, false, false, 0, 0);
     if (score > 0) {
       actions.push({ name: 'farm', score, cost, fn: () => buyFarm(ai) });
     }
@@ -175,8 +184,8 @@ function runAI(ai, clicks, enemyPower) {
   // --- PLANTATION ---
   if (getCount(ai, "farm") >= 3) {
     const cost = getPlantationCost(ai);
-    const value = ai.pp * PARAMS.VAL_PLANTATION * econPptMult;
-    const score = calcScore(cost, value, coins, incomePerDay, false, false, closeness, strain);
+    const value = ai.pp * urgency.VAL_PLANTATION * pptMult;
+    const score = calcScore(cost, value, coins, incomePerDay, false, false, 0, 0);
     if (score > 0) {
       actions.push({ name: 'plantation', score, cost, fn: () => buyPlantation(ai) });
     }
@@ -185,8 +194,8 @@ function runAI(ai, clicks, enemyPower) {
   // --- COLONY ---
   if (getCount(ai, "plantation") >= 3) {
     const cost = getColonyCost(ai);
-    const value = 1 * PARAMS.VAL_COLONY * econPptMult;
-    const score = calcScore(cost, value, coins, incomePerDay, false, false, closeness, strain);
+    const value = 1 * urgency.VAL_COLONY * pptMult;
+    const score = calcScore(cost, value, coins, incomePerDay, false, false, 0, 0);
     if (score > 0) {
       actions.push({ name: 'colony', score, cost, fn: () => buyColony(ai) });
     }
@@ -210,64 +219,70 @@ function runAI(ai, clicks, enemyPower) {
   if (bestIsUnaffordable) {
     // -----------------------------------------------------------------------
     // Best action is an unaffordable building - save for it
-    // Skip ALL other buildings (score already accounts for cost/delay)
-    // Only train/recruit if they help reach best faster
     // -----------------------------------------------------------------------
 
     if (isAlmostEmergency) {
-      // In almost emergency, only check if train helps (recruit would make food worse)
-      // But train increases income without increasing food consumption
+      // In almost emergency, only check if train helps
       const trainHelps = doesTrainHelp(ai, best.cost, coins, incomePerDay, clicks);
       if (trainHelps) {
         train(ai);
         return;
       }
-      // Can't train - just beg
       beg(ai);
       return;
     }
 
-    // Normal case: check if train/recruit helps reach best faster
-    // But if saving for ECONOMY building, don't recruit - it increases food strain
     const bestIsEconomy = (best.name === 'farm' || best.name === 'plantation' || best.name === 'colony');
-    const recruitHelps = !bestIsEconomy && doesRecruitHelp(ai, best.cost, coins, incomePerDay, clicks);
-    const trainHelps = doesTrainHelp(ai, best.cost, coins, incomePerDay, clicks);
 
-    if (recruitHelps || trainHelps) {
-      if (recruitHelps && trainHelps) {
-        // Both help - pick whichever gets us there faster
-        const recruitCost = getRecruitCost(ai);
-        const trainCost = getTrainCost(ai);
-        const newIncomeRecruit = ((troopCount + ai.rp) * ppt * 4) + clicks;
-        const newIncomeTrain = (troopCount * ppt * ai.trainMult * 4) + clicks;
-        const daysRecruit = (best.cost - coins + recruitCost) / newIncomeRecruit;
-        const daysTrain = (best.cost - coins + trainCost) / newIncomeTrain;
-
-        if (daysRecruit < daysTrain) {
-          recruit(ai);
-        } else {
-          train(ai);
-        }
-      } else if (recruitHelps) {
-        recruit(ai);
-      } else {
+    // For economy buildings, just use train helps
+    if (bestIsEconomy) {
+      if (doesTrainHelp(ai, best.cost, coins, incomePerDay, clicks)) {
         train(ai);
+        return;
       }
+      beg(ai);
       return;
     }
 
-    // Nothing helps - just beg
+    // For military buildings, check SL helper first
+    if (doesSLHelp(ai, best.cost, coins, incomePerDay, clicks)) {
+      buySL(ai);
+      return;
+    }
+
+    // Fallback to recruit/train
+    if (doesRecruitHelp(ai, best.cost, coins, incomePerDay, clicks)) {
+      recruit(ai);
+      return;
+    }
+
+    if (doesTrainHelp(ai, best.cost, coins, incomePerDay, clicks)) {
+      train(ai);
+      return;
+    }
+
     beg(ai);
 
   } else {
     // -----------------------------------------------------------------------
-    // Best action is affordable (or is train/recruit) - execute in score order
+    // Best action is affordable (or is train/recruit)
     // -----------------------------------------------------------------------
+
+    // Check if SL helper is better when recruit wins
+    if (best.name === 'recruit') {
+      const targetCost = findBestMilitaryTarget(ai);
+      if (targetCost > 0 && slBetterThanRecruit(ai, targetCost) && ai.coins.gte(getSLCost(ai))) {
+        buySL(ai);
+        return;
+      }
+    }
+
+    // Execute best affordable action
     for (const action of actions) {
       // CRITICAL: Before spending, check if it would cause food emergency
-      // Exception: farms are always OK to buy (they help the food situation)
+      // Exception: farms are always OK to buy
       if (action.name !== 'farm' && wouldSpendingCauseEmergency(ai, action.cost, clicks)) {
-        continue;  // Skip this action, try next one
+        continue;
       }
       if (action.fn()) return;
     }

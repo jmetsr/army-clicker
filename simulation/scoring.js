@@ -8,7 +8,8 @@
  */
 
 const { C, PARAMS } = require('./constants');
-const { getFarmCost, getRecruitCost, getCount } = require('./costs');
+const { getFarmCost, getRecruitCost, getTrainCost, getSLCost, getBarracksCost,
+        getMBCost, getKingdomCost, getEmpireCost, getCount } = require('./costs');
 
 // =============================================================================
 // CORE SCORING FUNCTION
@@ -270,6 +271,114 @@ function doesTrainHelp(ai, targetCost, coins, incomePerDay, clicks) {
 }
 
 // =============================================================================
+// URGENCY-BASED FARM VALUATION
+// =============================================================================
+
+/**
+ * Calculate urgency metrics for food situation
+ *
+ * Urgency combines two factors:
+ * 1. daysOfFood - how many days until current food buffer runs out
+ * 2. recruitsUntil1DayStarve - how many recruits before we're 1 day from starving
+ *
+ * @param {Object} ai - AI state
+ * @param {number} clicks - Clicks per day
+ * @returns {Object} Urgency metrics including dynamic farm value
+ */
+function getUrgencyMetrics(ai, clicks) {
+  const troopCount = ai.troops.toNumber();
+  const farmProd = getCount(ai, "farm") * C.farm_production;
+  const foodBuffer = ai.food.toNumber();
+  const netConsume = (troopCount * C.food_perTroopDay) - farmProd;
+
+  const daysOfFood = netConsume > 0 ? foodBuffer / netConsume : 999;
+  const recruitsUntil1DayStarve = Math.max(1, (foodBuffer + farmProd - troopCount) / Math.max(ai.rp, 1));
+  const urgency = Math.min(daysOfFood, recruitsUntil1DayStarve);
+
+  // Dynamic farm value based on urgency
+  const VAL_FARM = PARAMS.VAL_SL * (PARAMS.FARM_THRESHOLD / Math.max(urgency, 1));
+  const VAL_PLANTATION = PARAMS.TIER_MULT * VAL_FARM;
+  const VAL_COLONY = PARAMS.TIER_MULT * VAL_PLANTATION;
+
+  return {
+    daysOfFood,
+    recruitsUntil1DayStarve,
+    urgency,
+    VAL_FARM,
+    VAL_PLANTATION,
+    VAL_COLONY,
+  };
+}
+
+// =============================================================================
+// SL HELPER LOGIC
+// =============================================================================
+
+/**
+ * Check if buying SL is better than just recruiting when saving for expensive building
+ *
+ * Logic: SL increases rp, so future recruits add more troops.
+ * If we're going to recruit many times while saving, SL investment pays off.
+ *
+ * @param {Object} ai - AI state
+ * @param {number} targetCost - Cost we're saving for
+ * @returns {boolean} True if buying SL is better than recruiting
+ */
+function slBetterThanRecruit(ai, targetCost) {
+  const slCost = getSLCost(ai);
+  const recruitCost = getRecruitCost(ai);
+
+  const slPower = ai.rp - 1;  // total SL contribution to rp
+  const barracksPower = ai.squadLeaderPower - 1;  // barracks boost per SL
+
+  // Percentage power gain from buying 1 more SL
+  // As slPower grows large, this ratio approaches 1 (no benefit)
+  const ratio = (1 + slPower + 1 + barracksPower) / (1 + slPower);
+
+  const expectedRecruits = targetCost / (recruitCost * PARAMS.DIVISOR);
+  // EXTRA gain, not total - subtract baseline of 1
+  const gain = (ratio - 1) * expectedRecruits;
+
+  // Cost in recruit-equivalents
+  const cost = (slCost + targetCost * 0.04) / recruitCost;
+
+  return gain > cost;
+}
+
+/**
+ * Check if SL helps reach target (full check)
+ * Combines: can afford, recruit helps, and SL is better than recruit
+ *
+ * @param {Object} ai - AI state
+ * @param {number} targetCost - Cost we're saving for
+ * @param {number} coins - Current coins
+ * @param {number} incomePerDay - Daily income
+ * @param {number} clicks - Clicks per day
+ * @returns {boolean} True if buying SL helps reach target
+ */
+function doesSLHelp(ai, targetCost, coins, incomePerDay, clicks) {
+  if (!doesRecruitHelp(ai, targetCost, coins, incomePerDay, clicks)) return false;
+  if (!slBetterThanRecruit(ai, targetCost)) return false;
+  if (ai.coins.lt(getSLCost(ai))) return false;
+  return true;
+}
+
+/**
+ * Find the best military target we're building toward
+ * Used to determine if SL helper should kick in
+ *
+ * @param {Object} ai - AI state
+ * @returns {number} Cost of next military target, or 0 if none
+ */
+function findBestMilitaryTarget(ai) {
+  if (getCount(ai, "kingdom") >= 3) return getEmpireCost(ai);
+  if (getCount(ai, "military_base") >= 3) return getKingdomCost(ai);
+  if (getCount(ai, "barracks") >= 3) return getMBCost(ai);
+  if (getCount(ai, "squad_leader") >= 3) return getBarracksCost(ai);
+  return 0;
+}
+
+// =============================================================================
 // STRAIN CALCULATIONS
 // =============================================================================
 
@@ -304,10 +413,14 @@ function calculateCloseness(myPower, enemyPower) {
 module.exports = {
   calcScore,
   getFoodMetrics,
+  getUrgencyMetrics,
   wouldSpendingCauseEmergency,
   wouldRecruitCauseSuperEmergency,
   doesRecruitHelp,
   doesTrainHelp,
+  slBetterThanRecruit,
+  doesSLHelp,
+  findBestMilitaryTarget,
   calculateStrain,
   calculateCloseness,
 };
