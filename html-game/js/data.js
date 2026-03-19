@@ -115,7 +115,15 @@ var TROOP_ICONS = {
   "War Orcs": "icons/War Orcs.png",
   "Trolls": "icons/Trolls.png",
   "Ogres": "icons/Ogres.png",
-  "Giants": "icons/Giants.png"
+  "Giants": "icons/Giants.png",
+  "Giant Pikemen": "icons/Giant Pikeman.png",
+  "Giants With Nunchucks": "icons/Giant with nunchucks.png",
+  "Giant Knights on Giant Horses": "icons/Giant Knight on Giant Horse.png",
+  "Wyrms": "icons/Wrym.png",
+  "Dragons": "icons/dragon.png",
+  "Elder Dragons": "icons/elder dragon.png",
+  "Archdemons": "icons/archdemon.png",
+  "Balrogs": "icons/Balrog.png"
 };
 
 // GROUP NAMES by troop count
