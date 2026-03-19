@@ -48,6 +48,7 @@ const PARAMS = {
   FARM_THRESHOLD: 6,            // Urgency level where farms = SL value
   TRAIN_MULT: 0.01,             // Train value multiplier (low but train still dominates)
   DIVISOR: 1,                   // For SL helper formula
+  DIVISOR_BARRACKS: 1,          // For barracks helper formula
 
   // --- DERIVED VALUES (computed from VAL_SL and TIER_MULT) ---
   // VAL_BARRACKS = TIER_MULT * VAL_SL = 350
