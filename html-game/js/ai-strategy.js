@@ -180,7 +180,42 @@ function runAI(clicks) {
 
   // === BARRACKS HELPER LOGIC ===
   // When saving for kingdom/empire, is buying barracks better than buying SL?
-  //
+
+  // Precomputed inflation factors for n=2,4,6,8,10 SL purchases
+  var INFLATE_2 = 1.0816000;   // 1.04^2
+  var INFLATE_4 = 1.1698586;   // 1.04^4
+  var INFLATE_6 = 1.2653190;   // 1.04^6
+  var INFLATE_8 = 1.3685691;   // 1.04^8
+  var INFLATE_10 = 1.4802443;  // 1.04^10
+
+  // Check if buying SL would still be worth it after n SLs already purchased
+  function wouldSLStillHelpAfterN(targetCost, n, inflate) {
+    var slCost = aiSLCost();
+    var recruitCost = aiRecruitCost();
+
+    var inflatedSlCost = slCost * inflate;
+    var inflatedTarget = targetCost * inflate;
+    var newSlPower = (ai.rp - 1) + n * ai.squadLeaderPower;
+    var slBoost = ai.squadLeaderPower - 1;
+
+    var ratio = (1 + newSlPower + 1 + slBoost) / (1 + newSlPower);
+    var expectedRecruits = inflatedTarget / (recruitCost * divisor);
+    var gain = (ratio - 1) * expectedRecruits;
+    var cost = (inflatedSlCost + inflatedTarget * 0.04) / recruitCost;
+
+    return gain > cost;
+  }
+
+  // Estimate how many SLs we'll buy while saving for target (returns 0, 3, 5, 7, 9, or 11)
+  function estimateExpectedSLs(targetCost) {
+    if (wouldSLStillHelpAfterN(targetCost, 10, INFLATE_10)) return 11;
+    if (wouldSLStillHelpAfterN(targetCost, 8, INFLATE_8)) return 9;
+    if (wouldSLStillHelpAfterN(targetCost, 6, INFLATE_6)) return 7;
+    if (wouldSLStillHelpAfterN(targetCost, 4, INFLATE_4)) return 5;
+    if (wouldSLStillHelpAfterN(targetCost, 2, INFLATE_2)) return 3;
+    return 0;
+  }
+
   // RATIO EXPLANATION:
   // When you buy 1 barracks, squadLeaderPower increases by barracksPower.
   // Ratio = (squadLeaderPower + barracksPower) / squadLeaderPower
@@ -197,7 +232,7 @@ function runAI(clicks) {
     var ratio = (ai.squadLeaderPower + ai.barracksPower) / ai.squadLeaderPower;
 
     // How many SLs do we expect to buy while saving for target?
-    var expectedSLs = targetCost / (slCost * divisor);
+    var expectedSLs = estimateExpectedSLs(targetCost);
 
     // EXTRA gain from barracks (ratio - 1, not ratio)
     var gain = (ratio - 1) * expectedSLs;

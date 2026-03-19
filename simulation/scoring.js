@@ -340,17 +340,52 @@ function doesSLHelp(ai, targetCost, coins, incomePerDay, clicks) {
   return true;
 }
 
+// Precomputed inflation factors for n=2,4,6,8,10 SL purchases
+const INFLATE_2 = 1.0816000;   // 1.04^2
+const INFLATE_4 = 1.1698586;   // 1.04^4
+const INFLATE_6 = 1.2653190;   // 1.04^6
+const INFLATE_8 = 1.3685691;   // 1.04^8
+const INFLATE_10 = 1.4802443;  // 1.04^10
+
+/**
+ * Check if buying SL would still be worth it after n SLs already purchased
+ */
+function wouldSLStillHelpAfterN(ai, targetCost, n, inflate) {
+  const slCost = getSLCost(ai);
+  const recruitCost = getRecruitCost(ai);
+  const divisor = PARAMS.DIVISOR || 1;
+
+  const inflatedSlCost = slCost * inflate;
+  const inflatedTarget = targetCost * inflate;
+  const newSlPower = (ai.rp - 1) + n * ai.squadLeaderPower;
+  const slBoost = ai.squadLeaderPower - 1;
+
+  const ratio = (1 + newSlPower + 1 + slBoost) / (1 + newSlPower);
+  const expectedRecruits = inflatedTarget / (recruitCost * divisor);
+  const gain = (ratio - 1) * expectedRecruits;
+  const cost = (inflatedSlCost + inflatedTarget * 0.04) / recruitCost;
+
+  return gain > cost;
+}
+
+/**
+ * Estimate how many SLs we'll buy while saving for target
+ * Returns 0, 3, 5, 7, 9, or 11
+ */
+function estimateExpectedSLs(ai, targetCost) {
+  if (wouldSLStillHelpAfterN(ai, targetCost, 10, INFLATE_10)) return 11;
+  if (wouldSLStillHelpAfterN(ai, targetCost, 8, INFLATE_8)) return 9;
+  if (wouldSLStillHelpAfterN(ai, targetCost, 6, INFLATE_6)) return 7;
+  if (wouldSLStillHelpAfterN(ai, targetCost, 4, INFLATE_4)) return 5;
+  if (wouldSLStillHelpAfterN(ai, targetCost, 2, INFLATE_2)) return 3;
+  return 0;
+}
+
 /**
  * Check if buying barracks is better than buying SL when saving for kingdom/empire
  *
- * Same logic as slBetterThanRecruit but shifted one tier up:
- * - Instead of SL boosting recruit power, barracks boosts SL power
- * - expectedSLs instead of expectedRecruits
- *
  * RATIO EXPLANATION:
  * When you buy 1 barracks, squadLeaderPower increases by barracksPower.
- * So each future SL purchase adds (squadLeaderPower + barracksPower) to rp
- * instead of just squadLeaderPower.
  * Ratio = (squadLeaderPower + barracksPower) / squadLeaderPower
  *
  * COST EXPLANATION:
@@ -366,12 +401,10 @@ function barracksBetterThanSL(ai, targetCost) {
   const slCost = getSLCost(ai);
 
   // Ratio: how much does buying 1 barracks multiply squadLeaderPower?
-  // When you buy barracks, squadLeaderPower += barracksPower
   const ratio = (ai.squadLeaderPower + ai.barracksPower) / ai.squadLeaderPower;
 
   // How many SLs do we expect to buy while saving for target?
-  const divisor = PARAMS.DIVISOR_BARRACKS || 1;
-  const expectedSLs = targetCost / (slCost * divisor);
+  const expectedSLs = estimateExpectedSLs(ai, targetCost);
 
   // EXTRA gain from barracks (ratio - 1, not ratio)
   const gain = (ratio - 1) * expectedSLs;
