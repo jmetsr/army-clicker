@@ -12,7 +12,7 @@ const { getCount, getSLCost, getBarracksCost, getMBCost, getKingdomCost, getEmpi
 const { buySL, buyBarracks, buyMB, buyKingdom, buyEmpire,
         buyFarm, buyPlantation, buyColony,
         recruit, train, beg } = require('./actions');
-const { calcScore, slBetterThanRecruit, findBestMilitaryTarget } = require('./scoring');
+const { calcScore, slBetterThanRecruit, barracksBetterThanSL, findBestMilitaryTarget } = require('./scoring');
 
 /**
  * Run AI for one day (all clicks)
@@ -53,6 +53,14 @@ function runAIDay(ai, clicks, enemyPower = 0, noStarve = false) {
     if (!doesRecruitHelp(targetCost, coins, incomePerDay)) return false;
     if (!slBetterThanRecruit(ai, targetCost)) return false;
     if (ai.coins.lt(getSLCost(ai))) return false;
+    return true;
+  }
+
+  function doesBarracksHelp(targetCost, coins, incomePerDay) {
+    if (!doesSLHelp(targetCost, coins, incomePerDay)) return false;  // SL must help first
+    if (!barracksBetterThanSL(ai, targetCost)) return false;
+    if (ai.coins.lt(getBarracksCost(ai))) return false;
+    if (getCount(ai, "squad_leader") < 3) return false;  // Need 3 SLs to unlock barracks
     return true;
   }
 
@@ -260,7 +268,13 @@ function runAIDay(ai, clicks, enemyPower = 0, noStarve = false) {
         continue;
       }
 
-      // For military buildings, check SL helper first
+      // For military buildings, check barracks helper first (which requires SL to help),
+      // then fall back to SL helper
+      if (doesBarracksHelp(best.cost, coins, incomePerDay)) {
+        buyBarracks(ai);
+        continue;
+      }
+
       if (doesSLHelp(best.cost, coins, incomePerDay)) {
         buySL(ai);
         continue;
@@ -281,12 +295,20 @@ function runAIDay(ai, clicks, enemyPower = 0, noStarve = false) {
       continue;
     }
 
-    // Best action is affordable - but check if SL helper is better when recruit wins
+    // Best action is affordable - but check if barracks/SL helper is better when recruit wins
     if (best.name === 'recruit') {
       const targetCost = findBestMilitaryTarget(ai);
-      if (targetCost > 0 && slBetterThanRecruit(ai, targetCost) && ai.coins.gte(getSLCost(ai))) {
-        buySL(ai);
-        continue;
+      if (targetCost > 0) {
+        // Check barracks helper first (which requires SL to help)
+        if (doesBarracksHelp(targetCost, coins, incomePerDay)) {
+          buyBarracks(ai);
+          continue;
+        }
+        // Then SL helper
+        if (slBetterThanRecruit(ai, targetCost) && ai.coins.gte(getSLCost(ai))) {
+          buySL(ai);
+          continue;
+        }
       }
     }
 

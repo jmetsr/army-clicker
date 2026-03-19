@@ -341,6 +341,48 @@ function doesSLHelp(ai, targetCost, coins, incomePerDay, clicks) {
 }
 
 /**
+ * Check if buying barracks is better than buying SL when saving for kingdom/empire
+ *
+ * Same logic as slBetterThanRecruit but shifted one tier up:
+ * - Instead of SL boosting recruit power, barracks boosts SL power
+ * - expectedSLs instead of expectedRecruits
+ *
+ * RATIO EXPLANATION:
+ * When you buy 1 barracks, squadLeaderPower increases by barracksPower.
+ * So each future SL purchase adds (squadLeaderPower + barracksPower) to rp
+ * instead of just squadLeaderPower.
+ * Ratio = (squadLeaderPower + barracksPower) / squadLeaderPower
+ *
+ * COST EXPLANATION:
+ * Both barracks and SL inflate army costs equally (both use 1.04^armyClicks),
+ * so we just compare barracksCost / slCost directly.
+ *
+ * @param {Object} ai - AI state
+ * @param {number} targetCost - Cost we're saving for (kingdom or empire)
+ * @returns {boolean} True if buying barracks is better than buying SL
+ */
+function barracksBetterThanSL(ai, targetCost) {
+  const barracksCost = getBarracksCost(ai);
+  const slCost = getSLCost(ai);
+
+  // Ratio: how much does buying 1 barracks multiply squadLeaderPower?
+  // When you buy barracks, squadLeaderPower += barracksPower
+  const ratio = (ai.squadLeaderPower + ai.barracksPower) / ai.squadLeaderPower;
+
+  // How many SLs do we expect to buy while saving for target?
+  const divisor = PARAMS.DIVISOR_BARRACKS || 1;
+  const expectedSLs = targetCost / (slCost * divisor);
+
+  // EXTRA gain from barracks (ratio - 1, not ratio)
+  const gain = (ratio - 1) * expectedSLs;
+
+  // Cost in SL-equivalents (no inflation term - both inflate equally)
+  const cost = barracksCost / slCost;
+
+  return gain > cost;
+}
+
+/**
  * Find the best military target we're building toward
  * Used to determine if SL helper should kick in
  *
@@ -396,6 +438,7 @@ module.exports = {
   doesRecruitHelp,
   doesTrainHelp,
   slBetterThanRecruit,
+  barracksBetterThanSL,
   doesSLHelp,
   findBestMilitaryTarget,
   calculateStrain,

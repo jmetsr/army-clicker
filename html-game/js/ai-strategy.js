@@ -152,16 +152,21 @@ function runAI(clicks) {
 
   // === SL HELPER LOGIC ===
   // When saving for expensive building, is buying SL better than just recruiting?
+  //
+  // RATIO EXPLANATION:
+  // When you buy 1 SL, rp increases by squadLeaderPower.
+  // Ratio = (rp + squadLeaderPower) / rp = "how much does rp multiply?"
+  // The formula (1 + slPower + 1 + barracksPower) / (1 + slPower) simplifies to this
+  // because slPower = rp - 1 and barracksPower = squadLeaderPower - 1.
   function slBetterThanRecruit(targetCost) {
     var slCost = aiSLCost();
     var recruitCost = aiRecruitCost();
 
-    var slPower = ai.rp - 1;  // total SL contribution to rp
-    var barracksPower = ai.squadLeaderPower - 1;  // barracks boost per SL
+    var slPower = ai.rp - 1;  // rp minus base (so 1 + slPower = rp)
+    var slBoost = ai.squadLeaderPower - 1;  // squadLeaderPower minus base
 
-    // Percentage power gain from buying 1 more SL
-    // As slPower grows large, this ratio approaches 1 (no benefit)
-    var ratio = (1 + slPower + 1 + barracksPower) / (1 + slPower);
+    // Ratio: (rp + squadLeaderPower) / rp
+    var ratio = (1 + slPower + 1 + slBoost) / (1 + slPower);
 
     var expectedRecruits = targetCost / (recruitCost * divisor);
     // EXTRA gain, not total - subtract baseline of 1
@@ -171,6 +176,45 @@ function runAI(clicks) {
     var cost = (slCost + targetCost * 0.04) / recruitCost;
 
     return gain > cost;
+  }
+
+  // === BARRACKS HELPER LOGIC ===
+  // When saving for kingdom/empire, is buying barracks better than buying SL?
+  //
+  // RATIO EXPLANATION:
+  // When you buy 1 barracks, squadLeaderPower increases by barracksPower.
+  // Ratio = (squadLeaderPower + barracksPower) / squadLeaderPower
+  // This is "how much does squadLeaderPower multiply?"
+  //
+  // COST EXPLANATION:
+  // Both barracks and SL inflate army costs equally (1.04^armyClicks),
+  // so we just compare barracksCost / slCost directly.
+  function barracksBetterThanSL(targetCost) {
+    var barracksCost = aiBarracksCost();
+    var slCost = aiSLCost();
+
+    // Ratio: how much does buying 1 barracks multiply squadLeaderPower?
+    var ratio = (ai.squadLeaderPower + ai.barracksPower) / ai.squadLeaderPower;
+
+    // How many SLs do we expect to buy while saving for target?
+    var expectedSLs = targetCost / (slCost * divisor);
+
+    // EXTRA gain from barracks (ratio - 1, not ratio)
+    var gain = (ratio - 1) * expectedSLs;
+
+    // Cost in SL-equivalents (no inflation term - both inflate equally)
+    var cost = barracksCost / slCost;
+
+    return gain > cost;
+  }
+
+  // Does barracks help reach target (full check)?
+  function doesBarracksHelp(targetCost) {
+    if (!doesSLHelp(targetCost)) return false;  // SL must help first
+    if (!barracksBetterThanSL(targetCost)) return false;
+    if (ai.coins.lt(aiBarracksCost())) return false;
+    if (aiCnt("squad_leader") < 3) return false;  // Need 3 SLs to unlock barracks
+    return true;
   }
 
   // Does recruiting help reach target faster?
@@ -452,7 +496,12 @@ function runAI(clicks) {
         continue;
       }
 
-      // For military buildings, check SL helper first
+      // For military buildings, check barracks helper first, then SL helper
+      if (doesBarracksHelp(best.cost)) {
+        doBuyBarracks();
+        continue;
+      }
+
       if (doesSLHelp(best.cost)) {
         doBuySL();
         continue;
@@ -475,12 +524,20 @@ function runAI(clicks) {
       continue;
     }
 
-    // Best action is affordable - but check if SL helper is better when recruit wins
+    // Best action is affordable - but check if barracks/SL helper is better when recruit wins
     if (best.name === 'recruit') {
       var targetCost = findBestMilitaryTarget();
-      if (targetCost > 0 && slBetterThanRecruit(targetCost) && ai.coins.gte(aiSLCost())) {
-        doBuySL();
-        continue;
+      if (targetCost > 0) {
+        // Check barracks helper first (higher tier)
+        if (doesBarracksHelp(targetCost)) {
+          doBuyBarracks();
+          continue;
+        }
+        // Then SL helper
+        if (slBetterThanRecruit(targetCost) && ai.coins.gte(aiSLCost())) {
+          doBuySL();
+          continue;
+        }
       }
     }
 
