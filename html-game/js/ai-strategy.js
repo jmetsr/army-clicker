@@ -27,6 +27,32 @@ function runAI(clicks) {
   var VAL_KINGDOM = tierMult * VAL_MB;
   var VAL_EMPIRE = tierMult * VAL_KINGDOM;
 
+  // Astronomical tier values (each 70x the previous)
+  var VAL_PLANET = tierMult * VAL_EMPIRE;
+  var VAL_SOLAR_SYSTEM = tierMult * VAL_PLANET;
+  var VAL_GALAXY = tierMult * VAL_SOLAR_SYSTEM;
+  var VAL_GALAXY_CLUSTER = tierMult * VAL_GALAXY;
+  var VAL_SUPERCLUSTER = tierMult * VAL_GALAXY_CLUSTER;
+
+  // Multiversal tier values (each 70x the previous)
+  var VAL_OBSERVABLE_UNIVERSE = tierMult * VAL_SUPERCLUSTER;
+  var VAL_FULL_UNIVERSE = tierMult * VAL_OBSERVABLE_UNIVERSE;
+  var VAL_QUANTUM_MULTIVERSE = tierMult * VAL_FULL_UNIVERSE;
+  var VAL_COSMOLOGICAL_MULTIVERSE = tierMult * VAL_QUANTUM_MULTIVERSE;
+  var VAL_MATHEMATICAL_MULTIVERSE = tierMult * VAL_COSMOLOGICAL_MULTIVERSE;
+
+  // Base costs for extended tiers
+  var PLANET_BASE = 1e9;
+  var SOLAR_SYSTEM_BASE = 1e11;
+  var GALAXY_BASE = 1e13;
+  var GALAXY_CLUSTER_BASE = 1e15;
+  var SUPERCLUSTER_BASE = 1e17;
+  var OBSERVABLE_UNIVERSE_BASE = 1e19;
+  var FULL_UNIVERSE_BASE = 1e21;
+  var QUANTUM_MULTIVERSE_BASE = 1e23;
+  var COSMOLOGICAL_MULTIVERSE_BASE = 1e25;
+  var MATHEMATICAL_MULTIVERSE_BASE = 1e27;
+
   var NO_INFLATE_BONUS = 1.2;
   var WAIT_DECAY = 0.99;
 
@@ -136,7 +162,45 @@ function runAI(clicks) {
   var troopCount = ai.troops.toNumber();
   var ppt = ai.ppt;
   var farmProd = aiCnt("farm") * C.farm_production;
-  var incomePerDay = (troopCount * ppt * 4) + clicks;
+
+  // Include dragon income in calculations
+  var currentDragonIncome = getDragonPower().toNumber() * 4;
+  var incomePerDay = (troopCount * ppt * 4) + currentDragonIncome + clicks;
+
+  // === DRAGON INCOME PROJECTION ===
+  // Project future dragon income to better estimate time-to-afford for expensive buildings
+  // Dragons spawn polynomially: ritual #i (0-indexed) spawns day^(i+1) total dragons
+  // NOTE: Training only boosts existing dragon ppt, new dragons always spawn at base 60000
+  function projectDragonIncomeInDays(days) {
+    if (G.darkRitualDays.length === 0) return 0;
+
+    var futureDragons = 0;
+    for (var i = 0; i < G.darkRitualDays.length; i++) {
+      var futureDaysSince = (G.day + days) - G.darkRitualDays[i];
+      if (futureDaysSince > 0) {
+        var power = i + 1;
+        futureDragons += Math.pow(futureDaysSince, power);
+      }
+    }
+
+    // Use base 60000 ppt since new dragons spawn at base ppt regardless of training
+    // Trained dragons are already counted in currentDragonIncome
+    var basePpt = 60000;
+
+    return futureDragons * basePpt * 4;  // * 4 for coins per power
+  }
+
+  // Effective income averaging current and 10-day projected (simple approximation)
+  // Used for estimating time-to-afford expensive buildings when dragon income is growing
+  function getEffectiveIncome() {
+    if (G.darkRitualDays.length === 0) {
+      return incomePerDay;
+    }
+    var futureIncome = (troopCount * ppt * 4) + projectDragonIncomeInDays(10) + clicks;
+    return (incomePerDay + futureIncome) / 2;
+  }
+
+  var effectiveIncomePerDay = getEffectiveIncome();
 
   // === URGENCY-BASED FARM VALUATION ===
   // (replaces old strain-based system)
@@ -258,7 +322,7 @@ function runAI(clicks) {
     if (coins < recruitCost) return false;
 
     var daysToReach = (targetCost - coins) / Math.max(incomePerDay, 1);
-    var newIncome = ((troopCount + ai.rp) * ppt * 4) + clicks;
+    var newIncome = ((troopCount + ai.rp) * ppt * 4) + currentDragonIncome + clicks;
     var daysWithRecruit = (targetCost - coins + recruitCost) / Math.max(newIncome, 1);
 
     return daysWithRecruit < daysToReach;
@@ -292,7 +356,8 @@ function runAI(clicks) {
 
     if (costPct > 1) {
       var coinsNeeded = cost - currentCoins;
-      var daysToWait = coinsNeeded / Math.max(incomePerDay, 1);
+      // Use effective income (accounts for dragon growth) for better wait time estimates
+      var daysToWait = coinsNeeded / Math.max(effectiveIncomePerDay, 1);
       baseScore *= Math.pow(WAIT_DECAY, daysToWait);
     }
 
@@ -338,7 +403,9 @@ function runAI(clicks) {
     if (coins < trainCost || troopCount < 5) return false;
 
     var daysToReach = (targetCost - coins) / Math.max(incomePerDay, 1);
-    var newIncome = (troopCount * ppt * ai.trainMult * 4) + clicks;
+    // Training also boosts dragon ppt, so dragon income would multiply too
+    var newDragonIncome = currentDragonIncome * ai.trainMult;
+    var newIncome = (troopCount * ppt * ai.trainMult * 4) + newDragonIncome + clicks;
     var daysWithTrain = (targetCost - coins + trainCost) / Math.max(newIncome, 1);
 
     return daysWithTrain < daysToReach;
@@ -353,7 +420,9 @@ function runAI(clicks) {
     coins = ai.coins.toNumber();
     troopCount = ai.troops.toNumber();
     ppt = ai.ppt;
-    incomePerDay = (troopCount * ppt * 4) + clicks;
+    currentDragonIncome = getDragonPower().toNumber() * 4;
+    incomePerDay = (troopCount * ppt * 4) + currentDragonIncome + clicks;
+    effectiveIncomePerDay = getEffectiveIncome();
 
     // No troops - must recruit or beg
     if (troopCount < 1) {
@@ -461,6 +530,88 @@ function runAI(clicks) {
         var empValue = ai.empirePower * VAL_EMPIRE * ppt;
         var empScore = calcScore(empCost, empValue, false);
         if (empScore > 0) actions.push({ name: 'empire', score: empScore, cost: empCost, fn: function() { return buyArmy("empire", C.empire_baseCost, "empirePower", "kingdomPower"); } });
+      }
+
+      // === ASTRONOMICAL TIER (if unlocked) ===
+      // Planet
+      if ((G.planetUnlocked || G.astronomicalUnlocked) && aiCnt("empire") >= 3) {
+        var planetCost = aiArmyCost(PLANET_BASE);
+        var planetValue = ai.planetPower * VAL_PLANET * ppt;
+        var planetScore = calcScore(planetCost, planetValue, false);
+        if (planetScore > 0) actions.push({ name: 'planet', score: planetScore, cost: planetCost, fn: function() { return buyArmy("planet", PLANET_BASE, "planetPower", "empirePower"); } });
+      }
+
+      // Solar System
+      if ((G.solarSystemUnlocked || G.astronomicalUnlocked) && aiCnt("planet") >= 3) {
+        var ssCost = aiArmyCost(SOLAR_SYSTEM_BASE);
+        var ssValue = ai.solarSystemPower * VAL_SOLAR_SYSTEM * ppt;
+        var ssScore = calcScore(ssCost, ssValue, false);
+        if (ssScore > 0) actions.push({ name: 'solar_system', score: ssScore, cost: ssCost, fn: function() { return buyArmy("solar_system", SOLAR_SYSTEM_BASE, "solarSystemPower", "planetPower"); } });
+      }
+
+      // Galaxy
+      if ((G.galaxyUnlocked || G.astronomicalUnlocked) && aiCnt("solar_system") >= 3) {
+        var galCost = aiArmyCost(GALAXY_BASE);
+        var galValue = ai.galaxyPower * VAL_GALAXY * ppt;
+        var galScore = calcScore(galCost, galValue, false);
+        if (galScore > 0) actions.push({ name: 'galaxy', score: galScore, cost: galCost, fn: function() { return buyArmy("galaxy", GALAXY_BASE, "galaxyPower", "solarSystemPower"); } });
+      }
+
+      // Galaxy Cluster
+      if ((G.galaxyClusterUnlocked || G.astronomicalUnlocked) && aiCnt("galaxy") >= 3) {
+        var gcCost = aiArmyCost(GALAXY_CLUSTER_BASE);
+        var gcValue = ai.galaxyClusterPower * VAL_GALAXY_CLUSTER * ppt;
+        var gcScore = calcScore(gcCost, gcValue, false);
+        if (gcScore > 0) actions.push({ name: 'galaxy_cluster', score: gcScore, cost: gcCost, fn: function() { return buyArmy("galaxy_cluster", GALAXY_CLUSTER_BASE, "galaxyClusterPower", "galaxyPower"); } });
+      }
+
+      // Supercluster
+      if ((G.superclusterUnlocked || G.astronomicalUnlocked) && aiCnt("galaxy_cluster") >= 3) {
+        var scCost = aiArmyCost(SUPERCLUSTER_BASE);
+        var scValue = ai.superclusterPower * VAL_SUPERCLUSTER * ppt;
+        var scScore = calcScore(scCost, scValue, false);
+        if (scScore > 0) actions.push({ name: 'supercluster', score: scScore, cost: scCost, fn: function() { return buyArmy("supercluster", SUPERCLUSTER_BASE, "superclusterPower", "galaxyClusterPower"); } });
+      }
+
+      // === MULTIVERSAL TIER (if unlocked) ===
+      // Observable Universe
+      if ((G.observableUniverseUnlocked || G.multiversalUnlocked) && aiCnt("supercluster") >= 3) {
+        var ouCost = aiArmyCost(OBSERVABLE_UNIVERSE_BASE);
+        var ouValue = ai.observableUniversePower * VAL_OBSERVABLE_UNIVERSE * ppt;
+        var ouScore = calcScore(ouCost, ouValue, false);
+        if (ouScore > 0) actions.push({ name: 'observable_universe', score: ouScore, cost: ouCost, fn: function() { return buyArmy("observable_universe", OBSERVABLE_UNIVERSE_BASE, "observableUniversePower", "superclusterPower"); } });
+      }
+
+      // Full Universe
+      if ((G.fullUniverseUnlocked || G.multiversalUnlocked) && aiCnt("observable_universe") >= 3) {
+        var fuCost = aiArmyCost(FULL_UNIVERSE_BASE);
+        var fuValue = ai.fullUniversePower * VAL_FULL_UNIVERSE * ppt;
+        var fuScore = calcScore(fuCost, fuValue, false);
+        if (fuScore > 0) actions.push({ name: 'full_universe', score: fuScore, cost: fuCost, fn: function() { return buyArmy("full_universe", FULL_UNIVERSE_BASE, "fullUniversePower", "observableUniversePower"); } });
+      }
+
+      // Quantum Multiverse
+      if ((G.quantumMultiverseUnlocked || G.multiversalUnlocked) && aiCnt("full_universe") >= 3) {
+        var qmCost = aiArmyCost(QUANTUM_MULTIVERSE_BASE);
+        var qmValue = ai.quantumMultiversePower * VAL_QUANTUM_MULTIVERSE * ppt;
+        var qmScore = calcScore(qmCost, qmValue, false);
+        if (qmScore > 0) actions.push({ name: 'quantum_multiverse', score: qmScore, cost: qmCost, fn: function() { return buyArmy("quantum_multiverse", QUANTUM_MULTIVERSE_BASE, "quantumMultiversePower", "fullUniversePower"); } });
+      }
+
+      // Cosmological Multiverse
+      if ((G.cosmologicalMultiverseUnlocked || G.multiversalUnlocked) && aiCnt("quantum_multiverse") >= 3) {
+        var cmCost = aiArmyCost(COSMOLOGICAL_MULTIVERSE_BASE);
+        var cmValue = ai.cosmologicalMultiversePower * VAL_COSMOLOGICAL_MULTIVERSE * ppt;
+        var cmScore = calcScore(cmCost, cmValue, false);
+        if (cmScore > 0) actions.push({ name: 'cosmological_multiverse', score: cmScore, cost: cmCost, fn: function() { return buyArmy("cosmological_multiverse", COSMOLOGICAL_MULTIVERSE_BASE, "cosmologicalMultiversePower", "quantumMultiversePower"); } });
+      }
+
+      // Mathematical Multiverse
+      if ((G.mathematicalMultiverseUnlocked || G.multiversalUnlocked) && aiCnt("cosmological_multiverse") >= 3) {
+        var mmCost = aiArmyCost(MATHEMATICAL_MULTIVERSE_BASE);
+        var mmValue = ai.mathematicalMultiversePower * VAL_MATHEMATICAL_MULTIVERSE * ppt;
+        var mmScore = calcScore(mmCost, mmValue, false);
+        if (mmScore > 0) actions.push({ name: 'mathematical_multiverse', score: mmScore, cost: mmCost, fn: function() { return buyArmy("mathematical_multiverse", MATHEMATICAL_MULTIVERSE_BASE, "mathematicalMultiversePower", "cosmologicalMultiversePower"); } });
       }
     }
 
