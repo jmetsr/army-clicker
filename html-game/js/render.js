@@ -321,6 +321,16 @@ function updateUI() {
       var aiMB = G.ai.counts["military_base"] || 0;
       var aiKing = G.ai.counts["kingdom"] || 0;
       var aiEmp = G.ai.counts["empire"] || 0;
+      var aiPlanet = G.ai.counts["planet"] || 0;
+      var aiSolar = G.ai.counts["solar_system"] || 0;
+      var aiGalaxy = G.ai.counts["galaxy"] || 0;
+      var aiCluster = G.ai.counts["galaxy_cluster"] || 0;
+      var aiSuper = G.ai.counts["supercluster"] || 0;
+      var aiObs = G.ai.counts["observable_universe"] || 0;
+      var aiFull = G.ai.counts["full_universe"] || 0;
+      var aiQuantum = G.ai.counts["quantum_multiverse"] || 0;
+      var aiCosmo = G.ai.counts["cosmological_multiverse"] || 0;
+      var aiMath = G.ai.counts["mathematical_multiverse"] || 0;
 
       document.getElementById("aiFarms").textContent = fmt(aiFarms);
       document.getElementById("aiPlant").textContent = fmt(aiPlant);
@@ -331,6 +341,16 @@ function updateUI() {
       document.getElementById("aiMB").textContent = fmt(aiMB);
       document.getElementById("aiKing").textContent = fmt(aiKing);
       document.getElementById("aiEmp").textContent = fmt(aiEmp);
+      document.getElementById("aiPlanet").textContent = fmt(aiPlanet);
+      document.getElementById("aiSolar").textContent = fmt(aiSolar);
+      document.getElementById("aiGalaxy").textContent = fmt(aiGalaxy);
+      document.getElementById("aiCluster").textContent = fmt(aiCluster);
+      document.getElementById("aiSuper").textContent = fmt(aiSuper);
+      document.getElementById("aiObs").textContent = fmt(aiObs);
+      document.getElementById("aiFull").textContent = fmt(aiFull);
+      document.getElementById("aiQuantum").textContent = fmt(aiQuantum);
+      document.getElementById("aiCosmo").textContent = fmt(aiCosmo);
+      document.getElementById("aiMath").textContent = fmt(aiMath);
 
       document.getElementById("aiFarmsRow").style.display = aiFarms > 0 ? "" : "none";
       document.getElementById("aiPlantRow").style.display = aiPlant > 0 ? "" : "none";
@@ -340,6 +360,16 @@ function updateUI() {
       document.getElementById("aiMBRow").style.display = aiMB > 0 ? "" : "none";
       document.getElementById("aiKingRow").style.display = aiKing > 0 ? "" : "none";
       document.getElementById("aiEmpRow").style.display = aiEmp > 0 ? "" : "none";
+      document.getElementById("aiPlanetRow").style.display = aiPlanet > 0 ? "" : "none";
+      document.getElementById("aiSolarRow").style.display = aiSolar > 0 ? "" : "none";
+      document.getElementById("aiGalaxyRow").style.display = aiGalaxy > 0 ? "" : "none";
+      document.getElementById("aiClusterRow").style.display = aiCluster > 0 ? "" : "none";
+      document.getElementById("aiSuperRow").style.display = aiSuper > 0 ? "" : "none";
+      document.getElementById("aiObsRow").style.display = aiObs > 0 ? "" : "none";
+      document.getElementById("aiFullRow").style.display = aiFull > 0 ? "" : "none";
+      document.getElementById("aiQuantumRow").style.display = aiQuantum > 0 ? "" : "none";
+      document.getElementById("aiCosmoRow").style.display = aiCosmo > 0 ? "" : "none";
+      document.getElementById("aiMathRow").style.display = aiMath > 0 ? "" : "none";
       document.getElementById("enemyTroopType").textContent = getTN(G.ai.ppt);
     } else {
       aiStatsDiv.style.display = "none";
