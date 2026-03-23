@@ -3,6 +3,8 @@
  * Route definitions
  */
 
+require_once __DIR__ . '/LogParser.php';
+
 function route(string $method, string $uri): void {
     // API routes
     if ($uri === '/api/submit-run' && $method === 'POST') {
@@ -46,8 +48,6 @@ function handleSubmitRun(): void {
 
     // Required fields
     $playerName = trim($input['playerName'] ?? '');
-    $mode = $input['mode'] ?? 'unknown';
-    $day = $input['day'] ?? 0;
     $gameLog = $input['gameLog'] ?? null;
 
     if (empty($playerName)) {
@@ -58,15 +58,39 @@ function handleSubmitRun(): void {
         return;
     }
 
-    // Log the submission for debugging (stub - actual storage in task 08)
-    error_log("Leaderboard submission: $playerName ($mode) at day $day");
+    if (!$gameLog || !is_array($gameLog)) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Game log is required'
+        ]);
+        return;
+    }
+
+    // Parse the game log and extract milestones
+    $parser = new LogParser();
+    if (!$parser->parseArray($gameLog)) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Failed to parse game log: ' . $parser->getError()
+        ]);
+        return;
+    }
+
+    $milestones = $parser->extractMilestones();
+
+    // Log the submission for debugging
+    error_log("Leaderboard submission: $playerName ({$milestones['gameMode']}) - day {$milestones['finalDay']}, coins: {$milestones['finalCoins']}");
+
+    // TODO: Store in database (task 08)
+    // TODO: Run validation (tasks 07b-f)
 
     echo json_encode([
         'success' => true,
-        'message' => 'Run received! (validation pending)',
+        'message' => 'Run submitted successfully!',
         'runId' => rand(1000, 9999), // Temporary stub ID
         'cheated' => false,
-        'cheatReason' => null
+        'cheatReason' => null,
+        'milestones' => $milestones // Return milestones for debugging
     ]);
 }
 

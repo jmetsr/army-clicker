@@ -589,18 +589,20 @@ function setupEventListeners() {
       return response.json();
     })
     .then(function(data) {
-      if (data.success) {
+      if (data.success && !data.cheated) {
         leaderboardStatus.textContent = data.message || 'Submitted successfully!';
         leaderboardStatus.className = 'form-status success';
-        if (data.cheated) {
-          leaderboardStatus.textContent = 'Flagged: ' + (data.cheatReason || 'suspicious activity');
-          leaderboardStatus.className = 'form-status error';
-        }
+        // Close modal after brief delay so user sees success
+        setTimeout(hideLeaderboardModal, 1000);
+      } else if (data.cheated) {
+        leaderboardStatus.textContent = 'Flagged: ' + (data.cheatReason || 'suspicious activity');
+        leaderboardStatus.className = 'form-status error';
+        leaderboardSubmit.disabled = false;
       } else {
         leaderboardStatus.textContent = data.message || 'Submission failed';
         leaderboardStatus.className = 'form-status error';
+        leaderboardSubmit.disabled = false;
       }
-      leaderboardSubmit.disabled = false;
     })
     .catch(function(err) {
       console.error('Leaderboard submission error:', err);

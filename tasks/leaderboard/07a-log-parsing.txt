@@ -1,0 +1,97 @@
+Parse Game Log and Extract Milestones
+======================================
+
+GOAL: Create a PHP parser that converts the raw game log string into
+structured data, and extracts all leaderboard milestones from it.
+
+TASKS:
+
+1. Understand the log format
+   - Look at what the game currently logs (task 04)
+   - Document the format: JSON? Line-delimited? Custom?
+   - List all event types that appear in logs
+
+2. Create LogParser class
+   class LogParser {
+     public function parse(string $rawLog): array;
+   }
+
+   Returns array of events, each with:
+   - type: 'day_advance', 'purchase', 'recruit', 'income', etc.
+   - day: int
+   - data: array (type-specific fields)
+
+3. Handle malformed logs gracefully
+   - Missing fields → use defaults or flag
+   - Truncated logs → parse what's there
+   - Invalid JSON/format → return error
+
+4. Create test cases
+   - Sample valid log → parses correctly
+   - Truncated log → partial parse
+   - Garbage input → clean error
+
+5. Add helper methods
+   - getEventsOfType($type)
+   - getStateAtDay($day) - reconstruct game state
+   - getDayCount()
+
+6. EXTRACT MILESTONES FROM LOG
+   The server is the source of truth - extract all milestones by parsing:
+
+   Coin thresholds (find first day coins crossed each):
+   - dayMillionCoins: first day with coins >= 1,000,000
+   - dayBillionCoins: first day with coins >= 1,000,000,000
+   - dayTrillionCoins: first day with coins >= 1e12
+   - dayQuadrillionCoins: first day with coins >= 1e15
+   - dayQuintillionCoins: first day with coins >= 1e18
+
+   Victory milestones:
+   - dayVanquish: day when enemy was vanquished (look for vanquish event)
+   - daySurrender: day when enemy surrendered (look for surrender event)
+
+   Coin snapshots:
+   - coinsAtYear1: coin value at day 365 (from snapshot or interpolate)
+   - coinsAtYear2: coin value at day 730 (from snapshot or interpolate)
+   - finalCoins: coin value at end of run
+
+   Game mode:
+   - Extract from log header or first event
+   - Map to: 'normal', 'hard', 'ai_25cps'
+
+7. Create extractMilestones() method
+   class LogParser {
+     public function extractMilestones(): array {
+       return [
+         'gameMode' => 'normal' | 'hard' | 'ai_25cps',
+         'dayMillionCoins' => int | null,
+         'dayBillionCoins' => int | null,
+         // ... etc
+       ];
+     }
+   }
+
+DEPENDENCIES:
+- Task 04 (need to know log format)
+
+DELIVERABLE: LogParser class with milestone extraction
+
+NOTES:
+- The server extracts milestones from the log - don't trust client claims
+- This replaces client-side milestone tracking (removed from task 03)
+- Large numbers may be in OrdinalNumber string format - handle appropriately
+- Estimate: 2-3 hours (expanded scope)
+
+COMPLETED (2026-03-23):
+- [x] Created LogParser class in src/LogParser.php
+- [x] Parses JSON log with gameEvents array
+- [x] Handles OrdinalNumber {arrows, height} format
+- [x] ordinalToFloat() converts to comparable float (handles arrows 0, 1, 2+)
+- [x] extractMilestones() returns all milestone data:
+  - gameMode (normalized: ai25 -> ai_25cps)
+  - dayMillionCoins, dayBillionCoins, etc (first day crossing threshold)
+  - dayVanquish, daySurrender (from victory events)
+  - coinsAtYear1, coinsAtYear2 (day 365/730 snapshots)
+  - finalCoins, finalDay
+- [x] Updated routes.php to use LogParser
+- [x] Returns milestones in API response for debugging
