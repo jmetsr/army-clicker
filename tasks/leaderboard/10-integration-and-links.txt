@@ -1,0 +1,61 @@
+Integration, Links, and Final Polish
+=====================================
+
+GOAL: Connect everything together - add leaderboard link to game index,
+test full flow, and polish rough edges.
+
+TASKS:
+
+1. Add leaderboard link to game index page
+   - Add "Leaderboards" link/button to html-game/index.html
+   - Link to leaderboard.localhost (or appropriate URL)
+   - Style consistently with game
+   - Opens in new tab
+
+2. Add "View Leaderboards" after submission
+   - After successful submission, show link to leaderboards
+   - Maybe direct link to the category they'd appear in
+
+3. Test complete flow
+   - Start new game in each mode
+   - Play until some milestones reached
+   - Submit to leaderboard
+   - Verify appears correctly on leaderboard page
+   - Test with various player names (special chars, etc.)
+
+4. Cross-browser testing
+   - Test in Chrome, Firefox
+   - Test CORS is working properly
+   - Test modal displays correctly
+
+5. Edge cases and error handling
+   - What if server is down?
+   - What if submission fails mid-way?
+   - What if player has no milestones?
+   - Very long player names
+   - Empty log (started and immediately submitted)
+
+6. Polish UI/UX
+   - Loading states
+   - Error messages are helpful
+   - Success feedback is clear
+   - Leaderboard pages look decent
+
+7. Documentation
+   - Update README if needed
+   - Document the API endpoint
+   - Note any setup required (database, Apache config)
+
+8. Optional enhancements
+   - Add player search on leaderboard
+   - Add "your runs" page (by player name)
+   - Add recent submissions feed
+   - Share link for specific runs
+
+DEPENDENCIES: All other tasks (this is the final integration)
+
+NOTES:
+- This task ties everything together
+- Focus on real-world usability
+- Get feedback from actual playtesting
+- Don't over-engineer - can iterate later

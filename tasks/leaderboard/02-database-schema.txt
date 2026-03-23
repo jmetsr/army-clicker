@@ -1,0 +1,64 @@
+Design and Create Database Schema for Leaderboard
+==================================================
+
+GOAL: Create MySQL database and tables to store game runs and leaderboard data.
+
+TASKS:
+
+1. Create new database
+   - Database name: army_clicker_leaderboard
+   - Create MySQL user with appropriate permissions
+
+2. Design and create tables
+
+   Table: game_runs
+   -----------------
+   id                  INT AUTO_INCREMENT PRIMARY KEY
+   player_name         VARCHAR(50) NOT NULL
+   submitted_at        DATETIME DEFAULT CURRENT_TIMESTAMP
+
+   -- Game mode info
+   game_mode           ENUM('normal', 'hard', 'ai_25cps') NOT NULL
+   cheated             BOOLEAN DEFAULT FALSE
+   cheat_reason        TEXT NULL  -- Why we think they cheated
+
+   -- Speed milestones (day number reached, NULL if not reached)
+   day_million         INT NULL
+   day_billion         INT NULL
+   day_trillion        INT NULL
+   day_quadrillion     INT NULL
+   day_quintillion     INT NULL
+   day_vanquish        INT NULL
+   day_surrender       INT NULL
+
+   -- Coin totals (stored as string for large numbers, or JSON)
+   coins_year_1        VARCHAR(100) NULL  -- Coins at day 365
+   coins_year_2        VARCHAR(100) NULL  -- Coins at day 730
+   coins_total         VARCHAR(100) NULL  -- Final coin count
+
+   -- Raw log for verification/debugging
+   game_log            MEDIUMTEXT NULL
+
+   INDEXES:
+   - idx_game_mode (game_mode)
+   - idx_cheated (cheated)
+   - idx_day_million, idx_day_billion, etc. for fast leaderboard queries
+
+3. Create SQL file with schema
+   - Store in leaderboard-server/schema.sql
+   - Include sample data for testing
+
+DEPENDENCIES: Task 01 (need project directory)
+
+NOTES:
+- Large numbers (quintillions+) won't fit in BIGINT, store as string or JSON
+- Consider storing OrdinalNumber format if game uses that
+- Keep game_log for dispute resolution / debugging
+
+COMPLETED:
+- [x] schema.sql created with game_runs table
+- [x] All milestone columns (day_million through day_surrender)
+- [x] Coin storage as VARCHAR for large numbers
+- [x] game_log MEDIUMTEXT for raw log storage
+- [x] Indexes for leaderboard queries
+- [x] Sample test data included

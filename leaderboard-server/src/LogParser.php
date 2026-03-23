@@ -20,6 +20,8 @@
  * OrdinalNumber values are stored as { arrows: N, height: M }
  */
 
+require_once __DIR__ . '/OrdinalNumber.php';
+
 class LogParser {
     private ?array $log = null;
     private array $events = [];
@@ -107,41 +109,21 @@ class LogParser {
     }
 
     /**
+     * Convert value to OrdinalNumber instance
+     */
+    public static function toOrdinal($value): OrdinalNumber {
+        return new OrdinalNumber($value);
+    }
+
+    /**
      * Convert OrdinalNumber {arrows, height} to a comparable float
      * For arrows=0: just the height (plain number)
-     * For arrows=1: 10^height (scientific notation) - return log10 value for comparison
-     * For arrows>=2: return a very large number (tetration+)
+     * For arrows=1: 10^height (scientific notation)
+     * For arrows>=2: return INF (tetration+)
      */
     public static function ordinalToFloat($value): float {
-        if (is_numeric($value)) {
-            return (float)$value;
-        }
-        if (!is_array($value)) {
-            return 0.0;
-        }
-
-        $arrows = $value['arrows'] ?? 0;
-        $height = $value['height'] ?? 0;
-
-        // Handle nested OrdinalNumber heights
-        if (is_array($height)) {
-            $height = self::ordinalToFloat($height);
-        }
-
-        if ($arrows === 0) {
-            return (float)$height;
-        } elseif ($arrows === 1) {
-            // 10^height - for comparison purposes, return log10 value scaled
-            // If height < 308, we can compute the actual value
-            if ($height < 308) {
-                return pow(10, $height);
-            }
-            // Return INF for huge numbers
-            return INF;
-        } else {
-            // Tetration or higher - effectively infinite for milestone purposes
-            return INF;
-        }
+        $on = new OrdinalNumber($value);
+        return $on->toFloat();
     }
 
     /**
@@ -149,22 +131,32 @@ class LogParser {
      * Returns: -1 if a < b, 0 if equal, 1 if a > b
      */
     public static function compareOrdinal($a, $b): int {
-        $aFloat = self::ordinalToFloat($a);
-        $bFloat = self::ordinalToFloat($b);
-        return $aFloat <=> $bFloat;
+        $onA = new OrdinalNumber($a);
+        $onB = new OrdinalNumber($b);
+        return $onA->compare($onB);
     }
 
     /**
      * Check if OrdinalNumber value >= threshold
      */
     public static function ordinalGte($value, float $threshold): bool {
-        return self::ordinalToFloat($value) >= $threshold;
+        $on = new OrdinalNumber($value);
+        $thresholdOn = new OrdinalNumber($threshold);
+        return $on->gte($thresholdOn);
     }
 
     /**
      * Format OrdinalNumber for display/storage
      */
     public static function formatOrdinal($value): string {
+        $on = new OrdinalNumber($value);
+        return $on->toString();
+    }
+
+    /**
+     * Kept for backwards compatibility - now just calls formatOrdinal
+     */
+    private static function _formatOrdinalLegacy($value): string {
         if (is_numeric($value)) {
             return number_format((float)$value, 0, '', '');
         }

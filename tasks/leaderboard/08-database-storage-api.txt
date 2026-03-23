@@ -1,0 +1,74 @@
+Server API to Store Validated Runs in Database
+===============================================
+
+GOAL: Complete the /api/submit-run endpoint to validate and store
+game runs in the database.
+
+TASKS:
+
+1. Complete the submit endpoint
+   POST /api/submit-run handler:
+
+   a. Parse and validate request JSON
+      - Check required fields present
+      - Sanitize player name
+      - Validate game mode is valid enum
+
+   b. Run anti-cheat validation (from task 07)
+      - Get cheated status and reasons
+
+   c. Insert into database
+      INSERT INTO game_runs (
+        player_name, game_mode, cheated, cheat_reason,
+        day_million, day_billion, day_trillion,
+        day_quadrillion, day_quintillion,
+        day_vanquish, day_surrender,
+        coins_year_1, coins_year_2, coins_total,
+        game_log
+      ) VALUES (...)
+
+   d. Return response with run ID
+
+2. Handle duplicate submissions
+   - Same player submitting multiple times?
+   - Options:
+     * Allow multiple entries (each run is separate)
+     * Update if better score
+     * Reject duplicates
+   - Recommend: allow multiple, let leaderboard show best
+
+3. Input sanitization
+   - Prevent SQL injection (use prepared statements)
+   - Sanitize player name (strip HTML, limit chars)
+   - Validate numeric fields are actually numbers
+   - Handle null vs missing vs zero
+
+4. Error handling
+   - Database connection errors
+   - Validation errors
+   - Return appropriate error messages
+
+5. Add basic rate limiting
+   - Prevent spam submissions
+   - Simple: max 1 submission per IP per minute
+   - Store in session or simple file/DB counter
+
+DEPENDENCIES:
+- Task 02 (database exists)
+- Task 06 (endpoint stub)
+- Task 07 (validation logic)
+
+NOTES:
+- Use PDO with prepared statements for DB access
+- Log all submissions for debugging
+- Return the run ID so player can link to their entry
+
+COMPLETED (2026-03-23):
+- [x] Sanitize player name (strip_tags, limit 50 chars)
+- [x] Validate game mode against ENUM values
+- [x] Insert into game_runs using prepared statements
+- [x] Map milestone fields to DB columns
+- [x] Store game_log as JSON
+- [x] Return actual run ID from lastInsertId()
+- [x] Error handling for PDO exceptions
+- [x] Updated schema.sql with all game modes (practice, easy, medium, hard, ai_*)

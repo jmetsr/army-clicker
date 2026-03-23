@@ -1,0 +1,52 @@
+Verify Spending Doesn't Exceed Balance
+=======================================
+
+GOAL: Check that players don't spend more coins than they have.
+
+TASKS:
+
+1. Track coin balance through log
+   Starting from 0 (or logged start):
+   - Add income events
+   - Subtract purchase costs
+   - Balance should never go negative
+
+2. Create SpendingVerifier class
+   - Replay transactions in order
+   - Calculate correct costs (with inflation)
+   - Flag if balance goes negative
+
+3. Handle building cost inflation
+   - Base costs from game constants
+   - Inflation: cost × 1.04^(buildings_owned)
+   - Need to track purchase count per building type
+
+4. Tolerance
+   - Allow small negative (rounding)
+   - Flag significant overspend (buying without funds)
+
+5. Output
+   - List of transactions where balance went negative
+   - How much they overspent by
+
+DEPENDENCIES:
+- Task 07a (parsed log)
+- Task 07c-ordinal-number (for big number math)
+
+ESTIMATE: 2 hours
+
+NOTES:
+- Simpler than income verification
+- Catches: money editing, buy-without-paying hacks
+- May need game constants (base costs) synced to PHP
+
+COMPLETED (2026-03-23):
+- [x] Created SpendingVerifier class
+- [x] verify() checks consecutive snapshots:
+  - Calculates min cost for troops/farms gained
+  - Calculates max affordable = prev coins + prev troops income
+  - Uses ONLY previous troops for income (prevents circular logic with cheated troops)
+  - Flags if gains cost > 2x max affordable
+- [x] checkFinalStatePlausible() - sanity check troops vs max earnings
+- [x] Integrated into BasicValidator.validate()
+- [x] Tested: legitimate log passes, cheaty log (1M free troops) flagged

@@ -1,0 +1,63 @@
+Port OrdinalNumber Class to PHP
+================================
+
+GOAL: Create a PHP version of the OrdinalNumber class so the server
+can do arithmetic with the game's large numbers.
+
+TASKS:
+
+1. Study JS OrdinalNumber implementation
+   - Location: html-game/js/ (find exact file)
+   - Understand the internal representation
+   - List all methods used: add, subtract, multiply, compare, etc.
+
+2. Create PHP OrdinalNumber class
+   class OrdinalNumber {
+     // Internal representation (mantissa + exponent? arrows?)
+
+     public static function fromString(string $s): self;
+     public static function fromNumber(float $n): self;
+
+     public function add(OrdinalNumber $other): self;
+     public function subtract(OrdinalNumber $other): self;
+     public function multiply(OrdinalNumber $other): self;
+     public function divide(OrdinalNumber $other): self;
+
+     public function compare(OrdinalNumber $other): int; // -1, 0, 1
+     public function gte(OrdinalNumber $other): bool;
+     public function lte(OrdinalNumber $other): bool;
+
+     public function toString(): string;
+   }
+
+3. Handle edge cases
+   - Very small numbers (< 1)
+   - Zero
+   - Negative numbers (if game uses them)
+
+4. Write unit tests
+   - Test against known JS outputs
+   - Verify arithmetic matches game behavior
+
+DEPENDENCIES:
+- Task 07a (need to parse numbers from log)
+
+ESTIMATE: 2-3 hours
+
+NOTES:
+- This is reusable for other validation tasks
+- Must match JS behavior exactly or comparisons will fail
+- Consider: can we just store/compare as strings with length check?
+
+COMPLETED (2026-03-23):
+- [x] Created OrdinalNumber.php class with:
+  - Constructor from number, array {arrows,height}, or OrdinalNumber
+  - fromNumber(), fromString() static factories
+  - normalize() to keep height in range by trading with arrows
+  - compare(), gt(), gte(), lt(), lte(), eq() comparisons
+  - add(), subtract(), multiply(), divide() arithmetic
+  - toFloat(), toString(), toArray() conversions
+- [x] Updated LogParser.php to use OrdinalNumber class
+  - ordinalToFloat(), compareOrdinal(), ordinalGte(), formatOrdinal()
+  - All now delegate to OrdinalNumber methods
+- [x] Tested: construction, comparison, arithmetic all working

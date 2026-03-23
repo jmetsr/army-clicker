@@ -1,0 +1,83 @@
+Create Leaderboard Display Pages
+==================================
+
+GOAL: Build PHP pages to display the 30 leaderboards (10 categories × 3 modes).
+
+TASKS:
+
+1. Design leaderboard page layout
+   - Navigation to switch between categories and modes
+   - Table showing rank, player name, score/day, date submitted
+   - Pagination or "top 100" limit
+   - Visual indicator for verified vs flagged runs
+
+2. Create leaderboard queries
+   For each category, query differs:
+
+   Speed categories (fastest day to reach milestone):
+   - SELECT * FROM game_runs
+     WHERE day_X IS NOT NULL AND cheated = FALSE
+     ORDER BY day_X ASC LIMIT 100
+
+   Coin categories (most coins at point):
+   - Need to compare large numbers stored as strings
+   - May need custom sort function or store normalized value
+
+   Filter by mode:
+   - WHERE game_mode = 'hard' (for hard mode board)
+   - No filter for overall
+
+3. Implement the 30 leaderboards
+
+   SPEED - Fastest to reach:
+   1. Million coins
+   2. Billion coins
+   3. Trillion coins
+   4. Quadrillion coins
+   5. Quintillion coins
+   6. Vanquish enemy
+   7. Enemy surrender
+
+   WEALTH - Most coins at:
+   8. Year 1 (day 365)
+   9. Year 2 (day 730)
+   10. End of run (total)
+
+   × 3 modes each:
+   - Overall (all modes)
+   - Hard mode only
+   - AI 25 CPS only
+
+4. Create main leaderboard index page
+   - Links to all 30 leaderboards
+   - Grouped by category
+   - Mode selector tabs
+
+5. Individual run detail page (optional)
+   - View details of a specific run
+   - Link from leaderboard entries
+   - Show milestones, mode, date, etc.
+
+DEPENDENCIES:
+- Task 02 (database with data)
+- Task 08 (runs are being stored)
+
+NOTES:
+- Consider caching leaderboard queries (they don't change often)
+- Handle empty leaderboards gracefully
+- Large number display: use same formatting as game
+- Cheated runs excluded by default, maybe show separately?
+
+COMPLETED (2026-03-23):
+- [x] queryLeaderboard() function with category/mode filtering
+- [x] Speed categories: ORDER BY day ASC (lower is better)
+- [x] Wealth categories: ORDER BY length/value DESC (approximation for string numbers)
+- [x] GET /api/leaderboard endpoint with ?category=&mode= params
+- [x] leaderboard.php template with:
+  - Mode selector tabs (All, Hard, AI 25 CPS)
+  - Category tabs (Speed + Wealth sections)
+  - Ranked table with player, score, mode, date
+  - Gold/silver/bronze highlighting for top 3
+  - Empty state message
+- [x] Updated home page (layout.php) with better styling
+- [x] Cheated runs excluded (WHERE cheated = 0)

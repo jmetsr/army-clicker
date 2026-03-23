@@ -1,0 +1,40 @@
+Set up Apache Virtual Host and PHP Project Structure for Leaderboard
+=====================================================================
+
+GOAL: Create a separate PHP project accessible at a subdomain (e.g., leaderboard.localhost)
+that will serve the leaderboard API and display pages.
+
+TASKS:
+
+1. Configure Apache Virtual Host
+   - Create a new virtual host config for leaderboard.localhost
+   - Point document root to a new directory (e.g., /home/jjsclaude/Desktop/fun/leaderboard-server/)
+   - Enable the site and restart Apache
+   - Add entry to /etc/hosts for leaderboard.localhost
+
+2. Create PHP Project Structure
+   leaderboard-server/
+   ├── public/
+   │   └── index.php          # Entry point / router
+   ├── src/
+   │   ├── config.php         # DB credentials, constants
+   │   ├── db.php             # Database connection helper
+   │   └── routes.php         # Route definitions
+   ├── templates/
+   │   └── layout.php         # Base HTML template
+   └── .htaccess              # URL rewriting
+
+3. Test basic "Hello World" response at leaderboard.localhost
+
+DEPENDENCIES: None (first task)
+
+NOTES:
+- Keep it simple, no framework needed
+- Must work alongside localhost (the main mdc-laravel project)
+- CORS headers will be needed for game to POST to this server
+
+COMPLETED:
+- [x] PHP project structure created in leaderboard-server/
+- [x] public/index.php with CORS headers and routing
+- [x] src/config.php, db.php, routes.php
+- [x] templates/layout.php

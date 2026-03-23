@@ -1,0 +1,40 @@
+Spot-Check Milestone Claims Against Log
+========================================
+
+GOAL: Verify that claimed milestones (day reached 1M, etc.) actually
+happened in the log at that day.
+
+TASKS:
+
+1. For each claimed milestone, find that day in log
+   - dayMillionCoins: 50 → check log around day 50
+   - dayVanquish: 200 → check log around day 200
+
+2. Verify coin milestones
+   - Find coin balance at claimed day
+   - Verify it crosses the threshold
+   - Check day before was below threshold (first time)
+
+3. Verify event milestones
+   - dayVanquish: log shows enemy defeated event
+   - daySurrender: log shows surrender event
+
+4. Allow small tolerance
+   - If they claim day 50 but log shows day 51, that's OK
+   - Maybe ±1 day tolerance for rounding/timing
+
+5. Output
+   - List of milestones that don't match log
+   - What the log actually shows
+
+DEPENDENCIES:
+- Task 07a (parsed log)
+- Task 07c-ordinal-number (to compare thresholds)
+
+ESTIMATE: 1-2 hours
+
+NOTES:
+- Much simpler than full economic replay
+- Just checks specific moments, not entire history
+- Good bang for buck - catches milestone inflation
+- Could do this WITHOUT full economic validation

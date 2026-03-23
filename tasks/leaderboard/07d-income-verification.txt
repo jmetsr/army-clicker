@@ -1,0 +1,53 @@
+Verify Income Matches Expected
+===============================
+
+GOAL: Check that coins gained each day match what's expected
+based on the player's army/buildings.
+
+TASKS:
+
+1. Understand income formula
+   - Passive loot = Power × 4 coins/day
+   - Power = Troops × PPT
+   - PPT comes from army chain (SL, Barracks, etc.)
+
+2. Create IncomeVerifier class
+   For each day in the log:
+   - Calculate expected income from logged state
+   - Compare to actual income logged
+   - Flag if difference > tolerance (e.g., 5% or 10%)
+
+3. Handle state reconstruction
+   - Track building counts from purchases
+   - Track troop counts from recruits/deaths
+   - Calculate PPT from building chain
+
+4. Set reasonable tolerance
+   - Small rounding differences are OK
+   - Flag only major discrepancies (2x expected, etc.)
+
+5. Output
+   - List of days with suspicious income
+   - Expected vs actual for each flagged day
+
+DEPENDENCIES:
+- Task 07a (parsed log)
+- Task 07c-ordinal-number (for big number math)
+
+ESTIMATE: 2-3 hours
+
+NOTES:
+- Can skip days where state is unclear
+- Focus on catching "infinite money" hacks
+- Don't need to be perfect, just catch obvious cheats
+
+COMPLETED (2026-03-23):
+- [x] Created IncomeVerifier class
+- [x] verify() checks consecutive snapshots:
+  - Calculates expected income: Power × 4 × days
+  - Power = avg(troops) × avg(ppt) between snapshots
+  - Flags if actual gain > 3x expected (tolerance)
+  - Ignores small amounts (< 1000 coins)
+- [x] checkFinalCoinsPlausible() - sanity check final coins vs troops/ppt/days
+- [x] Integrated into BasicValidator.validate()
+- [x] Tested: legitimate log passes, cheaty log (10M coins from 100 troops) flagged

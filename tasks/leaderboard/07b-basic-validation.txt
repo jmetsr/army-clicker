@@ -1,0 +1,67 @@
+Basic Sanity Validation (Obvious Cheats)
+========================================
+
+GOAL: Catch obvious, easy-to-detect cheating with simple checks.
+This is the minimum viable anti-cheat.
+
+TASKS:
+
+1. Create BasicValidator class
+   class BasicValidator {
+     public function validate(array $events, array $claimedMilestones): ValidationResult;
+   }
+
+   ValidationResult {
+     bool $passed;
+     array $flags;  // List of issues found
+   }
+
+2. Implement sanity checks
+
+   Day sequence:
+   - Days are sequential (no gaps like day 5 → day 50)
+   - Days don't go backwards
+   - Day count is reasonable (not 10,000 days in 1 minute)
+
+   Value bounds:
+   - No negative coin values
+   - No negative building counts
+   - No negative troop counts
+
+   Log integrity:
+   - Log isn't empty
+   - Log has expected start events (game init)
+   - Log covers the days claimed in milestones
+
+3. Milestone consistency
+   - If claiming "million at day 10", log should show coins ≥ 1M around day 10
+   - If claiming vanquish, log should show enemy defeated
+   - Don't need exact verification yet, just "does the log mention it?"
+
+4. Return flags, don't block
+   - Return list of all issues found
+   - Caller decides whether to mark as cheated
+   - Threshold: maybe 3+ flags = cheated?
+
+DEPENDENCIES:
+- Task 07a (parsed log)
+
+NOTES:
+- Keep checks simple and fast
+- Better to miss some cheaters than flag legitimate players
+- This catches: save editing, console hacking, obvious manipulation
+- Estimate: 1-2 hours
+
+COMPLETED (2026-03-23):
+- [x] Created BasicValidator class with ValidationResult
+- [x] Checks implemented:
+  - Log not empty
+  - Has start event
+  - Days sequential (no backwards, no huge gaps)
+  - No negative values (troops, coins, food, farms)
+  - Reasonable day count vs time played
+  - Milestone consistency (vanquish/surrender events exist if claimed)
+  - Coin milestone verification (log shows coins reached)
+- [x] Integrated into routes.php submission flow
+- [x] Flags as cheated if 2+ issues found
+- [x] Stores all flags in cheat_reason field
