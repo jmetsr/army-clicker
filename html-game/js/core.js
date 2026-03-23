@@ -103,27 +103,52 @@ function logAI(action) {
   });
 }
 
+// Serialize OrdinalNumber as {arrows, height} for JSON
+function serializeON(on) {
+  if (!on || typeof on !== 'object') return on;
+  return { arrows: on.arrows, height: on.height };
+}
+
 function logSnapshot() {
   var snap = { type: "snapshot", day: G.day };
   snap.player = {
-    troops: G.troops.toNumber(),
+    troops: serializeON(G.troops),
     ppt: G.ppt,
-    power: tp().toNumber(),
-    coins: G.coins.toNumber(),
-    food: G.food.toNumber(),
+    power: serializeON(tp()),
+    coins: serializeON(G.coins),
+    food: serializeON(G.food),
     farms: cnt("farm")
   };
   if (G.ai) {
     snap.ai = {
-      troops: G.ai.troops.toNumber(),
+      troops: serializeON(G.ai.troops),
       ppt: G.ai.ppt,
-      power: G.ai.troops.mul(G.ai.ppt).toNumber(),
-      coins: G.ai.coins.toNumber(),
-      food: G.ai.food.toNumber(),
+      power: serializeON(G.ai.troops.mul(G.ai.ppt)),
+      coins: serializeON(G.ai.coins),
+      food: serializeON(G.ai.food),
       farms: G.ai.counts["farm"] || 0
     };
   }
   G.gameLog.push(snap);
+}
+
+function logVanquish(type) {
+  G.gameLog.push({
+    type: type, // "vanquish" or "surrender"
+    day: G.day,
+    coins: serializeON(G.coins),
+    power: serializeON(tp())
+  });
+}
+
+function getGameLog() {
+  return {
+    version: "1.0",
+    mode: G.difficulty || "unknown",
+    startTime: G.startTime || null,
+    playerClicks: G.clickLog,
+    gameEvents: G.gameLog
+  };
 }
 
 function logBattle(result, playerPower, enemyPower) {
@@ -131,8 +156,8 @@ function logBattle(result, playerPower, enemyPower) {
     type: "battle",
     day: G.day,
     result: result,
-    playerPower: playerPower.toNumber(),
-    enemyPower: enemyPower.toNumber()
+    playerPower: serializeON(playerPower),
+    enemyPower: serializeON(enemyPower)
   });
 }
 
@@ -248,7 +273,7 @@ function tick() {
     // Check if player power / enemy power > 1e15 (quadrillion)
     if (enemyPow.gt(0)) {
       var ratio = playerPow.div(enemyPow);
-      if (ratio.gte(1e15)) {
+      if (ratio.gte(1e33)) {
         G.enemyVanquished = true;
         G.enemySurrendered = true;  // Flag for permanent surrender screen
         G.enemyTroops = ON(0);
@@ -259,6 +284,7 @@ function tick() {
           G.ai.troops = ON(0);
         }
         log("\ud83c\udf1f OVERWHELMING VICTORY! The enemy surrenders permanently.", "milestone");
+        logVanquish("surrender");
         hasEnemy = false;
       }
     }
@@ -424,6 +450,7 @@ function doBattle() {
         if (!G.enemyUnvanquishable) {
           G.enemyVanquished = true;
           log("\ud83c\udf89 TOTAL VICTORY! The enemy has been vanquished!", "milestone");
+          logVanquish("vanquish");
         } else {
           log("\ud83c\udf89 VICTORY! Enemy forces destroyed... but darkness will bring them back.", "milestone");
         }
@@ -435,6 +462,7 @@ function doBattle() {
         if (!G.enemyUnvanquishable) {
           G.enemyVanquished = true;
           log("\ud83c\udf89 TOTAL VICTORY! The AI opponent has been defeated!", "milestone");
+          logVanquish("vanquish");
         } else {
           log("\ud83c\udf89 VICTORY! AI forces destroyed... but darkness will bring them back.", "milestone");
         }

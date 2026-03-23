@@ -39,6 +39,7 @@ window.C = C;
 window.G = G;
 window.BUTTONS = BUTTONS;
 window.exportLog = exportLog;
+window.getGameLog = getGameLog;
 window.clearLog = clearLog;
 window.updateUI = updateUI;
 window.updateMainAutoUpgraders = updateMainAutoUpgraders;

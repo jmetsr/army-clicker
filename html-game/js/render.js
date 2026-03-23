@@ -503,6 +503,12 @@ function updateUI() {
   // Update log count
   document.getElementById("logCount").textContent = G.clickLog.length;
 
+  // Show leaderboard button once game has started
+  var lbBtn = document.getElementById("leaderboardBtn");
+  if (lbBtn && G.gameStarted) {
+    lbBtn.style.display = "inline";
+  }
+
   // Update main auto-upgraders (recruit & loot)
   updateMainAutoUpgraders();
 }

@@ -1,0 +1,66 @@
+Add "Save to Leaderboard" Button and Name Modal
+================================================
+
+GOAL: Add a button that opens a modal for the player to enter their name
+before submitting their run to the leaderboard.
+
+TASKS:
+
+1. Add "Save to Leaderboard" button
+   - Place in appropriate location (near other game controls)
+   - Should be visible when game has ended (vanquish or surrender)
+   - Could also allow saving mid-game (snapshot current progress)
+   - Style consistently with existing buttons
+
+2. Create name input modal
+   - Modal overlay that appears when button clicked
+   - Contains:
+     * Title: "Save to Leaderboard"
+     * Text input for player name (max 50 chars)
+     * Submit button
+     * Cancel button
+   - Modal should be centered, dismissable
+
+3. Add modal styling
+   - Match game's existing visual style
+   - Ensure modal is responsive
+   - Add overlay/backdrop
+
+4. Basic validation
+   - Name required, 1-50 characters
+   - Alphanumeric + spaces + some punctuation
+   - Show error message if invalid
+
+5. Wire up to submission (placeholder)
+   - On submit, gather all data needed for server:
+     * Player name from modal
+     * Milestones (from task 03)
+     * Game log (from task 04)
+     * Game mode
+   - For now, just console.log the data
+   - Actual server call is task 06
+
+6. Feedback states
+   - Submitting... (disabled button, spinner)
+   - Success message
+   - Error message with retry option
+
+DEPENDENCIES:
+- Task 03 (milestone data to submit)
+- Task 04 (log data to submit)
+
+NOTES:
+- Look at existing modal patterns in the game if any
+- Keep UI simple and unobtrusive
+- Consider: can player submit multiple times? (probably yes, overwrite previous?)
+
+COMPLETED (2026-03-23):
+- [x] Added "Save to Leaderboard" button (appears after game starts)
+- [x] Created leaderboard modal with name input
+- [x] Added CSS styling matching existing modal pattern
+- [x] Basic validation (required, max 50 chars, alphanumeric + punctuation)
+- [x] Shows current game stats (day, mode, power, coins, victory status)
+- [x] Gathers all data needed for server (name, mode, day, power, coins, gameLog)
+- [x] Console.log for now (task 06 will add actual API call)
+- [x] Feedback states: loading, success, error
+- [x] Enter key submits, overlay click closes

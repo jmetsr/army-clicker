@@ -1,0 +1,81 @@
+Refactor Game Logging - Remove Download, Keep Internal Log
+===========================================================
+
+GOAL: Remove the "Download Log" button from the UI but keep the logging system
+running internally so logs can be sent to the server for validation AND
+milestone extraction.
+
+TASKS:
+
+1. Find and understand current logging system
+   - Locate the download log button in the HTML/JS
+   - Understand what data is being logged and in what format
+   - Understand when log entries are created
+
+2. Remove download button from UI
+   - Remove the button element
+   - Keep all the logging code that populates the log
+
+3. CRITICAL: Ensure log contains data needed for milestone extraction
+   The server extracts milestones from the log, so it MUST include:
+
+   For coin milestones (1M, 1B, 1T, 1Q, 1Qi):
+   - Coin balance snapshots at regular intervals (every day or every 10 days)
+   - OR coin balance after every income/purchase event
+   - Day number must be included with each snapshot
+
+   For victory milestones:
+   - Explicit "vanquish" event when enemy is vanquished
+   - Explicit "surrender" event when enemy surrenders
+   - Day number when these occur
+
+   For year snapshots:
+   - Snapshots at day 365 and day 730 (or regular snapshots the server can query)
+
+   For game mode:
+   - Log the selected difficulty at game start ('practice', 'easy', 'medium', 'hard', 'ai25', etc.)
+
+4. Verify/add required log events:
+   - [ ] Game start: { type: 'start', day: 0, mode: 'hard', ... }
+   - [ ] Day snapshot: { type: 'snapshot', day: N, coins: '1.5e9', troops: ..., power: ... }
+   - [ ] Vanquish: { type: 'vanquish', day: N, coins: ... }
+   - [ ] Surrender: { type: 'surrender', day: N, coins: ... }
+
+5. Create function to retrieve log for submission
+   - getGameLog() function that returns the accumulated log
+   - Return as JSON string
+   - Include header with game version, start time, etc.
+
+6. Consider log size
+   - Full event logging could be huge (every click)
+   - Snapshots every 10 days + key events is probably enough
+   - Server needs: day numbers, coin values, victory events
+
+DEPENDENCIES: None (pure JS changes)
+
+EXISTING LOGGING (in core.js):
+- logSnapshot() runs every 10 days, captures:
+  { type: "snapshot", day, player: { troops, ppt, power, coins, food, farms } }
+- logBattle() captures battle results
+- exportLog() bundles clickLog + gameLog as JSON
+
+WHAT'S MISSING:
+- Game mode not logged at start
+- Vanquish/surrender events not explicitly logged
+- coins uses .toNumber() which loses precision for huge numbers (quintillions+)
+  → Should use .toString() to preserve OrdinalNumber precision
+
+NOTES:
+- The log format is critical - server extracts milestones from it
+- Without proper logging, leaderboard milestones can't be determined
+- Fix coin precision: change coins.toNumber() to coins.toString()
+- Add vanquish/surrender events where they occur in core.js
+
+COMPLETED (2026-03-23):
+- [x] Removed Download Log button from index.html
+- [x] Removed button event listener from events.js
+- [x] Fixed precision: all .toNumber() → .toString() in logSnapshot, logBattle
+- [x] Added logVanquish() function for vanquish/surrender events
+- [x] Added logVanquish calls at all vanquish points (surrender, non-AI vanquish, AI vanquish)
+- [x] Added game start event with mode at difficulty selection
+- [x] Added getGameLog() function and exported to window

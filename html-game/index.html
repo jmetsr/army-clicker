@@ -30,7 +30,7 @@
     <div class="timer" id="gameTimer">0:00</div>
     <div id="logStatus" style="font-size:.7em;margin-top:5px;color:#888">
       &#128202; <span id="logCount">0</span> clicks
-      <button id="exportLogBtn" style="font-size:1em;padding:2px 8px;margin-left:5px;cursor:pointer">Download Log</button>
+      <button id="leaderboardBtn" style="font-size:1em;padding:2px 8px;margin-left:5px;cursor:pointer;display:none">Save to Leaderboard</button>
     </div>
   </header>
   <div class="resources">
@@ -132,6 +132,22 @@
       <h3 id="modalTitle">Select Button</h3>
       <div id="modalButtons"></div>
       <button class="modal-close" id="modalClose">Cancel</button>
+    </div>
+  </div>
+  <div class="modal-overlay" id="leaderboardOverlay">
+    <div class="modal leaderboard-modal">
+      <h3>Save to Leaderboard</h3>
+      <div id="leaderboardForm">
+        <label for="playerName">Your Name:</label>
+        <input type="text" id="playerName" maxlength="50" placeholder="Enter your name..." autocomplete="off">
+        <div id="nameError" class="form-error"></div>
+        <div class="leaderboard-stats" id="leaderboardStats"></div>
+        <div class="leaderboard-actions">
+          <button id="leaderboardSubmit" class="submit-btn">Submit</button>
+          <button id="leaderboardCancel" class="modal-close">Cancel</button>
+        </div>
+        <div id="leaderboardStatus" class="form-status"></div>
+      </div>
     </div>
   </div>
 </div>

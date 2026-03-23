@@ -84,9 +84,26 @@ var G = {
 
   // New magic upgrades
   upgradeLevels: {},                // Button upgrade levels (0=none, 1=10x, 2=100x, etc.)
-  astronomicalUnlocked: false,      // Whether astronomical tier is unlocked
-  multiversalUnlocked: false,       // Whether multiversal tier is unlocked
-  mysticalUnlocked: false,          // Whether mystical gem tier is unlocked
+  astronomicalUnlocked: false,      // Whether astronomical tier is unlocked (legacy, for save compat)
+  multiversalUnlocked: false,       // Whether multiversal tier is unlocked (legacy, for save compat)
+  mysticalUnlocked: false,          // Whether mystical gem tier is unlocked (legacy, for save compat)
+
+  // Individual army building unlocks (1 magic each)
+  planetUnlocked: false,
+  solarSystemUnlocked: false,
+  galaxyUnlocked: false,
+  galaxyClusterUnlocked: false,
+  superclusterUnlocked: false,
+  observableUniverseUnlocked: false,
+  fullUniverseUnlocked: false,
+  quantumMultiverseUnlocked: false,
+  cosmologicalMultiverseUnlocked: false,
+  mathematicalMultiverseUnlocked: false,
+
+  // Individual forbidden ritual unlocks (4 magic each)
+  sapphireUnlocked: false,
+  emeraldUnlocked: false,
+  rubyUnlocked: false,
   costsFrozen: false,               // Whether all costs are frozen
   separateCosts: false,             // Whether each button has separate cost (no tier sharing)
   eternalFeast: false,              // Whether troops need food (magic ability)
@@ -419,6 +436,18 @@ function createAIState() {
     militaryBasePower: 1,
     kingdomPower: 1,
     empirePower: 1,
+    // Astronomical tier powers
+    planetPower: 1,
+    solarSystemPower: 1,
+    galaxyPower: 1,
+    galaxyClusterPower: 1,
+    superclusterPower: 1,
+    // Multiversal tier powers
+    observableUniversePower: 1,
+    fullUniversePower: 1,
+    quantumMultiversePower: 1,
+    cosmologicalMultiversePower: 1,
+    mathematicalMultiversePower: 1,
     trainMult: C.train_multiplier,
     counts: {},
     _armyClicks: 0,

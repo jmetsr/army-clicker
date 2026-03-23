@@ -1,0 +1,73 @@
+Client-to-Server Communication - Submit Game Data
+==================================================
+
+GOAL: Send game data from the browser to the PHP server when player
+submits to leaderboard.
+
+TASKS:
+
+1. Define API contract
+   POST /api/submit-run
+
+   Request body (JSON):
+   {
+     "playerName": "string",
+     "gameMode": "normal" | "hard" | "ai_25cps",
+     "milestones": {
+       "dayMillionCoins": number | null,
+       "dayBillionCoins": number | null,
+       "dayTrillionCoins": number | null,
+       "dayQuadrillionCoins": number | null,
+       "dayQuintillionCoins": number | null,
+       "dayVanquish": number | null,
+       "daySurrender": number | null,
+       "coinsAtYear1": "string" | null,
+       "coinsAtYear2": "string" | null,
+       "finalCoins": "string"
+     },
+     "gameLog": "string" (full log)
+   }
+
+   Response:
+   {
+     "success": boolean,
+     "cheated": boolean,
+     "cheatReason": string | null,
+     "runId": number,
+     "message": string
+   }
+
+2. Implement client-side submission (JS)
+   - Create submitToLeaderboard(playerName) function
+   - Use fetch() to POST to leaderboard.localhost/api/submit-run
+   - Handle CORS (server needs appropriate headers)
+   - Handle network errors gracefully
+   - Show appropriate feedback from task 05
+
+3. Create server endpoint stub (PHP)
+   - Add route for POST /api/submit-run
+   - Parse JSON body
+   - Return dummy success response for now
+   - Set CORS headers to allow game origin
+
+4. Test end-to-end
+   - Game submits data
+   - Server receives and logs it
+   - Game shows success message
+
+DEPENDENCIES:
+- Task 01 (server exists)
+- Task 05 (UI triggers submission)
+
+NOTES:
+- Large logs might need chunking or compression
+- Consider rate limiting to prevent spam
+- Store game origin URL in server config for CORS
+
+COMPLETED (2026-03-23):
+- [x] Client uses fetch() to POST to LEADERBOARD_API_URL (defaults to leaderboard.localhost)
+- [x] Sends: playerName, mode, day, power, coins, vanquished, surrendered, gameLog
+- [x] Handles success/error responses, network errors
+- [x] Server stub validates required fields (playerName)
+- [x] Server returns success response with runId, cheated flag
+- [x] CORS already configured in index.php

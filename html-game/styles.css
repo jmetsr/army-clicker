@@ -406,6 +406,103 @@ header .timer {
   cursor: pointer;
 }
 
+/* Leaderboard Modal */
+.leaderboard-modal {
+  min-width: 300px;
+}
+
+.leaderboard-modal label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-dim);
+  font-size: 0.9em;
+}
+
+.leaderboard-modal input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--text);
+  font: 400 1em 'IBM Plex Mono', monospace;
+  box-sizing: border-box;
+}
+
+.leaderboard-modal input[type="text"]:focus {
+  outline: none;
+  border-color: var(--magic);
+}
+
+.form-error {
+  color: #ff6b6b;
+  font-size: 0.85em;
+  min-height: 1.2em;
+  margin-top: 5px;
+}
+
+.leaderboard-stats {
+  margin: 15px 0;
+  padding: 10px;
+  background: var(--surface2);
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.leaderboard-stats div {
+  margin: 5px 0;
+}
+
+.leaderboard-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.submit-btn {
+  flex: 1;
+  padding: 10px 20px;
+  background: var(--growth);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.submit-btn:hover {
+  background: #4caf50;
+}
+
+.submit-btn:disabled {
+  background: var(--border);
+  cursor: not-allowed;
+}
+
+.leaderboard-actions .modal-close {
+  flex: 1;
+  margin-top: 0;
+}
+
+.form-status {
+  margin-top: 10px;
+  font-size: 0.9em;
+  text-align: center;
+  min-height: 1.5em;
+}
+
+.form-status.success {
+  color: var(--growth);
+}
+
+.form-status.error {
+  color: #ff6b6b;
+}
+
+.form-status.loading {
+  color: var(--text-dim);
+}
+
 .entropy-warn {
   font-size: .8em;
   padding: 8px 12px;
