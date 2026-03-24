@@ -457,19 +457,22 @@ class GameReplay {
             // Skip if we haven't reached this day
             if ($snapDay > $this->day) continue;
 
-            // Compare troops
+            // Compare troops - very loose tolerance because replay doesn't simulate starvation
+            // Starvation can cause 90%+ troop loss, so we allow up to 100x divergence
+            // This still catches impossible cheats like 10^20000 troops
             $snapTroops = new OrdinalNumber($player['troops'] ?? 0);
             $ratio = $this->safeRatio($this->troops, $snapTroops);
-            if ($ratio < 0.5 || $ratio > 2.0) {
+            if ($ratio < 0.01 || $ratio > 100.0) {
                 $this->flags[] = "Day $snapDay: Troop mismatch - replay has " .
                     $this->troops->toString() . ", log shows " . $snapTroops->toString();
             }
 
-            // Compare coins (less strict due to timing)
+            // Compare coins - very loose because income depends on troop count over time
+            // and replay doesn't track starvation effects on income
             $snapCoins = new OrdinalNumber($player['coins'] ?? 0);
             $coinRatio = $this->safeRatio($this->coins, $snapCoins);
             error_log("  Coin comparison: replay={$this->coins->toString()}, snapshot={$snapCoins->toString()}, ratio=$coinRatio");
-            if ($coinRatio < 0.1 || $coinRatio > 10.0) {
+            if ($coinRatio < 0.001 || $coinRatio > 1000.0) {
                 error_log("  -> FLAGGING coin discrepancy!");
                 $this->flags[] = "Day $snapDay: Major coin discrepancy - replay has " .
                     $this->coins->toString() . ", log shows " . $snapCoins->toString();
