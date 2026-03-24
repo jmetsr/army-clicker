@@ -226,14 +226,29 @@ class LateGameValidator {
 
     /**
      * Check tower notation numbers for obvious impossibilities
+     *
+     * NOTE: With auto-upgraders, numbers can grow EXTREMELY fast.
+     * Each auto-upgrader tier allows for roughly +1 arrow jump per click.
+     * With N auto-upgrader tiers, N+1 arrow jumps per day is plausible.
+     *
+     * We count auto-upgrader installations to calibrate our checks.
      */
     private function checkTowerNotationSanity(): array {
         $flags = [];
+        $clicks = $this->parser->getClickLog();
         $snapshots = $this->parser->getSnapshots();
 
         if (empty($snapshots)) {
             return $flags;
         }
+
+        // Count auto-upgrader tiers to calibrate arrow jump allowance
+        $maxAutoTiers = $this->countMaxAutoUpgraderTiers($clicks);
+
+        // With N auto-upgrader tiers, each click can cascade through all tiers
+        // Each tier can potentially add 1 arrow level, so N+1 arrow jumps is plausible
+        // Add extra buffer of 3 for safety
+        $plausibleArrowJump = $maxAutoTiers + 3;
 
         // Sort by day
         usort($snapshots, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
@@ -244,8 +259,6 @@ class LateGameValidator {
             $player = $snap['player'] ?? [];
 
             $coins = $player['coins'] ?? 0;
-            $troops = $player['troops'] ?? 0;
-            $power = $player['power'] ?? 0;
 
             // Check for impossible jumps in arrow count
             if ($prevSnapshot !== null) {
@@ -255,16 +268,13 @@ class LateGameValidator {
                 $coinsON = new OrdinalNumber($coins);
                 $prevCoinsON = new OrdinalNumber($prevCoins);
 
-                // Check for suspicious arrow jumps
-                // Arrows shouldn't increase by more than 1 in a short period
-                // (unless auto-upgraders are active, which can cascade)
                 $arrowDiff = $coinsON->arrows - $prevCoinsON->arrows;
-                $dayDiff = $day - $prevDay;
+                $dayDiff = max(1, $day - $prevDay);
 
-                // More than 2 arrow jumps in < 100 days is suspicious
-                // (without extensive auto-upgrader setup)
-                if ($arrowDiff > 2 && $dayDiff < 100) {
-                    $flags[] = "Day $day: Suspicious arrow jump (+" . $arrowDiff . " arrows in $dayDiff days)";
+                // Flag only if arrow jump exceeds what's plausible given auto-upgrader count
+                // AND it happens in a very short time (< 5 days per arrow is suspicious)
+                if ($arrowDiff > $plausibleArrowJump && $dayDiff < ($arrowDiff * 5)) {
+                    $flags[] = "Day $day: Arrow jump (+$arrowDiff) exceeds plausible limit of +$plausibleArrowJump for $maxAutoTiers auto-upgrader tiers";
                 }
             }
 
@@ -272,5 +282,41 @@ class LateGameValidator {
         }
 
         return $flags;
+    }
+
+    /**
+     * Count the maximum auto-upgrader tier depth
+     * E.g., auto_auto_auto_recruit = tier 3
+     */
+    private function countMaxAutoUpgraderTiers(array $clicks): int {
+        $autoUpgraderCount = 0;
+
+        foreach ($clicks as $click) {
+            $action = $click['action'] ?? '';
+            if ($action === 'auto_upgrader') {
+                $autoUpgraderCount++;
+            }
+        }
+
+        // Also check upgrade levels from snapshots for auto_ prefixed keys
+        $snapshots = $this->parser->getSnapshots();
+        $maxTier = 0;
+
+        foreach ($snapshots as $snap) {
+            $upgradeLevels = $snap['player']['upgradeLevels'] ?? [];
+            foreach ($upgradeLevels as $key => $level) {
+                // Count auto_ prefixes to determine tier
+                $tier = substr_count($key, 'auto_');
+                if ($tier > $maxTier) {
+                    $maxTier = $tier;
+                }
+            }
+        }
+
+        // If we have N auto-upgrader installations, we could have up to N tiers
+        // But cap at a reasonable maximum (10)
+        $estimatedTiers = min($autoUpgraderCount, 10);
+
+        return max($maxTier, $estimatedTiers);
     }
 }

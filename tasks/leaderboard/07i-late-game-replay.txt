@@ -63,12 +63,28 @@ PROGRESS (2026-03-24):
   - Auto-upgrader count sanity check
   - Tower notation arrow jump detection
 - [x] Integrated into routes.php submission flow
-- [ ] Full tower notation replay not implemented (too complex)
-- [ ] Auto-upgrader cascade replay not implemented (too complex)
+- [x] Researched late game mechanics in depth
+- [x] Created detailed documentation: /home/jjsclaude/Desktop/fun/docs/late-game-mechanics.md
+- [x] Fixed arrow jump sanity check to account for auto-upgrader tiers
+  - Previous check: 2+ arrow jumps in 100 days = suspicious
+  - New check: plausible jumps = auto-upgrader tiers + 3
+  - Now counts auto-upgrader tiers from click log and snapshots
+- [ ] Full tower notation replay not implemented (DETERMINED NOT FEASIBLE)
+- [ ] Auto-upgrader cascade replay not implemented (DETERMINED NOT FEASIBLE)
 
-NOTE: Late game validation uses sanity checks rather than full replay
-because:
-1. Tower notation arithmetic is complex and error-prone to replicate
-2. Auto-upgrader cascades involve recursive level increases
-3. Early/middle game validation should catch most cheaters
-4. Late game cheaters would need to pass early/middle checks first
+DETERMINATION: Full PHP late-game replay is NOT feasible because:
+1. JS OrdinalNumber supports NESTED heights (height can be another OrdinalNumber)
+   - Example: {arrows:2, height:{arrows:1, height:50}} = 10↑↑(10^50)
+   - PHP flattens this, losing precision
+2. JS exp10() method not implemented in PHP (critical for auto-upgrader cascades)
+3. JS comparison uses complex _flatten() method for nested structures
+4. Floating-point differences accumulate over millions of operations
+5. After many operations, JS and PHP results diverge significantly
+
+APPROACH: Trust early/middle validation + generous sanity checks for late game.
+Players who cheat in late game would need to pass early/middle validation first,
+which should catch most cheaters. Late game sanity checks focus on:
+- Magic balance (can't spend more than earned)
+- Unlock sequences (ruby requires emerald requires sapphire)
+- Arrow jumps calibrated to auto-upgrader tier count
+- Auto-upgrader count vs magic spent (each costs 10 magic)
