@@ -30,7 +30,7 @@ class EarlyGameValidator {
     }
 
     /**
-     * Simple click-by-click validation
+     * Click-by-click validation with transition verification
      */
     public function validate(): array {
         $flags = [];
@@ -48,6 +48,7 @@ class EarlyGameValidator {
         // Track counts that aren't in click log
         $recruitCount = 0;
         $econClicks = 0;
+        $prevClick = null;
 
         foreach ($clicks as $i => $click) {
             $action = $click['action'] ?? '';
@@ -60,19 +61,73 @@ class EarlyGameValidator {
             $cost = $this->getActionCost($action, $armyClicks, $trainClicks, $recruitCount, $econClicks);
             if ($cost > 0 && $coins < $cost) {
                 $flags[] = "Day $day: $action with $coins coins (needs $cost)";
-                // Only flag first few issues to avoid spam
-                if (count($flags) >= 5) {
-                    error_log("Stopping after 5 flags");
-                    break;
-                }
             }
 
-            // Update our counts after the action
+            // Check transition from previous click
+            if ($prevClick !== null) {
+                $transitionFlags = $this->checkTransition($prevClick, $click);
+                $flags = array_merge($flags, $transitionFlags);
+            }
+
+            // Stop after too many flags
+            if (count($flags) >= 10) {
+                error_log("Stopping after 10 flags");
+                break;
+            }
+
+            // Update state for next iteration
             if ($action === 'recruit') $recruitCount++;
             if (in_array($action, ['farm', 'plantation', 'colony'])) $econClicks++;
+            $prevClick = $click;
         }
 
         error_log("EarlyGameValidator found " . count($flags) . " issues");
+        return $flags;
+    }
+
+    /**
+     * Check if transition between two clicks is plausible
+     */
+    private function checkTransition(array $prev, array $curr): array {
+        $flags = [];
+
+        $prevCoins = $prev['coins'] ?? 0;
+        $currCoins = $curr['coins'] ?? 0;
+        $prevTroops = $prev['troops'] ?? 0;
+        $prevPpt = $prev['ppt'] ?? 1;
+        $prevDay = $prev['day'] ?? 0;
+        $currDay = $curr['day'] ?? 0;
+        $prevAction = $prev['action'] ?? '';
+
+        // Calculate expected coin change
+        $daysPassed = max(0, $currDay - $prevDay);
+
+        // Passive income: troops × ppt × 4 per day
+        $passiveIncome = $prevTroops * $prevPpt * 4 * $daysPassed;
+
+        // Cost of previous action
+        $prevArmyClicks = $prev['armyClicks'] ?? 0;
+        $prevTrainClicks = $prev['train'] ?? 0;
+        $actionCost = $this->getActionCost($prevAction, $prevArmyClicks, $prevTrainClicks, 0, 0);
+
+        // Beg gives +1
+        $begIncome = ($prevAction === 'beg') ? 1 : 0;
+
+        // Expected coins after previous action
+        $expectedCoins = $prevCoins - $actionCost + $begIncome + $passiveIncome;
+
+        // Allow some tolerance (10% or 100 coins, whichever is larger)
+        $tolerance = max(100, $expectedCoins * 0.1);
+
+        // If current coins are WAY higher than expected, that's cheating
+        if ($currCoins > $expectedCoins + $tolerance) {
+            $excess = $currCoins - $expectedCoins;
+            // Only flag significant discrepancies
+            if ($excess > 1000 && $currCoins > $expectedCoins * 1.5) {
+                $flags[] = "Day $currDay: Coins jumped from $prevCoins to $currCoins (expected ~" . round($expectedCoins) . ")";
+            }
+        }
+
         return $flags;
     }
 
