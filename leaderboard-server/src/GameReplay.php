@@ -56,17 +56,21 @@ class GameReplay {
     private bool $separateCosts = false;
     private bool $costsFrozen = false;
 
-    // Building counts
+    // Building counts (clicks for cost calculation)
     private int $recruits = 0;
-    private int $squadLeaders = 0;
-    private int $barracks = 0;
-    private int $militaryBases = 0;
-    private int $kingdoms = 0;
-    private int $empires = 0;
     private int $trains = 0;
     private int $farms = 0;
     private int $plantations = 0;
     private int $colonies = 0;
+
+    // Army chain UNITS (cumulative, for power calculations)
+    // These track total units gained, not clicks
+    // JS: cnt("squad_leader") = sum of squadLeaderPower at each click
+    private int $squadLeaderUnits = 0;
+    private int $barracksUnits = 0;
+    private int $militaryBaseUnits = 0;
+    private int $kingdomUnits = 0;
+    private int $empireUnits = 0;
 
     // Extended army tiers (middle game)
     private int $planets = 0;
@@ -382,45 +386,51 @@ class GameReplay {
     private function doBuySquadLeader(): void {
         $cost = $this->expCost(self::SQUAD_LEADER_COST, 1.04, $this->armyClicks);
         if ($this->trySpend($cost, 'squad_leader')) {
-            $this->squadLeaders++;
+            // JS: cnt("squad_leader") += squadLeaderPower
+            $this->squadLeaderUnits += $this->squadLeaderPower;
             $this->armyClicks++;
-            $this->updateRp();
+            // JS: rp = 1 + cnt("squad_leader")
+            $this->rp = 1 + $this->squadLeaderUnits;
         }
     }
 
     private function doBuyBarracks(): void {
         $cost = $this->expCost(self::BARRACKS_COST, 1.04, $this->armyClicks);
         if ($this->trySpend($cost, 'barracks')) {
-            $this->barracks++;
+            // JS: squadLeaderPower += barracksPower (via boostVar)
+            $this->barracksUnits += $this->barracksPower;
+            $this->squadLeaderPower += $this->barracksPower;
             $this->armyClicks++;
-            $this->updateSquadLeaderPower();
         }
     }
 
     private function doBuyMilitaryBase(): void {
         $cost = $this->expCost(self::MILITARY_BASE_COST, 1.04, $this->armyClicks);
         if ($this->trySpend($cost, 'military_base')) {
-            $this->militaryBases++;
+            // JS: barracksPower += militaryBasePower
+            $this->militaryBaseUnits += $this->militaryBasePower;
+            $this->barracksPower += $this->militaryBasePower;
             $this->armyClicks++;
-            $this->updateBarracksPower();
         }
     }
 
     private function doBuyKingdom(): void {
         $cost = $this->expCost(self::KINGDOM_COST, 1.04, $this->armyClicks);
         if ($this->trySpend($cost, 'kingdom')) {
-            $this->kingdoms++;
+            // JS: militaryBasePower += kingdomPower
+            $this->kingdomUnits += $this->kingdomPower;
+            $this->militaryBasePower += $this->kingdomPower;
             $this->armyClicks++;
-            $this->updateMilitaryBasePower();
         }
     }
 
     private function doBuyEmpire(): void {
         $cost = $this->expCost(self::EMPIRE_COST, 1.04, $this->armyClicks);
         if ($this->trySpend($cost, 'empire')) {
-            $this->empires++;
+            // JS: kingdomPower += empirePower
+            $this->empireUnits += $this->empirePower;
+            $this->kingdomPower += $this->empirePower;
             $this->armyClicks++;
-            $this->updateKingdomPower();
         }
     }
 
@@ -461,30 +471,8 @@ class GameReplay {
         }
     }
 
-    // Update derived values
-    private function updateRp(): void {
-        $this->rp = 1 + $this->squadLeaders * $this->squadLeaderPower;
-    }
-
-    private function updateSquadLeaderPower(): void {
-        $this->squadLeaderPower = 1 + $this->barracks * $this->barracksPower;
-        $this->updateRp();
-    }
-
-    private function updateBarracksPower(): void {
-        $this->barracksPower = 1 + $this->militaryBases * $this->militaryBasePower;
-        $this->updateSquadLeaderPower();
-    }
-
-    private function updateMilitaryBasePower(): void {
-        $this->militaryBasePower = 1 + $this->kingdoms * $this->kingdomPower;
-        $this->updateBarracksPower();
-    }
-
-    private function updateKingdomPower(): void {
-        $this->kingdomPower = 1 + $this->empires * $this->empirePower;
-        $this->updateMilitaryBasePower();
-    }
+    // Note: Update functions removed - we now track units and powers incrementally
+    // to match JS behavior exactly (see doBuySquadLeader, etc.)
 
     /**
      * Compare replay state against logged snapshots
@@ -606,45 +594,50 @@ class GameReplay {
     private function doBuyPlanet(): void {
         $cost = $this->expCost(self::PLANET_COST, 1.04, $this->armyClicks);
         if ($this->trySpend($cost, 'planet')) {
+            // JS: empirePower += planetPower
             $this->planets++;
+            $this->empirePower += $this->planetPower;
             $this->armyClicks++;
-            $this->updateEmpirePower();
         }
     }
 
     private function doBuySolarSystem(): void {
         $cost = $this->expCost(self::SOLAR_SYSTEM_COST, 1.04, $this->armyClicks);
         if ($this->trySpend($cost, 'solar_system')) {
+            // JS: planetPower += solarSystemPower
             $this->solarSystems++;
+            $this->planetPower += $this->solarSystemPower;
             $this->armyClicks++;
-            $this->updatePlanetPower();
         }
     }
 
     private function doBuyGalaxy(): void {
         $cost = $this->expCost(self::GALAXY_COST, 1.04, $this->armyClicks);
         if ($this->trySpend($cost, 'galaxy')) {
+            // JS: solarSystemPower += galaxyPower
             $this->galaxies++;
+            $this->solarSystemPower += $this->galaxyPower;
             $this->armyClicks++;
-            $this->updateSolarSystemPower();
         }
     }
 
     private function doBuyGalaxyCluster(): void {
         $cost = $this->expCost(self::GALAXY_CLUSTER_COST, 1.04, $this->armyClicks);
         if ($this->trySpend($cost, 'galaxy_cluster')) {
+            // JS: galaxyPower += galaxyClusterPower
             $this->galaxyClusters++;
+            $this->galaxyPower += $this->galaxyClusterPower;
             $this->armyClicks++;
-            $this->updateGalaxyPower();
         }
     }
 
     private function doBuySupercluster(): void {
         $cost = $this->expCost(self::SUPERCLUSTER_COST, 1.04, $this->armyClicks);
         if ($this->trySpend($cost, 'supercluster')) {
+            // JS: galaxyClusterPower += 1 (supercluster is top of chain, no boostVar above it)
             $this->superclusters++;
+            $this->galaxyClusterPower += 1;  // Each supercluster adds 1 to galaxyClusterPower
             $this->armyClicks++;
-            $this->updateGalaxyClusterPower();
         }
     }
 
@@ -691,32 +684,8 @@ class GameReplay {
         return true;
     }
 
-    // Extended army chain update methods
-
-    private function updateEmpirePower(): void {
-        $this->empirePower = 1 + $this->planets * $this->planetPower;
-        $this->updateKingdomPower();
-    }
-
-    private function updatePlanetPower(): void {
-        $this->planetPower = 1 + $this->solarSystems * $this->solarSystemPower;
-        $this->updateEmpirePower();
-    }
-
-    private function updateSolarSystemPower(): void {
-        $this->solarSystemPower = 1 + $this->galaxies * $this->galaxyPower;
-        $this->updatePlanetPower();
-    }
-
-    private function updateGalaxyPower(): void {
-        $this->galaxyPower = 1 + $this->galaxyClusters * $this->galaxyClusterPower;
-        $this->updateSolarSystemPower();
-    }
-
-    private function updateGalaxyClusterPower(): void {
-        $this->galaxyClusterPower = 1 + $this->superclusters;
-        $this->updateGalaxyPower();
-    }
+    // Note: Extended army chain update functions removed - we now track powers incrementally
+    // to match JS behavior exactly (see doBuyPlanet, etc.)
 
     /**
      * Get current replay state for debugging
@@ -729,17 +698,18 @@ class GameReplay {
             'ppt' => $this->ppt,
             'food' => $this->food->toString(),
             'farms' => $this->farms,
-            'squadLeaders' => $this->squadLeaders,
-            'barracks' => $this->barracks,
-            'militaryBases' => $this->militaryBases,
-            'kingdoms' => $this->kingdoms,
-            'empires' => $this->empires,
+            'squadLeaderUnits' => $this->squadLeaderUnits,
+            'barracksUnits' => $this->barracksUnits,
+            'militaryBaseUnits' => $this->militaryBaseUnits,
+            'kingdomUnits' => $this->kingdomUnits,
+            'empireUnits' => $this->empireUnits,
             'planets' => $this->planets,
             'solarSystems' => $this->solarSystems,
             'galaxies' => $this->galaxies,
             'magic' => $this->magic,
             'darkRituals' => $this->darkRituals,
             'rp' => $this->rp,
+            'squadLeaderPower' => $this->squadLeaderPower,
         ];
     }
 }
