@@ -1,0 +1,77 @@
+Early Game Replay Validation (Pre-Magic)
+=========================================
+
+GOAL: Replay the game state step-by-step from the log to verify
+income and spending are legitimate. This covers everything before
+magic is unlocked.
+
+SCOPE:
+- Day 0 through magic unlock
+- Army chain: Recruits, Training, SL, Barracks, MB, Kingdom, Empire
+- Economy chain: Farms, Plantations, Colonies
+- Combat: Enemy fights, vanquish, surrender
+- Food/starvation mechanics
+
+TASKS:
+
+1. Create GameReplay class
+   - Initialize from log start state
+   - Process events in order
+   - Track: coins, troops, food, buildings, PPT, power
+
+2. Replay income
+   - Each day: expectedIncome = troops * PPT * 4
+   - Compare to actual coin gain in log
+   - Flag if actual > expected * tolerance (e.g., 1.1x)
+
+3. Replay spending
+   - Track coin balance
+   - For each purchase, verify:
+     a. Player had enough coins
+     b. Cost matches expected (base * 1.04^owned for army, 1.02^owned for econ)
+   - Flag if balance would go negative
+
+4. Replay army chain
+   - Track building counts
+   - Verify PPT calculation:
+     rp = 1 + SL * squadLeaderPower
+     squadLeaderPower = 1 + barracks * barracksPower
+     etc.
+   - Verify troop counts from recruits - deaths
+
+5. Replay food/starvation
+   - Track food production (farms * 100)
+   - Track consumption (troops per day)
+   - Verify starvation events match when food runs out
+   - Verify desertion percentages (5%, 10%, 20%...)
+
+6. Output validation result
+   - List of discrepancies found
+   - Severity level for each
+   - Overall pass/fail
+
+DEPENDENCIES:
+- 07a (parsed log with events)
+- 07c (OrdinalNumber for calculations)
+
+NOTES:
+- This is the foundation - get this working first
+- Numbers are still manageable (no tower notation yet)
+- Can use PHP floats for most calculations
+- Game constants (costs, multipliers) need to be synced from JS
+
+ESTIMATE: 4-6 hours
+
+PROGRESS (2026-03-24):
+- [x] Created GameReplay.php class
+  - Tracks state: coins, troops, ppt, food, buildings
+  - Processes click actions: recruit, SL, barracks, MB, kingdom, empire, train, farm, plantation, colony
+  - Calculates costs with inflation (1.04^armyClicks, 1.02^economyClicks)
+  - Computes derived values (rp, fp, pp, squadLeaderPower, etc.)
+  - Validates against snapshots
+- [x] Created EarlyGameValidator.php wrapper
+  - Runs GameReplay.validateEarlyGame()
+  - Additional consistency checks (farm count vs clicks, troop growth rate)
+- [x] Integrated into routes.php submission flow
+- [ ] Need to test with actual game logs
+- [ ] May need to refine tolerance and checks based on testing

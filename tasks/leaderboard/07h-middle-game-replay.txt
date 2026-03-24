@@ -1,0 +1,73 @@
+Middle Game Replay Validation (Magic Stage)
+============================================
+
+GOAL: Extend the replay engine to handle the magic stage of the game.
+This covers magic unlocking through to auto-upgraders (but not including
+double-digit magic cost items).
+
+SCOPE:
+- Magic generation and spending
+- Rituals (single-digit magic costs)
+- Dragon mechanics (enemy dragons, dragon battles)
+- Extended army tiers unlocked by magic
+- NOT: Auto-upgraders, Forbidden Ritual tier (these cost 10+ magic)
+
+TASKS:
+
+1. Extend GameReplay for magic
+   - Track magic resource
+   - Magic generation rate (from what source?)
+   - Magic spending on rituals/unlocks
+
+2. Replay ritual purchases
+   - Verify magic balance before purchase
+   - Apply ritual effects to game state
+   - Track which rituals are active
+
+3. Replay dragon mechanics
+   - Enemy dragon spawning
+   - Dragon combat
+   - Dragon-related income/effects
+
+4. Replay extended army tiers
+   - Tiers unlocked via magic
+   - Same cost/multiplier verification as early game
+   - Higher tier buildings affect lower tier power
+
+5. Handle larger numbers
+   - May start seeing numbers beyond float precision
+   - Use OrdinalNumber where needed
+   - Verify calculations match JS behavior
+
+6. Output validation result
+   - Extend early game result format
+   - Include magic-specific discrepancies
+
+DEPENDENCIES:
+- 07g (early game replay foundation)
+- 07c (OrdinalNumber)
+
+NOTES:
+- Build on early game replay, don't duplicate
+- Magic mechanics need to be understood from game code
+- This is where numbers start getting big
+- May need to sync more game constants from JS
+
+ESTIMATE: 4-6 hours
+
+PROGRESS (2026-03-24):
+- [x] Extended GameReplay.php for middle game:
+  - Added magic state (magic, darkRituals, magicUnlocked, eternalFeast, etc.)
+  - Added extended army tiers (planets through superclusters)
+  - Added extended power chain (empirePower, planetPower, etc.)
+  - Added dark ritual processing (coins → magic)
+  - Added magic unlock actions (1-9 magic cost items)
+  - Added validateMiddleGame() method
+- [x] Created MiddleGameValidator.php wrapper
+  - Checks if game reached magic stage
+  - Validates magic balance (spent ≤ earned)
+  - Additional consistency checks
+- [x] Integrated into routes.php submission flow
+- [ ] Need to test with actual game logs
+- [ ] Dragon mechanics not fully implemented (spawn/power tracking)
+- [ ] Upgrade multiplier effects not implemented

@@ -1,10 +1,10 @@
 <?php
 /**
  * BasicValidator - Catch obvious cheating with simple sanity checks
+ *
+ * Note: Full income/spending verification requires game replay (see 07g/h/i tasks).
+ * This class only does quick sanity checks.
  */
-
-require_once __DIR__ . '/IncomeVerifier.php';
-require_once __DIR__ . '/SpendingVerifier.php';
 
 class ValidationResult {
     public bool $passed;
@@ -49,41 +49,11 @@ class BasicValidator {
         $this->checkNoNegativeValues($result);
         $this->checkReasonableDayCount($result);
         $this->checkMilestoneConsistency($result);
-        $this->checkIncomeVerification($result);
-        $this->checkSpendingVerification($result);
+
+        // Note: Full income/spending verification requires game replay.
+        // See tasks 07g (early game), 07h (middle game), 07i (late game).
 
         return $result;
-    }
-
-    /**
-     * Check that spending/gains are plausible
-     */
-    private function checkSpendingVerification(ValidationResult $result): void {
-        $verifier = new SpendingVerifier($this->parser);
-
-        $spendingFlags = $verifier->verify();
-        foreach ($spendingFlags as $flag) {
-            $result->addFlag($flag);
-        }
-    }
-
-    /**
-     * Check that income matches expected values
-     */
-    private function checkIncomeVerification(ValidationResult $result): void {
-        $verifier = new IncomeVerifier($this->parser);
-
-        // Check day-by-day income
-        $incomeFlags = $verifier->verify();
-        foreach ($incomeFlags as $flag) {
-            $result->addFlag($flag);
-        }
-
-        // Check final coins plausibility
-        $finalCheck = $verifier->checkFinalCoinsPlausible();
-        if ($finalCheck !== null) {
-            $result->addFlag($finalCheck);
-        }
     }
 
     /**

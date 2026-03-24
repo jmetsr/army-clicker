@@ -5,6 +5,9 @@
 
 require_once __DIR__ . '/LogParser.php';
 require_once __DIR__ . '/BasicValidator.php';
+require_once __DIR__ . '/EarlyGameValidator.php';
+require_once __DIR__ . '/MiddleGameValidator.php';
+require_once __DIR__ . '/LateGameValidator.php';
 
 function route(string $method, string $uri): void {
     // API routes
@@ -95,6 +98,27 @@ function handleSubmitRun(): void {
     // Run basic validation (anti-cheat)
     $validator = new BasicValidator($parser);
     $validationResult = $validator->validate();
+
+    // Run early game replay validation (07g)
+    $earlyGameValidator = new EarlyGameValidator($parser);
+    $earlyGameFlags = $earlyGameValidator->validate();
+    foreach ($earlyGameFlags as $flag) {
+        $validationResult->addFlag("[EarlyGame] $flag");
+    }
+
+    // Run middle game replay validation (07h)
+    $middleGameValidator = new MiddleGameValidator($parser);
+    $middleGameFlags = $middleGameValidator->validate();
+    foreach ($middleGameFlags as $flag) {
+        $validationResult->addFlag("[MiddleGame] $flag");
+    }
+
+    // Run late game validation (07i)
+    $lateGameValidator = new LateGameValidator($parser);
+    $lateGameFlags = $lateGameValidator->validate();
+    foreach ($lateGameFlags as $flag) {
+        $validationResult->addFlag("[LateGame] $flag");
+    }
 
     // Flag as cheated if 2+ issues found
     $cheated = count($validationResult->flags) >= 2;

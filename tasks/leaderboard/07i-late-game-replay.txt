@@ -1,0 +1,74 @@
+Late Game Replay Validation (Auto-Upgraders & Beyond)
+=====================================================
+
+GOAL: Extend the replay engine to handle late game mechanics.
+This covers auto-upgraders, forbidden ritual tier, and tower
+notation numbers.
+
+SCOPE:
+- Auto-upgraders (10+ magic cost)
+- Forbidden Ritual tier
+- Tower notation numbers (arrows > 1)
+- Any other late-game mechanics
+
+TASKS:
+
+1. Extend GameReplay for auto-upgraders
+   - Auto-upgrader purchase and leveling
+   - Auto-click mechanics (tier K clicks tier K-1)
+   - Level cascade: f(k-1) = 10^f(k)
+
+2. Handle tower notation arithmetic
+   - Full OrdinalNumber support required
+   - {arrows: 2, height: N} representation
+   - Verify calculations match JS exactly
+
+3. Replay forbidden ritual tier
+   - Unlock conditions
+   - Effects on game state
+   - Cost verification
+
+4. Validate astronomical numbers
+   - Income becomes tower notation
+   - Building counts become tower notation
+   - Comparison tolerance needs adjustment for huge numbers
+
+5. Handle edge cases
+   - Numbers transitioning between notation systems
+   - Overflow/underflow scenarios
+   - Normalization thresholds (1e12 for arrow transitions)
+
+6. Output validation result
+   - May need special formatting for tower numbers
+   - Flag impossible growth rates
+
+DEPENDENCIES:
+- 07h (middle game replay)
+- 07c (OrdinalNumber with full arrow support)
+
+NOTES:
+- This is the hardest stage - tower notation is complex
+- PHP OrdinalNumber must match JS behavior exactly
+- May want to skip detailed validation and just sanity-check
+- Consider: is full late-game replay even feasible?
+- Alternative: trust early/middle, spot-check late game
+
+ESTIMATE: 6-10 hours (depends on complexity)
+
+PROGRESS (2026-03-24):
+- [x] Created LateGameValidator.php
+  - Sanity-check approach (not full replay due to complexity)
+  - Magic consistency: spent ≤ earned
+  - Unlock order verification (sapphire → emerald → ruby)
+  - Auto-upgrader count sanity check
+  - Tower notation arrow jump detection
+- [x] Integrated into routes.php submission flow
+- [ ] Full tower notation replay not implemented (too complex)
+- [ ] Auto-upgrader cascade replay not implemented (too complex)
+
+NOTE: Late game validation uses sanity checks rather than full replay
+because:
+1. Tower notation arithmetic is complex and error-prone to replicate
+2. Auto-upgrader cascades involve recursive level increases
+3. Early/middle game validation should catch most cheaters
+4. Late game cheaters would need to pass early/middle checks first
