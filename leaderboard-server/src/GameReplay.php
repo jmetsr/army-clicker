@@ -31,6 +31,7 @@ class GameReplay {
     const FARM_PRODUCTION = 100;
     const INCOME_PER_POWER = 4;  // coins per power per day
     const FOOD_PER_TROOP_DAY = 1;  // food consumed per troop per day
+    const STARTING_FOOD = 500;  // initial food supply
 
     // Middle game constants
     const DARK_RITUAL_BASE_COST = 1e12;
@@ -103,7 +104,7 @@ class GameReplay {
     public function __construct() {
         $this->coins = new OrdinalNumber(0);
         $this->troops = new OrdinalNumber(0);
-        $this->food = new OrdinalNumber(0);
+        $this->food = new OrdinalNumber(self::STARTING_FOOD);
     }
 
     /**
