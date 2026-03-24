@@ -3,6 +3,9 @@
  * Route definitions
  */
 
+// Log to local file for easier debugging
+ini_set('error_log', __DIR__ . '/../debug.log');
+
 require_once __DIR__ . '/LogParser.php';
 require_once __DIR__ . '/BasicValidator.php';
 require_once __DIR__ . '/EarlyGameValidator.php';
@@ -96,32 +99,42 @@ function handleSubmitRun(): void {
     error_log("Leaderboard submission: $playerName ($gameMode) - day {$milestones['finalDay']}, coins: {$milestones['finalCoins']}");
 
     // Run basic validation (anti-cheat)
+    error_log("=== LEADERBOARD SUBMISSION: $playerName ($gameMode) ===");
     $validator = new BasicValidator($parser);
     $validationResult = $validator->validate();
+    error_log("BasicValidator flags: " . json_encode($validationResult->flags));
 
     // Run early game replay validation (07g)
+    error_log("Running EarlyGameValidator...");
     $earlyGameValidator = new EarlyGameValidator($parser);
     $earlyGameFlags = $earlyGameValidator->validate();
+    error_log("EarlyGame flags count: " . count($earlyGameFlags));
     foreach ($earlyGameFlags as $flag) {
         $validationResult->addFlag("[EarlyGame] $flag");
     }
 
     // Run middle game replay validation (07h)
+    error_log("Running MiddleGameValidator...");
     $middleGameValidator = new MiddleGameValidator($parser);
     $middleGameFlags = $middleGameValidator->validate();
+    error_log("MiddleGame flags count: " . count($middleGameFlags));
     foreach ($middleGameFlags as $flag) {
         $validationResult->addFlag("[MiddleGame] $flag");
     }
 
     // Run late game validation (07i)
+    error_log("Running LateGameValidator...");
     $lateGameValidator = new LateGameValidator($parser);
     $lateGameFlags = $lateGameValidator->validate();
+    error_log("LateGame flags count: " . count($lateGameFlags));
     foreach ($lateGameFlags as $flag) {
         $validationResult->addFlag("[LateGame] $flag");
     }
 
     // Flag as cheated if 2+ issues found
     $cheated = count($validationResult->flags) >= 2;
+    error_log("Total flags: " . count($validationResult->flags) . ", cheated: " . ($cheated ? "YES" : "NO"));
+    error_log("All flags: " . json_encode($validationResult->flags));
     $cheatReason = !empty($validationResult->flags) ? implode('; ', $validationResult->flags) : null;
 
     if ($cheated) {
@@ -180,10 +193,12 @@ function handleSubmitRun(): void {
         ]);
 
     } catch (PDOException $e) {
-        error_log("Database error: " . $e->getMessage());
+        error_log("DATABASE ERROR: " . $e->getMessage());
+        error_log("SQL State: " . $e->getCode());
+        error_log("Stack trace: " . $e->getTraceAsString());
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to save run to database'
+            'message' => 'Failed to save run to database: ' . $e->getMessage()
         ]);
     }
 }

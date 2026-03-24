@@ -424,6 +424,7 @@ function setupEventListeners() {
 
   // Beg button
   document.getElementById("begBtn").addEventListener("click", function() {
+    logClick("beg");
     G.coins = G.coins.add(1);
     document.getElementById("coinCount").textContent = fmt(G.coins);
     updateUI();
@@ -559,6 +560,9 @@ function setupEventListeners() {
     leaderboardSubmit.disabled = true;
     leaderboardStatus.textContent = 'Submitting...';
     leaderboardStatus.className = 'form-status loading';
+
+    // Capture final snapshot before submission for validation
+    logSnapshot();
 
     // Gather submission data
     var submissionData = {

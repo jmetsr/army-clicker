@@ -110,6 +110,8 @@ class GameReplay {
         $clicks = $parser->getClickLog();
         $snapshots = $parser->getSnapshots();
 
+        error_log("GameReplay::validateEarlyGame() - clicks: " . count($clicks) . ", snapshots: " . count($snapshots));
+
         if (empty($clicks)) {
             $this->flags[] = "No click log to validate";
             return $this->flags;
@@ -121,11 +123,22 @@ class GameReplay {
         // Sort snapshots by day for comparison
         usort($snapshots, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
 
+        // Log snapshot info
+        if (!empty($snapshots)) {
+            $firstSnap = $snapshots[0];
+            $lastSnap = end($snapshots);
+            error_log("Snapshots range: day " . ($firstSnap['day'] ?? '?') . " to day " . ($lastSnap['day'] ?? '?'));
+        }
+
         // Process each click
         $prevDay = 0;
+        $actionCounts = [];
+        $clickNum = 0;
         foreach ($clicks as $click) {
+            $clickNum++;
             $clickDay = $click['day'] ?? 0;
             $action = $click['action'] ?? '';
+            $actionCounts[$action] = ($actionCounts[$action] ?? 0) + 1;
 
             // Advance day and add income
             if ($clickDay > $prevDay) {
@@ -133,12 +146,26 @@ class GameReplay {
                 $prevDay = $clickDay;
             }
 
+            // Debug: log first 20 clicks
+            if ($clickNum <= 20) {
+                error_log("Click #$clickNum: day=$clickDay, action=$action, coins_before={$this->coins->toString()}, recruits_count={$this->recruits}");
+            }
+
             // Process the action
             $this->processAction($action, $click);
+
+            if ($clickNum <= 20) {
+                error_log("  -> coins_after={$this->coins->toString()}, troops={$this->troops->toString()}");
+            }
         }
+
+        error_log("Action counts: " . json_encode($actionCounts));
+        error_log("Final replay state: day={$this->day}, coins={$this->coins->toString()}, troops={$this->troops->toString()}, farms={$this->farms}");
 
         // Compare final state to snapshots
         $this->validateAgainstSnapshots($snapshots);
+
+        error_log("Flags after validation: " . json_encode($this->flags));
 
         return $this->flags;
     }
@@ -175,6 +202,15 @@ class GameReplay {
      */
     private function processAction(string $action, array $clickData): void {
         switch ($action) {
+            case 'beg':
+                $this->doBeg();
+                break;
+            case 'loot':
+                // Loot is passive income, already handled in advanceToDay
+                // But if explicitly logged, it might mean an active loot click
+                // For now, treat as +1 coin (same as beg) for simplicity
+                $this->doBeg();
+                break;
             case 'recruit':
                 $this->doRecruit();
                 break;
@@ -260,10 +296,11 @@ class GameReplay {
     }
 
     /**
-     * Calculate exponential cost: base * multiplier^count
+     * Calculate exponential cost: floor(base * multiplier^count)
+     * Must match JS: Math.floor(base * Math.pow(rate, total))
      */
     private function expCost(float $base, float $multiplier, int $count): float {
-        return $base * pow($multiplier, $count);
+        return floor($base * pow($multiplier, $count));
     }
 
     /**
@@ -272,12 +309,18 @@ class GameReplay {
     private function trySpend(float $cost, string $action): bool {
         $costON = new OrdinalNumber($cost);
         if ($this->coins->lt($costON)) {
+            error_log("SPEND FAILED: Day {$this->day}, action=$action, need=" . number_format($cost) . ", have=" . $this->coins->toString());
             $this->flags[] = "Day {$this->day}: Insufficient coins for $action (need " .
                 number_format($cost) . ", have " . $this->coins->toString() . ")";
             return false;
         }
         $this->coins = $this->coins->subtract($costON);
         return true;
+    }
+
+    private function doBeg(): void {
+        // Beg gives 1 coin per click
+        $this->coins = $this->coins->add(new OrdinalNumber(1));
     }
 
     private function doRecruit(): void {
@@ -399,9 +442,17 @@ class GameReplay {
      * Compare replay state against logged snapshots
      */
     private function validateAgainstSnapshots(array $snapshots): void {
+        error_log("validateAgainstSnapshots: " . count($snapshots) . " snapshots to check");
+
+        if (empty($snapshots)) {
+            error_log("WARNING: No snapshots to validate against!");
+        }
+
         foreach ($snapshots as $snap) {
             $snapDay = $snap['day'] ?? 0;
             $player = $snap['player'] ?? [];
+
+            error_log("Checking snapshot day $snapDay: coins=" . json_encode($player['coins'] ?? 'missing'));
 
             // Skip if we haven't reached this day
             if ($snapDay > $this->day) continue;
@@ -417,7 +468,9 @@ class GameReplay {
             // Compare coins (less strict due to timing)
             $snapCoins = new OrdinalNumber($player['coins'] ?? 0);
             $coinRatio = $this->safeRatio($this->coins, $snapCoins);
+            error_log("  Coin comparison: replay={$this->coins->toString()}, snapshot={$snapCoins->toString()}, ratio=$coinRatio");
             if ($coinRatio < 0.1 || $coinRatio > 10.0) {
+                error_log("  -> FLAGGING coin discrepancy!");
                 $this->flags[] = "Day $snapDay: Major coin discrepancy - replay has " .
                     $this->coins->toString() . ", log shows " . $snapCoins->toString();
             }

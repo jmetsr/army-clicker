@@ -29,23 +29,39 @@ class EarlyGameValidator {
     public function validate(): array {
         $flags = [];
 
+        error_log("=== EarlyGameValidator::validate() START ===");
+
         // Check if we have click log data
         $clicks = $this->parser->getClickLog();
+        error_log("Click log count: " . count($clicks));
+
         if (empty($clicks)) {
             // No click log - can't do replay validation
             // This isn't necessarily cheating, might be old log format
+            error_log("No click log available!");
             return ['No click log available for replay validation'];
         }
 
+        // Log first few clicks for debugging
+        error_log("First 5 clicks: " . json_encode(array_slice($clicks, 0, 5)));
+
         // Check if game reached magic (early game ends at magic unlock)
         $magicUnlocked = $this->checkMagicUnlocked();
+        error_log("Magic unlocked: " . ($magicUnlocked ? "yes" : "no"));
 
         // Run replay validation
+        error_log("Running replay validation...");
         $replayFlags = $this->replay->validateEarlyGame($this->parser);
+        error_log("Replay flags: " . json_encode($replayFlags));
         $flags = array_merge($flags, $replayFlags);
 
         // Additional early-game specific checks
-        $flags = array_merge($flags, $this->checkEarlyGameConsistency());
+        error_log("Running consistency checks...");
+        $consistencyFlags = $this->checkEarlyGameConsistency();
+        error_log("Consistency flags: " . json_encode($consistencyFlags));
+        $flags = array_merge($flags, $consistencyFlags);
+
+        error_log("=== EarlyGameValidator::validate() END - Total flags: " . count($flags) . " ===");
 
         return $flags;
     }
