@@ -30,6 +30,7 @@ class GameReplay {
     const COLONY_COST = 25000;
     const FARM_PRODUCTION = 100;
     const INCOME_PER_POWER = 4;  // coins per power per day
+    const FOOD_PER_TROOP_DAY = 1;  // food consumed per troop per day
 
     // Middle game constants
     const DARK_RITUAL_BASE_COST = 1e12;
@@ -92,9 +93,12 @@ class GameReplay {
     private int $galaxyPower = 1;
     private int $galaxyClusterPower = 1;
 
+    // Starvation tracking
+    private int $starvationStreak = 0;
+
     // Validation
     private array $flags = [];
-    private float $tolerance = 1.5;  // Allow 50% variance for timing issues
+    private bool $verboseLogging = true;  // Detailed day-by-day logs
 
     public function __construct() {
         $this->coins = new OrdinalNumber(0);
@@ -171,30 +175,73 @@ class GameReplay {
     }
 
     /**
-     * Advance game state to a new day, adding income
+     * Advance game state to a new day, simulating each day individually
+     * This properly handles income, food production/consumption, and starvation
      */
     private function advanceToDay(int $newDay, int $oldDay): void {
-        $daysPassed = $newDay - $oldDay;
-        if ($daysPassed <= 0) return;
+        if ($newDay <= $oldDay) return;
 
-        // Calculate income for these days
-        $power = $this->troops->multiply(new OrdinalNumber($this->ppt));
-        $income = $power->multiply(new OrdinalNumber(self::INCOME_PER_POWER * $daysPassed));
-        $this->coins = $this->coins->add($income);
-
-        // Food production and consumption
-        $foodProduced = $this->farms * self::FARM_PRODUCTION * $daysPassed;
-        $this->food = $this->food->add(new OrdinalNumber($foodProduced));
-
-        $troopCount = $this->troops->toFloat();
-        $foodConsumed = $troopCount * $daysPassed;
-        $this->food = $this->food->subtract(new OrdinalNumber($foodConsumed));
-
-        // Note: We're not simulating starvation here - that would require
-        // more detailed day-by-day simulation. We'll catch major issues
-        // through snapshot comparison.
+        // Simulate each day individually for accurate starvation tracking
+        for ($d = $oldDay + 1; $d <= $newDay; $d++) {
+            $this->simulateDay($d);
+        }
 
         $this->day = $newDay;
+    }
+
+    /**
+     * Simulate a single day: income, food, starvation
+     */
+    private function simulateDay(int $day): void {
+        $troopCount = $this->troops->toFloat();
+        $foodBefore = $this->food->toFloat();
+
+        // 1. Add passive income (power × 4)
+        $power = $troopCount * $this->ppt;
+        $income = $power * self::INCOME_PER_POWER;
+        $this->coins = $this->coins->add(new OrdinalNumber($income));
+
+        // 2. Food production from farms
+        $foodProduced = $this->farms * self::FARM_PRODUCTION;
+        $this->food = $this->food->add(new OrdinalNumber($foodProduced));
+
+        // 3. Food consumption (if not eternal feast)
+        if (!$this->eternalFeast) {
+            $foodConsumed = floor($troopCount * self::FOOD_PER_TROOP_DAY);
+            $foodAfterProd = $this->food->toFloat();
+            $foodShortage = $foodConsumed > $foodAfterProd;
+
+            $this->food = $this->food->subtract(new OrdinalNumber($foodConsumed));
+
+            // 4. Starvation check
+            if ($foodShortage) {
+                $this->starvationStreak++;
+                // 5% day 1, 10% day 2, 20% day 3, 40% day 4, 80% day 5, 100% day 6+
+                $desertPct = min(5 * pow(2, $this->starvationStreak - 1), 100);
+                $deserters = floor($troopCount * $desertPct / 100);
+                $this->troops = $this->troops->subtract(new OrdinalNumber($deserters));
+
+                if ($this->verboseLogging) {
+                    error_log("  Day $day: STARVATION streak={$this->starvationStreak}, " .
+                        "{$desertPct}% deserted ({$deserters} troops), " .
+                        "troops now: {$this->troops->toString()}");
+                }
+            } else {
+                if ($this->starvationStreak > 0 && $this->verboseLogging) {
+                    error_log("  Day $day: Starvation ended (was streak {$this->starvationStreak})");
+                }
+                $this->starvationStreak = 0;
+            }
+        }
+
+        // Verbose logging for debugging
+        if ($this->verboseLogging && ($day <= 20 || $day % 10 === 0)) {
+            $troopNow = $this->troops->toFloat();
+            $foodNow = $this->food->toFloat();
+            $coinsNow = $this->coins->toFloat();
+            error_log("  Day $day summary: troops=$troopNow, food=$foodNow (produced $foodProduced), " .
+                "coins=$coinsNow (+$income), farms={$this->farms}, ppt={$this->ppt}");
+        }
     }
 
     /**
@@ -442,45 +489,60 @@ class GameReplay {
      * Compare replay state against logged snapshots
      */
     private function validateAgainstSnapshots(array $snapshots): void {
-        error_log("validateAgainstSnapshots: " . count($snapshots) . " snapshots to check");
+        error_log("=== SNAPSHOT VALIDATION ===");
+        error_log("Replay final state: day={$this->day}, troops={$this->troops->toString()}, " .
+            "coins={$this->coins->toString()}, food={$this->food->toString()}, farms={$this->farms}");
+        error_log("Snapshots to check: " . count($snapshots));
 
         if (empty($snapshots)) {
             error_log("WARNING: No snapshots to validate against!");
+            return;
         }
 
         foreach ($snapshots as $snap) {
             $snapDay = $snap['day'] ?? 0;
             $player = $snap['player'] ?? [];
 
-            error_log("Checking snapshot day $snapDay: coins=" . json_encode($player['coins'] ?? 'missing'));
+            // Skip if we haven't reached this day in replay
+            if ($snapDay > $this->day) {
+                error_log("Skipping snapshot day $snapDay (replay only at day {$this->day})");
+                continue;
+            }
 
-            // Skip if we haven't reached this day
-            if ($snapDay > $this->day) continue;
-
-            // Compare troops - very loose tolerance because replay doesn't simulate starvation
-            // Starvation can cause 90%+ troop loss, so we allow up to 100x divergence
-            // This still catches impossible cheats like 10^20000 troops
             $snapTroops = new OrdinalNumber($player['troops'] ?? 0);
-            $ratio = $this->safeRatio($this->troops, $snapTroops);
-            if ($ratio < 0.01 || $ratio > 100.0) {
-                $this->flags[] = "Day $snapDay: Troop mismatch - replay has " .
-                    $this->troops->toString() . ", log shows " . $snapTroops->toString();
-            }
-
-            // Compare coins - very loose because income depends on troop count over time
-            // and replay doesn't track starvation effects on income
             $snapCoins = new OrdinalNumber($player['coins'] ?? 0);
-            $coinRatio = $this->safeRatio($this->coins, $snapCoins);
-            error_log("  Coin comparison: replay={$this->coins->toString()}, snapshot={$snapCoins->toString()}, ratio=$coinRatio");
-            if ($coinRatio < 0.001 || $coinRatio > 1000.0) {
-                error_log("  -> FLAGGING coin discrepancy!");
-                $this->flags[] = "Day $snapDay: Major coin discrepancy - replay has " .
-                    $this->coins->toString() . ", log shows " . $snapCoins->toString();
+            $snapFood = new OrdinalNumber($player['food'] ?? 0);
+            $snapFarms = $player['farms'] ?? 0;
+
+            error_log("--- Snapshot day $snapDay ---");
+            error_log("  Snapshot: troops={$snapTroops->toString()}, coins={$snapCoins->toString()}, " .
+                "food={$snapFood->toString()}, farms=$snapFarms");
+            error_log("  Replay:   troops={$this->troops->toString()}, coins={$this->coins->toString()}, " .
+                "food={$this->food->toString()}, farms={$this->farms}");
+
+            // Compare troops - now with starvation, should be tighter (0.5x to 2x)
+            $troopRatio = $this->safeRatio($this->troops, $snapTroops);
+            error_log("  Troop ratio: $troopRatio");
+            if ($troopRatio < 0.5 || $troopRatio > 2.0) {
+                error_log("  -> FLAGGING troop mismatch!");
+                $this->flags[] = "Day $snapDay: Troop mismatch - replay has " .
+                    $this->troops->toString() . ", log shows " . $snapTroops->toString() .
+                    " (ratio: " . round($troopRatio, 3) . ")";
             }
 
-            // Compare farms
-            $snapFarms = $player['farms'] ?? 0;
-            if (abs($this->farms - $snapFarms) > 5) {
+            // Compare coins - allow 0.2x to 5x due to timing/spending differences
+            $coinRatio = $this->safeRatio($this->coins, $snapCoins);
+            error_log("  Coin ratio: $coinRatio");
+            if ($coinRatio < 0.2 || $coinRatio > 5.0) {
+                error_log("  -> FLAGGING coin discrepancy!");
+                $this->flags[] = "Day $snapDay: Coin discrepancy - replay has " .
+                    $this->coins->toString() . ", log shows " . $snapCoins->toString() .
+                    " (ratio: " . round($coinRatio, 3) . ")";
+            }
+
+            // Compare farms - should be exact or very close
+            if (abs($this->farms - $snapFarms) > 2) {
+                error_log("  -> FLAGGING farm mismatch!");
                 $this->flags[] = "Day $snapDay: Farm count mismatch - replay has " .
                     $this->farms . ", log shows $snapFarms";
             }
