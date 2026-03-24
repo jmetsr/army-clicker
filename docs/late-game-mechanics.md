@@ -173,31 +173,30 @@ if ($arrowDiff > 2 && $dayDiff < 100) {
 
 ### Can PHP Match JS Exactly?
 
-**Short answer: NO, not with current PHP implementation.**
+**Short answer: YES, after rewrite (2026-03-24).**
 
-**Reasons**:
+PHP OrdinalNumber was rewritten to match JS:
 
-1. **Nested OrdinalNumber heights not supported**
-   - JS: `{arrows:2, height:{arrows:1, height:50}}`
-   - PHP flattens this, losing precision
-   - Fix: Implement recursive height in PHP (major rewrite)
+1. **Nested OrdinalNumber heights** - NOW SUPPORTED
+   - `{arrows:2, height:{arrows:1, height:50}}` works correctly
+   - Height can be float OR OrdinalNumber
 
-2. **exp10() not implemented**
+2. **exp10() implemented** - `arrows += 1; normalize()`
    - Critical for auto-upgrader level calculations
-   - Fix: Add method to PHP OrdinalNumber
 
-3. **Comparison logic differs**
-   - JS has complex `_flatten()` for nested comparison
-   - PHP does simple arrows/height comparison
-   - Results can differ for edge cases
+3. **_flatten() comparison logic** - PORTED
+   - Handles nested structures correctly
+   - Edge cases like 10^^2 == 10^10 work
 
-4. **Arithmetic approximations differ**
-   - Even with same logic, floating-point differences accumulate
-   - After millions of operations, results diverge
+4. **Arithmetic matches JS approximations**
+   - add/sub/mul/div all handle nested heights
+   - Same "larger dominates" logic
 
-### Recommended Approach
+**Test results**: All 20 tests pass (see `test-ordinal.php`)
 
-**Do NOT attempt full late-game replay.** Instead:
+### Current Approach
+
+Late game validation can now do fuller replay, but sanity checks remain as fallback:
 
 1. **Trust early/middle validation**: Cheaters caught there won't reach late game
 2. **Sanity check auto-upgrader count vs magic**: Can't have 50 auto-upgraders without 500 magic
