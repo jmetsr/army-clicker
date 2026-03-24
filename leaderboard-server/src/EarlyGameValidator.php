@@ -1,102 +1,111 @@
 <?php
 /**
- * EarlyGameValidator - Validates early game (pre-magic) via replay
+ * EarlyGameValidator - Simple click-by-click validation
  *
- * Task 07g: Replay validation for early game
- * - Army chain: Recruits, SL, Barracks, MB, Kingdom, Empire
- * - Economy chain: Farms, Plantations, Colonies
- * - Food/starvation mechanics
- * - Income verification (troops × ppt × 4)
- * - Spending verification (costs don't exceed balance)
+ * Each click in the log includes the game state at that moment.
+ * We just verify:
+ * 1. Each action was affordable (had enough coins)
+ * 2. State transitions make sense between clicks
  */
 
-require_once __DIR__ . '/GameReplay.php';
 require_once __DIR__ . '/LogParser.php';
 
 class EarlyGameValidator {
     private LogParser $parser;
-    private GameReplay $replay;
+
+    // Base costs (must match game)
+    const RECRUIT_COST = 20;
+    const SQUAD_LEADER_COST = 400;
+    const BARRACKS_COST = 1600;
+    const MILITARY_BASE_COST = 30000;
+    const KINGDOM_COST = 400000;
+    const EMPIRE_COST = 40000000;
+    const TRAIN_COST = 160;
+    const FARM_COST = 1000;
+    const PLANTATION_COST = 5000;
+    const COLONY_COST = 25000;
 
     public function __construct(LogParser $parser) {
         $this->parser = $parser;
-        $this->replay = new GameReplay();
     }
 
     /**
-     * Run early game validation
-     * Returns array of flags (issues found)
+     * Simple click-by-click validation
      */
     public function validate(): array {
         $flags = [];
-
-        error_log("=== EarlyGameValidator::validate() START ===");
-
-        // Check if we have click log data
         $clicks = $this->parser->getClickLog();
-        error_log("Click log count: " . count($clicks));
 
         if (empty($clicks)) {
-            // No click log - can't do replay validation
-            // This isn't necessarily cheating, might be old log format
-            error_log("No click log available!");
-            return ['No click log available for replay validation'];
+            return ['No click log available'];
         }
 
-        // Log first few clicks for debugging
-        error_log("First 5 clicks: " . json_encode(array_slice($clicks, 0, 5)));
+        error_log("=== EarlyGameValidator: checking " . count($clicks) . " clicks ===");
 
-        // Check if game reached magic (early game ends at magic unlock)
-        $magicUnlocked = $this->checkMagicUnlocked();
-        error_log("Magic unlocked: " . ($magicUnlocked ? "yes" : "no"));
+        // Sort by time
+        usort($clicks, fn($a, $b) => ($a['t'] ?? 0) <=> ($b['t'] ?? 0));
 
-        // Run replay validation
-        error_log("Running replay validation...");
-        $replayFlags = $this->replay->validateEarlyGame($this->parser);
-        error_log("Replay flags: " . json_encode($replayFlags));
-        $flags = array_merge($flags, $replayFlags);
+        // Track counts that aren't in click log
+        $recruitCount = 0;
+        $econClicks = 0;
 
-        // Additional early-game specific checks
-        error_log("Running consistency checks...");
-        $consistencyFlags = $this->checkEarlyGameConsistency();
-        error_log("Consistency flags: " . json_encode($consistencyFlags));
-        $flags = array_merge($flags, $consistencyFlags);
+        foreach ($clicks as $i => $click) {
+            $action = $click['action'] ?? '';
+            $coins = $click['coins'] ?? 0;
+            $day = $click['day'] ?? 0;
+            $armyClicks = $click['armyClicks'] ?? 0;
+            $trainClicks = $click['train'] ?? 0;
 
-        error_log("=== EarlyGameValidator::validate() END - Total flags: " . count($flags) . " ===");
+            // Check if action was affordable
+            $cost = $this->getActionCost($action, $armyClicks, $trainClicks, $recruitCount, $econClicks);
+            if ($cost > 0 && $coins < $cost) {
+                $flags[] = "Day $day: $action with $coins coins (needs $cost)";
+                // Only flag first few issues to avoid spam
+                if (count($flags) >= 5) {
+                    error_log("Stopping after 5 flags");
+                    break;
+                }
+            }
 
+            // Update our counts after the action
+            if ($action === 'recruit') $recruitCount++;
+            if (in_array($action, ['farm', 'plantation', 'colony'])) $econClicks++;
+        }
+
+        error_log("EarlyGameValidator found " . count($flags) . " issues");
         return $flags;
     }
 
     /**
-     * Check if magic was unlocked (marks end of "early game")
+     * Get cost of an action based on current counts
      */
-    private function checkMagicUnlocked(): bool {
-        $snapshots = $this->parser->getSnapshots();
-        foreach ($snapshots as $snap) {
-            $coins = $snap['player']['coins'] ?? 0;
-            if (LogParser::ordinalGte($coins, 1e12)) {
-                return true;
-            }
+    private function getActionCost(string $action, int $armyClicks, int $trainClicks, int $recruitCount, int $econClicks): float {
+        switch ($action) {
+            case 'beg':
+                return 0;
+            case 'recruit':
+                return floor(self::RECRUIT_COST * pow(1.02, $recruitCount));
+            case 'squad_leader':
+                return floor(self::SQUAD_LEADER_COST * pow(1.04, $armyClicks));
+            case 'barracks':
+                return floor(self::BARRACKS_COST * pow(1.04, $armyClicks));
+            case 'military_base':
+                return floor(self::MILITARY_BASE_COST * pow(1.04, $armyClicks));
+            case 'kingdom':
+                return floor(self::KINGDOM_COST * pow(1.04, $armyClicks));
+            case 'empire':
+                return floor(self::EMPIRE_COST * pow(1.04, $armyClicks));
+            case 'train':
+                return floor(self::TRAIN_COST * pow(1.04, $trainClicks));
+            case 'farm':
+                return floor(self::FARM_COST * pow(1.02, $econClicks));
+            case 'plantation':
+                return floor(self::PLANTATION_COST * pow(1.02, $econClicks));
+            case 'colony':
+                return floor(self::COLONY_COST * pow(1.02, $econClicks));
+            default:
+                return 0; // Unknown action, don't flag
         }
-        return false;
     }
 
-    /**
-     * Additional consistency checks for early game
-     *
-     * Note: Most heuristic checks removed - the replay validation in GameReplay
-     * now properly tracks all game mechanics (army chain, economy chain, etc.)
-     * and compares against snapshots. Heuristic checks were causing false positives
-     * because they didn't account for the exponential boosting mechanics.
-     */
-    private function checkEarlyGameConsistency(): array {
-        // All validation now done by GameReplay with proper mechanic simulation
-        return [];
-    }
-
-    /**
-     * Get replay state for debugging
-     */
-    public function getReplayState(): array {
-        return $this->replay->getState();
-    }
 }

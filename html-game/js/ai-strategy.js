@@ -746,6 +746,10 @@ function runAI(clicks) {
 
   // === LOG SUMMARY OF AI ACTIONS ===
   var actionList = Object.keys(actionCounts);
+  // Don't show beg in summary if AI has > 1000 coins (reduces spam once established)
+  if (ai.coins.gte(1000)) {
+    actionList = actionList.filter(function(a) { return a !== 'beg'; });
+  }
   if (actionList.length > 0) {
     var summary = actionList.map(function(action) {
       var count = actionCounts[action];

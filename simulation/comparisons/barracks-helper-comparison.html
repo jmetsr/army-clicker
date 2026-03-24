@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Barracks Helper Comparison</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1a1a2e; color: #eee; }
+    h1, h2 { color: #0f0; }
+    table { border-collapse: collapse; margin: 10px 0 30px 0; font-size: 12px; }
+    th, td { border: 1px solid #444; padding: 4px 8px; text-align: right; }
+    th { background: #333; color: #0f0; }
+    tr:nth-child(even) { background: #252540; }
+    .winner { background: #0a3; color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>Barracks Helper Strategy Comparison</h1>
+  <p>Testing whether buying barracks instead of SL helps when saving for kingdom/empire.</p>
+  <p>Days: 500, Clicks/day: 10</p>
+  <p>Green = winner for that day (highest power)</p>
+
+  
+    <h2>Day 50</h2>
+    <table>
+      <tr>
+        <th>Strategy</th>
+        <th>Power</th>
+        <th>vs Base</th>
+        <th>Troops</th>
+        <th>PPT</th>
+        <th>SLs</th>
+        <th>Barracks</th>
+        <th>MBs</th>
+        <th>Kingdoms</th>
+        <th>Empires</th>
+        <th>Farms</th>
+        <th>Starve</th>
+      </tr>
+      <tr class="winner">
+          <td style="text-align:left">FIX div=1</td>
+          <td>235</td>
+          <td>0.0%</td>
+          <td>235</td>
+          <td>1.00</td>
+          <td>3</td>
+          <td>2</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>3</td>
+          <td>1</td>
+        </tr><tr class="winner">
+          <td style="text-align:left">OLD div=1.2</td>
+          <td>235</td>
+          <td>0.0%</td>
+          <td>235</td>
+          <td>1.00</td>
+          <td>3</td>
+          <td>2</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>3</td>
+          <td>1</td>
+        </tr><tr class="winner">
+          <td style="text-align:left">FIX div=1.2</td>
+          <td>235</td>
+          <td>0.0%</td>
+          <td>235</td>
+          <td>1.00</td>
+          <td>3</td>
+          <td>2</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>3</td>
+          <td>1</td>
+        </tr><tr class="winner">
+          <td style="text-align:left">BASE (no helper)</td>
+          <td>235</td>
+          <td>-</td>
+          <td>235</td>
+          <td>1.00</td>
+          <td>3</td>
+          <td>2</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>3</td>
+          <td>1</td>
+        </tr><tr class="winner">
+          <td style="text-align:left">OLD div=1</td>
+          <td>235</td>
+          <td>0.0%</td>
+          <td>235</td>
+          <td>1.00</td>
+          <td>3</td>
+          <td>2</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>3</td>
+          <td>1</td>
+        </tr><tr class="winner">
+          <td style="text-align:left">FIX div=1.1</td>
+          <td>235</td>
+          <td>0.0%</td>
+          <td>235</td>
+          <td>1.00</td>
+          <td>3</td>
+          <td>2</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>3</td>
+          <td>1</td>
+        </tr><tr class="winner">
+          <td style="text-align:left">FIX div=1.5</td>
+          <td>235</td>
+          <td>0.0%</td>
+          <td>235</td>
+          <td>1.00</td>
+          <td>3</td>
+          <td>2</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>3</td>
+          <td>1</td>
+        </tr><tr class="winner">
+          <td style="text-align:left">FIX div=2</td>
+          <td>235</td>
+          <td>0.0%</td>
+          <td>235</td>
+          <td>1.00</td>
+          <td>3</td>
+          <td>2</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>3</td>
+          <td>1</td>
+        </tr><tr class="winner">
+          <td style="text-align:left">FIX div=3</td>
+          <td>235</td>
+          <td>0.0%</td>
+          <td>235</td>
+          <td>1.00</td>
+          <td>3</td>
+          <td>2</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>3</td>
+          <td>1</td>
+        </tr><tr class="winner">
+          <td style="text-align:left">FIX div=2.5</td>
+          <td>235</td>
+          <td>0.0%</td>
+          <td>235</td>
+          <td>1.00</td>
+          <td>3</td>
+          <td>2</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>3</td>
+          <td>1</td>
+        </tr>
+    </table>
+  
+    <h2>Day 100</h2>
+    <table>
+      <tr>
+        <th>Strategy</th>
+        <th>Power</th>
+        <th>vs Base</th>
+        <th>Troops</th>
+        <th>PPT</th>
+        <th>SLs</th>
+        <th>Barracks</th>
+        <th>MBs</th>
+        <th>Kingdoms</th>
+        <th>Empires</th>
+        <th>Farms</th>
+        <th>Starve</th>
+      </tr>
+      <tr class="">
+          <td style="text-align:left">FIX div=1</td>
+          <td>21,312</td>
+          <td>+25.8%</td>
+          <td>12,330</td>
+          <td>1.73</td>
+          <td>295</td>
+          <td>11</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>127</td>
+          <td>15</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1.2</td>
+          <td>21,182</td>
+          <td>+25.0%</td>
+          <td>10,245</td>
+          <td>2.07</td>
+          <td>83</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>103</td>
+          <td>20</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.2</td>
+          <td>21,215</td>
+          <td>+25.2%</td>
+          <td>13,291</td>
+          <td>1.60</td>
+          <td>251</td>
+          <td>11</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>166</td>
+          <td>23</td>
+        </tr><tr class="">
+          <td style="text-align:left">BASE (no helper)</td>
+          <td>16,940</td>
+          <td>-</td>
+          <td>11,492</td>
+          <td>1.47</td>
+          <td>99</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>117</td>
+          <td>18</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1</td>
+          <td>16,940</td>
+          <td>0.0%</td>
+          <td>11,492</td>
+          <td>1.47</td>
+          <td>99</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>117</td>
+          <td>18</td>
+        </tr><tr class="winner">
+          <td style="text-align:left">FIX div=1.1</td>
+          <td>23,609</td>
+          <td>+39.4%</td>
+          <td>15,545</td>
+          <td>1.52</td>
+          <td>271</td>
+          <td>11</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>138</td>
+          <td>21</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.5</td>
+          <td>11,183</td>
+          <td>-34.0%</td>
+          <td>7,147</td>
+          <td>1.56</td>
+          <td>67</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>70</td>
+          <td>20</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2</td>
+          <td>11,093</td>
+          <td>-34.5%</td>
+          <td>5,927</td>
+          <td>1.87</td>
+          <td>51</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>62</td>
+          <td>17</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=3</td>
+          <td>9,331</td>
+          <td>-44.9%</td>
+          <td>4,337</td>
+          <td>2.15</td>
+          <td>35</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>45</td>
+          <td>15</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2.5</td>
+          <td>9,360</td>
+          <td>-44.7%</td>
+          <td>4,438</td>
+          <td>2.11</td>
+          <td>39</td>
+          <td>3</td>
+          <td>3</td>
+          <td>0</td>
+          <td>0</td>
+          <td>44</td>
+          <td>16</td>
+        </tr>
+    </table>
+  
+    <h2>Day 150</h2>
+    <table>
+      <tr>
+        <th>Strategy</th>
+        <th>Power</th>
+        <th>vs Base</th>
+        <th>Troops</th>
+        <th>PPT</th>
+        <th>SLs</th>
+        <th>Barracks</th>
+        <th>MBs</th>
+        <th>Kingdoms</th>
+        <th>Empires</th>
+        <th>Farms</th>
+        <th>Starve</th>
+      </tr>
+      <tr class="winner">
+          <td style="text-align:left">FIX div=1</td>
+          <td>245,038</td>
+          <td>+186.3%</td>
+          <td>30,021</td>
+          <td>8.16</td>
+          <td>295</td>
+          <td>11</td>
+          <td>3</td>
+          <td>7</td>
+          <td>0</td>
+          <td>303</td>
+          <td>28</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1.2</td>
+          <td>66,873</td>
+          <td>-21.9%</td>
+          <td>10,300</td>
+          <td>6.49</td>
+          <td>83</td>
+          <td>3</td>
+          <td>3</td>
+          <td>7</td>
+          <td>0</td>
+          <td>106</td>
+          <td>23</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.2</td>
+          <td>184,083</td>
+          <td>+115.0%</td>
+          <td>22,553</td>
+          <td>8.16</td>
+          <td>251</td>
+          <td>11</td>
+          <td>3</td>
+          <td>8</td>
+          <td>0</td>
+          <td>217</td>
+          <td>30</td>
+        </tr><tr class="">
+          <td style="text-align:left">BASE (no helper)</td>
+          <td>85,600</td>
+          <td>-</td>
+          <td>12,055</td>
+          <td>7.10</td>
+          <td>99</td>
+          <td>3</td>
+          <td>3</td>
+          <td>7</td>
+          <td>0</td>
+          <td>123</td>
+          <td>22</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1</td>
+          <td>85,600</td>
+          <td>0.0%</td>
+          <td>12,055</td>
+          <td>7.10</td>
+          <td>99</td>
+          <td>3</td>
+          <td>3</td>
+          <td>7</td>
+          <td>0</td>
+          <td>123</td>
+          <td>22</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.1</td>
+          <td>215,741</td>
+          <td>+152.0%</td>
+          <td>26,696</td>
+          <td>8.08</td>
+          <td>271</td>
+          <td>11</td>
+          <td>3</td>
+          <td>7</td>
+          <td>0</td>
+          <td>254</td>
+          <td>30</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.5</td>
+          <td>46,482</td>
+          <td>-45.7%</td>
+          <td>7,450</td>
+          <td>6.24</td>
+          <td>67</td>
+          <td>3</td>
+          <td>3</td>
+          <td>5</td>
+          <td>0</td>
+          <td>75</td>
+          <td>21</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2</td>
+          <td>37,282</td>
+          <td>-56.4%</td>
+          <td>6,343</td>
+          <td>5.88</td>
+          <td>51</td>
+          <td>3</td>
+          <td>3</td>
+          <td>5</td>
+          <td>0</td>
+          <td>62</td>
+          <td>17</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=3</td>
+          <td>25,608</td>
+          <td>-70.1%</td>
+          <td>4,625</td>
+          <td>5.54</td>
+          <td>35</td>
+          <td>3</td>
+          <td>3</td>
+          <td>4</td>
+          <td>0</td>
+          <td>45</td>
+          <td>15</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2.5</td>
+          <td>24,925</td>
+          <td>-70.9%</td>
+          <td>4,457</td>
+          <td>5.59</td>
+          <td>39</td>
+          <td>3</td>
+          <td>3</td>
+          <td>4</td>
+          <td>0</td>
+          <td>44</td>
+          <td>17</td>
+        </tr>
+    </table>
+  
+    <h2>Day 200</h2>
+    <table>
+      <tr>
+        <th>Strategy</th>
+        <th>Power</th>
+        <th>vs Base</th>
+        <th>Troops</th>
+        <th>PPT</th>
+        <th>SLs</th>
+        <th>Barracks</th>
+        <th>MBs</th>
+        <th>Kingdoms</th>
+        <th>Empires</th>
+        <th>Farms</th>
+        <th>Starve</th>
+      </tr>
+      <tr class="winner">
+          <td style="text-align:left">FIX div=1</td>
+          <td>300,599</td>
+          <td>+211.6%</td>
+          <td>30,484</td>
+          <td>9.86</td>
+          <td>295</td>
+          <td>5,863</td>
+          <td>307</td>
+          <td>18</td>
+          <td>0</td>
+          <td>311</td>
+          <td>32</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1.2</td>
+          <td>82,266</td>
+          <td>-14.7%</td>
+          <td>10,806</td>
+          <td>7.61</td>
+          <td>83</td>
+          <td>3</td>
+          <td>3</td>
+          <td>15</td>
+          <td>0</td>
+          <td>106</td>
+          <td>25</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.2</td>
+          <td>193,245</td>
+          <td>+100.3%</td>
+          <td>21,864</td>
+          <td>8.84</td>
+          <td>251</td>
+          <td>11</td>
+          <td>212</td>
+          <td>18</td>
+          <td>0</td>
+          <td>226</td>
+          <td>33</td>
+        </tr><tr class="">
+          <td style="text-align:left">BASE (no helper)</td>
+          <td>96,476</td>
+          <td>-</td>
+          <td>12,178</td>
+          <td>7.92</td>
+          <td>99</td>
+          <td>3</td>
+          <td>3</td>
+          <td>15</td>
+          <td>0</td>
+          <td>123</td>
+          <td>24</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1</td>
+          <td>96,476</td>
+          <td>0.0%</td>
+          <td>12,178</td>
+          <td>7.92</td>
+          <td>99</td>
+          <td>3</td>
+          <td>3</td>
+          <td>15</td>
+          <td>0</td>
+          <td>123</td>
+          <td>24</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.1</td>
+          <td>238,084</td>
+          <td>+146.8%</td>
+          <td>25,886</td>
+          <td>9.20</td>
+          <td>271</td>
+          <td>11</td>
+          <td>174</td>
+          <td>18</td>
+          <td>0</td>
+          <td>263</td>
+          <td>34</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.5</td>
+          <td>51,617</td>
+          <td>-46.5%</td>
+          <td>7,640</td>
+          <td>6.76</td>
+          <td>67</td>
+          <td>3</td>
+          <td>3</td>
+          <td>12</td>
+          <td>0</td>
+          <td>75</td>
+          <td>23</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2</td>
+          <td>39,145</td>
+          <td>-59.4%</td>
+          <td>6,212</td>
+          <td>6.30</td>
+          <td>51</td>
+          <td>3</td>
+          <td>3</td>
+          <td>11</td>
+          <td>0</td>
+          <td>63</td>
+          <td>19</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=3</td>
+          <td>26,367</td>
+          <td>-72.7%</td>
+          <td>4,486</td>
+          <td>5.88</td>
+          <td>35</td>
+          <td>3</td>
+          <td>3</td>
+          <td>9</td>
+          <td>0</td>
+          <td>45</td>
+          <td>17</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2.5</td>
+          <td>27,184</td>
+          <td>-71.8%</td>
+          <td>4,625</td>
+          <td>5.88</td>
+          <td>39</td>
+          <td>3</td>
+          <td>3</td>
+          <td>9</td>
+          <td>0</td>
+          <td>45</td>
+          <td>18</td>
+        </tr>
+    </table>
+  
+    <h2>Day 250</h2>
+    <table>
+      <tr>
+        <th>Strategy</th>
+        <th>Power</th>
+        <th>vs Base</th>
+        <th>Troops</th>
+        <th>PPT</th>
+        <th>SLs</th>
+        <th>Barracks</th>
+        <th>MBs</th>
+        <th>Kingdoms</th>
+        <th>Empires</th>
+        <th>Farms</th>
+        <th>Starve</th>
+      </tr>
+      <tr class="winner">
+          <td style="text-align:left">FIX div=1</td>
+          <td>188,772,112</td>
+          <td>+455.1%</td>
+          <td>18,766,320</td>
+          <td>10.06</td>
+          <td>270,095</td>
+          <td>10,791</td>
+          <td>307</td>
+          <td>18</td>
+          <td>1</td>
+          <td>198,715</td>
+          <td>53</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1.2</td>
+          <td>28,461,496</td>
+          <td>-16.3%</td>
+          <td>3,701,486</td>
+          <td>7.69</td>
+          <td>214,787</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>0</td>
+          <td>37,114</td>
+          <td>29</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.2</td>
+          <td>89,714,191</td>
+          <td>+163.8%</td>
+          <td>10,150,333</td>
+          <td>8.84</td>
+          <td>226,883</td>
+          <td>10,791</td>
+          <td>307</td>
+          <td>18</td>
+          <td>1</td>
+          <td>125,642</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">BASE (no helper)</td>
+          <td>34,004,565</td>
+          <td>-</td>
+          <td>4,292,314</td>
+          <td>7.92</td>
+          <td>255,699</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>0</td>
+          <td>46,383</td>
+          <td>28</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1</td>
+          <td>34,004,565</td>
+          <td>0.0%</td>
+          <td>4,292,314</td>
+          <td>7.92</td>
+          <td>255,699</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>0</td>
+          <td>46,383</td>
+          <td>28</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.1</td>
+          <td>48,225,807</td>
+          <td>+41.8%</td>
+          <td>5,243,402</td>
+          <td>9.20</td>
+          <td>248,487</td>
+          <td>10,791</td>
+          <td>307</td>
+          <td>18</td>
+          <td>0</td>
+          <td>85,587</td>
+          <td>43</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.5</td>
+          <td>53,758</td>
+          <td>-99.8%</td>
+          <td>7,348</td>
+          <td>7.32</td>
+          <td>67</td>
+          <td>3</td>
+          <td>147</td>
+          <td>17</td>
+          <td>0</td>
+          <td>75</td>
+          <td>25</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2</td>
+          <td>41,422</td>
+          <td>-99.9%</td>
+          <td>6,131</td>
+          <td>6.76</td>
+          <td>51</td>
+          <td>3</td>
+          <td>3</td>
+          <td>16</td>
+          <td>0</td>
+          <td>63</td>
+          <td>21</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=3</td>
+          <td>29,372</td>
+          <td>-99.9%</td>
+          <td>4,615</td>
+          <td>6.36</td>
+          <td>35</td>
+          <td>3</td>
+          <td>3</td>
+          <td>14</td>
+          <td>0</td>
+          <td>45</td>
+          <td>18</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2.5</td>
+          <td>28,275</td>
+          <td>-99.9%</td>
+          <td>4,487</td>
+          <td>6.30</td>
+          <td>39</td>
+          <td>3</td>
+          <td>3</td>
+          <td>13</td>
+          <td>0</td>
+          <td>45</td>
+          <td>20</td>
+        </tr>
+    </table>
+  
+    <h2>Day 300</h2>
+    <table>
+      <tr>
+        <th>Strategy</th>
+        <th>Power</th>
+        <th>vs Base</th>
+        <th>Troops</th>
+        <th>PPT</th>
+        <th>SLs</th>
+        <th>Barracks</th>
+        <th>MBs</th>
+        <th>Kingdoms</th>
+        <th>Empires</th>
+        <th>Farms</th>
+        <th>Starve</th>
+      </tr>
+      <tr class="winner">
+          <td style="text-align:left">FIX div=1</td>
+          <td>1,509,370,049</td>
+          <td>+482.1%</td>
+          <td>40,750,885</td>
+          <td>37.04</td>
+          <td>510,791</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>409,455</td>
+          <td>55</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1.2</td>
+          <td>249,377,798</td>
+          <td>-3.8%</td>
+          <td>26,579,615</td>
+          <td>9.38</td>
+          <td>214,787</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>5</td>
+          <td>266,358</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.2</td>
+          <td>724,568,317</td>
+          <td>+179.4%</td>
+          <td>27,989,176</td>
+          <td>25.89</td>
+          <td>628,043</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>280,870</td>
+          <td>65</td>
+        </tr><tr class="">
+          <td style="text-align:left">BASE (no helper)</td>
+          <td>259,302,776</td>
+          <td>-</td>
+          <td>25,522,727</td>
+          <td>10.16</td>
+          <td>255,699</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>4</td>
+          <td>256,095</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1</td>
+          <td>259,302,776</td>
+          <td>0.0%</td>
+          <td>25,522,727</td>
+          <td>10.16</td>
+          <td>255,699</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>4</td>
+          <td>256,095</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.1</td>
+          <td>534,251,924</td>
+          <td>+106.0%</td>
+          <td>35,672,408</td>
+          <td>14.98</td>
+          <td>248,487</td>
+          <td>10,791</td>
+          <td>307</td>
+          <td>18</td>
+          <td>4</td>
+          <td>359,035</td>
+          <td>52</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.5</td>
+          <td>10,080,799</td>
+          <td>-96.1%</td>
+          <td>1,377,908</td>
+          <td>7.32</td>
+          <td>173,875</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>0</td>
+          <td>13,439</td>
+          <td>25</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2</td>
+          <td>41,422</td>
+          <td>-100.0%</td>
+          <td>6,131</td>
+          <td>6.76</td>
+          <td>10,275</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>0</td>
+          <td>63</td>
+          <td>21</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=3</td>
+          <td>28,439</td>
+          <td>-100.0%</td>
+          <td>4,337</td>
+          <td>6.56</td>
+          <td>35</td>
+          <td>3</td>
+          <td>201</td>
+          <td>17</td>
+          <td>0</td>
+          <td>45</td>
+          <td>20</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2.5</td>
+          <td>28,951</td>
+          <td>-100.0%</td>
+          <td>4,415</td>
+          <td>6.56</td>
+          <td>39</td>
+          <td>3</td>
+          <td>111</td>
+          <td>17</td>
+          <td>0</td>
+          <td>45</td>
+          <td>21</td>
+        </tr>
+    </table>
+  
+    <h2>Day 350</h2>
+    <table>
+      <tr>
+        <th>Strategy</th>
+        <th>Power</th>
+        <th>vs Base</th>
+        <th>Troops</th>
+        <th>PPT</th>
+        <th>SLs</th>
+        <th>Barracks</th>
+        <th>MBs</th>
+        <th>Kingdoms</th>
+        <th>Empires</th>
+        <th>Farms</th>
+        <th>Starve</th>
+      </tr>
+      <tr class="winner">
+          <td style="text-align:left">FIX div=1</td>
+          <td>9,165,891,231</td>
+          <td>+526.6%</td>
+          <td>69,243,685</td>
+          <td>132.37</td>
+          <td>2,035,199</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>690,099</td>
+          <td>55</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1.2</td>
+          <td>1,316,706,822</td>
+          <td>-10.0%</td>
+          <td>56,745,963</td>
+          <td>23.20</td>
+          <td>1,791,426</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>577,842</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.2</td>
+          <td>4,344,237,497</td>
+          <td>+197.0%</td>
+          <td>66,517,600</td>
+          <td>65.31</td>
+          <td>1,751,291</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>662,258</td>
+          <td>65</td>
+        </tr><tr class="">
+          <td style="text-align:left">BASE (no helper)</td>
+          <td>1,462,709,181</td>
+          <td>-</td>
+          <td>54,297,929</td>
+          <td>26.94</td>
+          <td>2,081,281</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>544,963</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1</td>
+          <td>1,462,709,181</td>
+          <td>0.0%</td>
+          <td>54,297,929</td>
+          <td>26.94</td>
+          <td>2,081,281</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>544,963</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.1</td>
+          <td>3,904,477,692</td>
+          <td>+166.9%</td>
+          <td>59,784,136</td>
+          <td>65.31</td>
+          <td>1,853,127</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>599,587</td>
+          <td>52</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.5</td>
+          <td>152,642,323</td>
+          <td>-89.6%</td>
+          <td>20,453,021</td>
+          <td>7.46</td>
+          <td>173,875</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>4</td>
+          <td>200,535</td>
+          <td>53</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2</td>
+          <td>91,942,786</td>
+          <td>-93.7%</td>
+          <td>13,608,614</td>
+          <td>6.76</td>
+          <td>132,963</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>3</td>
+          <td>151,179</td>
+          <td>44</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=3</td>
+          <td>28,439</td>
+          <td>-100.0%</td>
+          <td>4,337</td>
+          <td>6.56</td>
+          <td>92,051</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>0</td>
+          <td>1,073</td>
+          <td>20</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2.5</td>
+          <td>28,951</td>
+          <td>-100.0%</td>
+          <td>4,415</td>
+          <td>6.56</td>
+          <td>10,263</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>0</td>
+          <td>45</td>
+          <td>21</td>
+        </tr>
+    </table>
+  
+    <h2>Day 400</h2>
+    <table>
+      <tr>
+        <th>Strategy</th>
+        <th>Power</th>
+        <th>vs Base</th>
+        <th>Troops</th>
+        <th>PPT</th>
+        <th>SLs</th>
+        <th>Barracks</th>
+        <th>MBs</th>
+        <th>Kingdoms</th>
+        <th>Empires</th>
+        <th>Farms</th>
+        <th>Starve</th>
+      </tr>
+      <tr class="winner">
+          <td style="text-align:left">FIX div=1</td>
+          <td>17,530,835,243</td>
+          <td>+48.9%</td>
+          <td>77,384,485</td>
+          <td>226.54</td>
+          <td>2,035,199</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>766,171</td>
+          <td>55</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1.2</td>
+          <td>11,290,587,962</td>
+          <td>-4.1%</td>
+          <td>76,451,660</td>
+          <td>147.68</td>
+          <td>1,791,426</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>761,854</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.2</td>
+          <td>15,437,618,866</td>
+          <td>+31.1%</td>
+          <td>75,274,060</td>
+          <td>205.09</td>
+          <td>1,751,291</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>757,862</td>
+          <td>65</td>
+        </tr><tr class="">
+          <td style="text-align:left">BASE (no helper)</td>
+          <td>11,774,974,474</td>
+          <td>-</td>
+          <td>75,110,749</td>
+          <td>156.77</td>
+          <td>2,081,281</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>751,591</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1</td>
+          <td>11,774,974,474</td>
+          <td>0.0%</td>
+          <td>75,110,749</td>
+          <td>156.77</td>
+          <td>2,081,281</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>751,591</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.1</td>
+          <td>13,608,546,845</td>
+          <td>+15.6%</td>
+          <td>69,049,776</td>
+          <td>197.08</td>
+          <td>1,853,127</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>701,359</td>
+          <td>52</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.5</td>
+          <td>1,342,150,274</td>
+          <td>-88.6%</td>
+          <td>45,554,791</td>
+          <td>29.46</td>
+          <td>1,501,571</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>458,563</td>
+          <td>56</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2</td>
+          <td>887,607,994</td>
+          <td>-92.5%</td>
+          <td>37,499,402</td>
+          <td>23.67</td>
+          <td>1,460,659</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>376,311</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=3</td>
+          <td>125,519,199</td>
+          <td>-98.9%</td>
+          <td>13,378,304</td>
+          <td>9.38</td>
+          <td>92,051</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>5</td>
+          <td>134,713</td>
+          <td>46</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2.5</td>
+          <td>110,436,175</td>
+          <td>-99.1%</td>
+          <td>14,079,492</td>
+          <td>7.84</td>
+          <td>102,279</td>
+          <td>10,223</td>
+          <td>291</td>
+          <td>17</td>
+          <td>5</td>
+          <td>146,021</td>
+          <td>45</td>
+        </tr>
+    </table>
+  
+    <h2>Day 450</h2>
+    <table>
+      <tr>
+        <th>Strategy</th>
+        <th>Power</th>
+        <th>vs Base</th>
+        <th>Troops</th>
+        <th>PPT</th>
+        <th>SLs</th>
+        <th>Barracks</th>
+        <th>MBs</th>
+        <th>Kingdoms</th>
+        <th>Empires</th>
+        <th>Farms</th>
+        <th>Starve</th>
+      </tr>
+      <tr class="winner">
+          <td style="text-align:left">FIX div=1</td>
+          <td>26,140,502,320</td>
+          <td>+33.6%</td>
+          <td>81,454,885</td>
+          <td>320.92</td>
+          <td>2,035,199</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>807,291</td>
+          <td>55</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1.2</td>
+          <td>21,345,271,845</td>
+          <td>+9.1%</td>
+          <td>83,617,368</td>
+          <td>255.27</td>
+          <td>1,791,426</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>829,702</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.2</td>
+          <td>23,186,795,584</td>
+          <td>+18.5%</td>
+          <td>80,608,168</td>
+          <td>287.65</td>
+          <td>1,831,523</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>806,178</td>
+          <td>65</td>
+        </tr><tr class="">
+          <td style="text-align:left">BASE (no helper)</td>
+          <td>19,564,062,503</td>
+          <td>-</td>
+          <td>81,354,595</td>
+          <td>240.48</td>
+          <td>2,081,281</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>819,439</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1</td>
+          <td>19,564,062,503</td>
+          <td>0.0%</td>
+          <td>81,354,595</td>
+          <td>240.48</td>
+          <td>2,081,281</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>819,439</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.1</td>
+          <td>20,623,783,340</td>
+          <td>+5.4%</td>
+          <td>74,609,160</td>
+          <td>276.42</td>
+          <td>1,853,127</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>751,731</td>
+          <td>52</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.5</td>
+          <td>10,718,097,875</td>
+          <td>-45.2%</td>
+          <td>72,575,173</td>
+          <td>147.68</td>
+          <td>1,667,533</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>725,843</td>
+          <td>56</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2</td>
+          <td>7,074,457,759</td>
+          <td>-63.8%</td>
+          <td>69,915,863</td>
+          <td>101.19</td>
+          <td>1,626,621</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>707,327</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=3</td>
+          <td>900,254,189</td>
+          <td>-95.4%</td>
+          <td>36,915,110</td>
+          <td>24.39</td>
+          <td>2,415,519</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>377,321</td>
+          <td>72</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2.5</td>
+          <td>731,081,928</td>
+          <td>-96.3%</td>
+          <td>32,786,679</td>
+          <td>22.30</td>
+          <td>2,259,785</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>339,285</td>
+          <td>70</td>
+        </tr>
+    </table>
+  
+    <h2>Day 500</h2>
+    <table>
+      <tr>
+        <th>Strategy</th>
+        <th>Power</th>
+        <th>vs Base</th>
+        <th>Troops</th>
+        <th>PPT</th>
+        <th>SLs</th>
+        <th>Barracks</th>
+        <th>MBs</th>
+        <th>Kingdoms</th>
+        <th>Empires</th>
+        <th>Farms</th>
+        <th>Starve</th>
+      </tr>
+      <tr class="winner">
+          <td style="text-align:left">FIX div=1</td>
+          <td>32,369,634,752</td>
+          <td>+13.3%</td>
+          <td>83,490,085</td>
+          <td>387.71</td>
+          <td>2,035,199</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>835,047</td>
+          <td>55</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1.2</td>
+          <td>29,411,776,251</td>
+          <td>+3.0%</td>
+          <td>87,200,222</td>
+          <td>337.29</td>
+          <td>1,791,426</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>867,738</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.2</td>
+          <td>28,708,089,881</td>
+          <td>+0.5%</td>
+          <td>84,271,216</td>
+          <td>340.66</td>
+          <td>1,831,523</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>837,018</td>
+          <td>65</td>
+        </tr><tr class="">
+          <td style="text-align:left">BASE (no helper)</td>
+          <td>28,558,510,568</td>
+          <td>-</td>
+          <td>85,517,159</td>
+          <td>333.95</td>
+          <td>2,081,281</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>857,475</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">OLD div=1</td>
+          <td>28,558,510,568</td>
+          <td>0.0%</td>
+          <td>85,517,159</td>
+          <td>333.95</td>
+          <td>2,081,281</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>857,475</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.1</td>
+          <td>27,215,420,153</td>
+          <td>-4.7%</td>
+          <td>78,315,416</td>
+          <td>347.51</td>
+          <td>1,853,127</td>
+          <td>80,231</td>
+          <td>2239</td>
+          <td>137</td>
+          <td>6</td>
+          <td>783,599</td>
+          <td>52</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=1.5</td>
+          <td>19,287,701,451</td>
+          <td>-32.5%</td>
+          <td>79,411,271</td>
+          <td>242.88</td>
+          <td>1,750,514</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>799,859</td>
+          <td>56</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2</td>
+          <td>18,325,299,879</td>
+          <td>-35.8%</td>
+          <td>80,090,500</td>
+          <td>228.81</td>
+          <td>1,709,602</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>797,791</td>
+          <td>54</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=3</td>
+          <td>7,009,437,950</td>
+          <td>-75.5%</td>
+          <td>72,806,915</td>
+          <td>96.27</td>
+          <td>2,664,462</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>725,813</td>
+          <td>72</td>
+        </tr><tr class="">
+          <td style="text-align:left">FIX div=2.5</td>
+          <td>4,975,495,681</td>
+          <td>-82.6%</td>
+          <td>70,353,932</td>
+          <td>70.72</td>
+          <td>2,425,747</td>
+          <td>82,980</td>
+          <td>2346</td>
+          <td>136</td>
+          <td>6</td>
+          <td>715,533</td>
+          <td>70</td>
+        </tr>
+    </table>
+  
+</body>
+</html>

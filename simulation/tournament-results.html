@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WAIT_DECAY Tournament Results</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a2e; color: #eee; }
+    h1, h2 { color: #00d4ff; }
+    table { border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 8px 12px; border: 1px solid #0f3460; text-align: center; }
+    th { background: #16213e; }
+    .current { background: #2d5a27 !important; }
+    .win-high { background: #1e5128; }
+    .win-mid { background: #5a4a00; }
+    .win-low { background: #5a1a1a; }
+    .ranking { background: #16213e; }
+    .summary { background: #0f3460; padding: 15px; border-radius: 8px; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <h1>WAIT_DECAY Tournament Results</h1>
+
+  <div class="summary">
+    <strong>Settings:</strong> 19 strategies, 10 games per matchup, 25 clicks/day, 500 days max<br>
+    <strong>Total games:</strong> 1710
+  </div>
+
+  <h2>Rankings</h2>
+  <table class="ranking">
+    <tr><th>Rank</th><th>Strategy</th><th>WAIT_DECAY</th><th>Wins</th><th>Win Rate</th></tr>
+    <tr>
+      <td>1</td>
+      <td>0.00</td>
+      <td>0</td>
+      <td>168</td>
+      <td>93.3%</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.10</td>
+      <td>0.1</td>
+      <td>153</td>
+      <td>85.0%</td>
+    </tr>
+    <tr class="current">
+      <td>3*</td>
+      <td>0.990</td>
+      <td>0.99</td>
+      <td>134</td>
+      <td>74.4%</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>0.20</td>
+      <td>0.2</td>
+      <td>130</td>
+      <td>72.2%</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>0.975</td>
+      <td>0.975</td>
+      <td>125</td>
+      <td>69.4%</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>0.30</td>
+      <td>0.3</td>
+      <td>123</td>
+      <td>68.3%</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>0.970</td>
+      <td>0.97</td>
+      <td>116</td>
+      <td>64.4%</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>0.985</td>
+      <td>0.985</td>
+      <td>114</td>
+      <td>63.3%</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>0.980</td>
+      <td>0.98</td>
+      <td>106</td>
+      <td>58.9%</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>0.40</td>
+      <td>0.4</td>
+      <td>104</td>
+      <td>57.8%</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>0.993</td>
+      <td>0.993</td>
+      <td>101</td>
+      <td>56.1%</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>0.50</td>
+      <td>0.5</td>
+      <td>77</td>
+      <td>42.8%</td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>0.60</td>
+      <td>0.6</td>
+      <td>66</td>
+      <td>36.7%</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>0.70</td>
+      <td>0.7</td>
+      <td>50</td>
+      <td>27.8%</td>
+    </tr>
+    <tr>
+      <td>15</td>
+      <td>0.995</td>
+      <td>0.995</td>
+      <td>41</td>
+      <td>22.8%</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>0.80</td>
+      <td>0.8</td>
+      <td>32</td>
+      <td>17.8%</td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td>0.997</td>
+      <td>0.997</td>
+      <td>25</td>
+      <td>13.9%</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>0.999</td>
+      <td>0.999</td>
+      <td>22</td>
+      <td>12.2%</td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td>0.90</td>
+      <td>0.9</td>
+      <td>13</td>
+      <td>7.2%</td>
+    </tr>
+  </table>
+  <p>* = current default (0.99)</p>
+
+  <h2>Head-to-Head Matrix</h2>
+  <p>Cell shows row's win % against column</p>
+  <table>
+    <tr><th></th><th>0.00</th><th>0.10</th><th>0.20</th><th>0.30</th><th>0.40</th><th>0.50</th><th>0.60</th><th>0.70</th><th>0.80</th><th>0.90</th><th>0.970</th><th>0.975</th><th>0.980</th><th>0.985</th><th>0.990</th><th>0.993</th><th>0.995</th><th>0.997</th><th>0.999</th></tr>
+    <tr><th>0.00</th><td>-</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">90%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">80%</td><td class="win-high">90%</td><td class="win-high">90%</td><td class="win-high">70%</td><td class="win-high">70%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">90%</td></tr>
+    <tr><th>0.10</th><td class="win-low">0%</td><td>-</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-mid">60%</td><td class="win-high">80%</td><td class="win-mid">60%</td><td class="win-high">90%</td><td class="win-mid">60%</td><td class="win-high">90%</td><td class="win-high">100%</td><td class="win-high">90%</td><td class="win-high">100%</td></tr>
+    <tr><th>0.20</th><td class="win-low">0%</td><td class="win-low">0%</td><td>-</td><td class="win-high">70%</td><td class="win-high">80%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-mid">50%</td><td class="win-mid">40%</td><td class="win-mid">60%</td><td class="win-high">70%</td><td class="win-mid">50%</td><td class="win-high">80%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td></tr>
+    <tr><th>0.30</th><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">30%</td><td>-</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">90%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-low">10%</td><td class="win-low">30%</td><td class="win-high">70%</td><td class="win-high">70%</td><td class="win-high">70%</td><td class="win-high">70%</td><td class="win-high">100%</td><td class="win-high">90%</td><td class="win-high">100%</td></tr>
+    <tr><th>0.40</th><td class="win-low">10%</td><td class="win-low">0%</td><td class="win-low">20%</td><td class="win-low">0%</td><td>-</td><td class="win-high">100%</td><td class="win-high">90%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-low">20%</td><td class="win-low">30%</td><td class="win-mid">50%</td><td class="win-mid">60%</td><td class="win-low">20%</td><td class="win-mid">50%</td><td class="win-high">100%</td><td class="win-high">90%</td><td class="win-high">100%</td></tr>
+    <tr><th>0.50</th><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td>-</td><td class="win-high">90%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">30%</td><td class="win-low">0%</td><td class="win-low">10%</td><td class="win-mid">40%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td></tr>
+    <tr><th>0.60</th><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">10%</td><td class="win-low">10%</td><td class="win-low">10%</td><td>-</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">30%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td></tr>
+    <tr><th>0.70</th><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td>-</td><td class="win-high">90%</td><td class="win-high">100%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">10%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td></tr>
+    <tr><th>0.80</th><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">10%</td><td>-</td><td class="win-low">30%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">10%</td><td class="win-high">90%</td><td class="win-high">100%</td><td class="win-high">80%</td></tr>
+    <tr><th>0.90</th><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-high">70%</td><td>-</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">10%</td><td class="win-low">30%</td><td class="win-low">20%</td></tr>
+    <tr><th>0.970</th><td class="win-low">20%</td><td class="win-mid">40%</td><td class="win-mid">50%</td><td class="win-high">90%</td><td class="win-high">80%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td>-</td><td class="win-low">20%</td><td class="win-low">30%</td><td class="win-low">30%</td><td class="win-mid">40%</td><td class="win-mid">40%</td><td class="win-high">70%</td><td class="win-high">90%</td><td class="win-mid">60%</td></tr>
+    <tr><th>0.975</th><td class="win-low">10%</td><td class="win-low">20%</td><td class="win-mid">60%</td><td class="win-high">70%</td><td class="win-high">70%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">80%</td><td>-</td><td class="win-high">90%</td><td class="win-mid">60%</td><td class="win-low">30%</td><td class="win-low">30%</td><td class="win-mid">50%</td><td class="win-high">100%</td><td class="win-high">80%</td></tr>
+    <tr><th>0.980</th><td class="win-low">10%</td><td class="win-mid">40%</td><td class="win-mid">40%</td><td class="win-low">30%</td><td class="win-mid">50%</td><td class="win-high">70%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">70%</td><td class="win-low">10%</td><td>-</td><td class="win-mid">40%</td><td class="win-low">30%</td><td class="win-mid">60%</td><td class="win-high">70%</td><td class="win-mid">60%</td><td class="win-high">80%</td></tr>
+    <tr><th>0.985</th><td class="win-low">30%</td><td class="win-low">10%</td><td class="win-low">30%</td><td class="win-low">30%</td><td class="win-mid">40%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">70%</td><td class="win-mid">40%</td><td class="win-mid">60%</td><td>-</td><td class="win-low">0%</td><td class="win-high">70%</td><td class="win-high">90%</td><td class="win-high">70%</td><td class="win-high">100%</td></tr>
+    <tr><th>0.990</th><td class="win-low">30%</td><td class="win-mid">40%</td><td class="win-mid">50%</td><td class="win-low">30%</td><td class="win-high">80%</td><td class="win-high">90%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-high">100%</td><td class="win-mid">60%</td><td class="win-high">70%</td><td class="win-high">70%</td><td class="win-high">100%</td><td>-</td><td class="win-high">70%</td><td class="win-mid">60%</td><td class="win-high">90%</td><td class="win-high">100%</td></tr>
+    <tr><th>0.993</th><td class="win-low">0%</td><td class="win-low">10%</td><td class="win-low">20%</td><td class="win-low">30%</td><td class="win-mid">50%</td><td class="win-mid">60%</td><td class="win-high">70%</td><td class="win-high">90%</td><td class="win-high">90%</td><td class="win-high">100%</td><td class="win-mid">60%</td><td class="win-high">70%</td><td class="win-mid">40%</td><td class="win-low">30%</td><td class="win-low">30%</td><td>-</td><td class="win-high">90%</td><td class="win-high">80%</td><td class="win-high">90%</td></tr>
+    <tr><th>0.995</th><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">10%</td><td class="win-high">90%</td><td class="win-low">30%</td><td class="win-mid">50%</td><td class="win-low">30%</td><td class="win-low">10%</td><td class="win-mid">40%</td><td class="win-low">10%</td><td>-</td><td class="win-mid">60%</td><td class="win-high">80%</td></tr>
+    <tr><th>0.997</th><td class="win-low">0%</td><td class="win-low">10%</td><td class="win-low">0%</td><td class="win-low">10%</td><td class="win-low">10%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-high">70%</td><td class="win-low">10%</td><td class="win-low">0%</td><td class="win-mid">40%</td><td class="win-low">30%</td><td class="win-low">10%</td><td class="win-low">20%</td><td class="win-mid">40%</td><td>-</td><td class="win-low">0%</td></tr>
+    <tr><th>0.999</th><td class="win-low">10%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">20%</td><td class="win-high">80%</td><td class="win-mid">40%</td><td class="win-low">20%</td><td class="win-low">20%</td><td class="win-low">0%</td><td class="win-low">0%</td><td class="win-low">10%</td><td class="win-low">20%</td><td class="win-low">0%</td><td>-</td></tr>
+  </table>
+
+  <h2>Legend</h2>
+  <ul>
+    <li><span style="background:#1e5128;padding:2px 8px;">Green</span>: 70%+ win rate</li>
+    <li><span style="background:#5a4a00;padding:2px 8px;">Yellow</span>: 40-70% win rate</li>
+    <li><span style="background:#5a1a1a;padding:2px 8px;">Red</span>: &lt;40% win rate</li>
+  </ul>
+
+</body>
+</html>

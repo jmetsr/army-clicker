@@ -6,7 +6,7 @@ Problem:
 After buying dark rituals, the AI spawns dragons that generate income. However,
 the AI's scoring system only considers CURRENT income when deciding "how long
 until I can afford X". This causes it to undervalue expensive buildings like
-Barracks/Military Base because it thinks they'll take 100+ turns to afford.
+kingdoms/Empire because it thinks they'll take 100+ turns to afford.
 
 In reality, dragon income grows polynomially, so actual time-to-afford is much
 shorter. The AI should account for this when deciding whether to save.

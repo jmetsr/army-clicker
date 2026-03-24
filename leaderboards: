@@ -1,0 +1,37 @@
+
+Break up this task into 10 smaller tasks and make task files for each (in fun/tasks/leaderboard) ::
+think about how it makes sence to break them up so each is self contained and a roughly equal amount of work for each.
+
+don't just blindly follow to orginization of the prompt in your orginization of the tasks.
+I want to hook up game to a php project with SQL database. setting apache on local to have a sepearte url for it. (seperatly from localhost where the main work project lives so maybe a subdomain iwth virtualhosts in apache)
+
+then we want to add a button to the game that says save to leaderboard. we also want to remove the download log button but still keep thouse logs happening so that when they save to leaderboard a modal pop ups asking for there name. it will also send the log (that happens currently from teh download log button) to the server. the server will check if the log is resonable (ie if they cheated) and then it will save certin aspects of the game to the db
+
+it will save whether they cheated or not and which mode they played at
+it will save at what day they reached a million, billion, trillion, quadirllion and quintilion coins, it will save at what day they vanquished the enemeey and at what day the enemy surrendered. It will save how many coins they had at the end of year 1, year 2 and total by the time there run finished.
+
+then using this info we display 30 leaderboards
+leaderboards:
+
+SPEED
+
+Fastest to reach
+1. million coins
+2. billion coins
+3. trillion coins
+4. quadrillion
+5. quintilion
+6. vanquish
+7. surrender
+
+most coins at
+8. 1 year
+9. 2 year
+10. total
+
+for all 3 of
+----- overall (including all play modes)
+- hard mode
+- vs AI at 25 cps
+
+- there will be a link to the leaderboards in the index page

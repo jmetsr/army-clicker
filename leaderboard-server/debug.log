@@ -1,0 +1,741 @@
+[24-Mar-2026 22:18:36 UTC] Leaderboard submission: day 20 (practice) - day 24, coins: 1,351
+[24-Mar-2026 22:18:36 UTC] === LEADERBOARD SUBMISSION: day 20 (practice) ===
+[24-Mar-2026 22:18:36 UTC] BasicValidator flags: []
+[24-Mar-2026 22:18:36 UTC] Running EarlyGameValidator...
+[24-Mar-2026 22:18:36 UTC] === EarlyGameValidator::validate() START ===
+[24-Mar-2026 22:18:36 UTC] Click log count: 523
+[24-Mar-2026 22:18:36 UTC] First 5 clicks: [{"t":0,"day":0,"action":"beg","coins":0,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":636,"day":1,"action":"beg","coins":1,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":728,"day":1,"action":"beg","coins":2,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":892,"day":1,"action":"beg","coins":3,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":1135,"day":1,"action":"beg","coins":4,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0}]
+[24-Mar-2026 22:18:36 UTC] Magic unlocked: no
+[24-Mar-2026 22:18:36 UTC] Running replay validation...
+[24-Mar-2026 22:18:36 UTC] GameReplay::validateEarlyGame() - clicks: 523, snapshots: 3
+[24-Mar-2026 22:18:36 UTC] Snapshots range: day 10 to day 24
+[24-Mar-2026 22:18:36 UTC] Click #1: day=0, action=beg, coins_before=0, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=1, troops=0
+[24-Mar-2026 22:18:36 UTC]   Day 1 summary: troops=0, food=0 (produced 0), coins=1 (+0), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC] Click #2: day=1, action=beg, coins_before=1, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=2, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #3: day=1, action=beg, coins_before=2, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=3, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #4: day=1, action=beg, coins_before=3, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=4, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #5: day=1, action=beg, coins_before=4, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=5, troops=0
+[24-Mar-2026 22:18:36 UTC]   Day 2 summary: troops=0, food=0 (produced 0), coins=5 (+0), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC] Click #6: day=2, action=beg, coins_before=5, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=6, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #7: day=2, action=beg, coins_before=6, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=7, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #8: day=2, action=beg, coins_before=7, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=8, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #9: day=2, action=beg, coins_before=8, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=9, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #10: day=2, action=beg, coins_before=9, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=10, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #11: day=2, action=beg, coins_before=10, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=11, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #12: day=2, action=beg, coins_before=11, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=12, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #13: day=2, action=beg, coins_before=12, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=13, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #14: day=2, action=beg, coins_before=13, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=14, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #15: day=2, action=beg, coins_before=14, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=15, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #16: day=2, action=beg, coins_before=15, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=16, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #17: day=2, action=beg, coins_before=16, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=17, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #18: day=2, action=beg, coins_before=17, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=18, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #19: day=2, action=beg, coins_before=18, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=19, troops=0
+[24-Mar-2026 22:18:36 UTC] Click #20: day=2, action=beg, coins_before=19, recruits_count=0
+[24-Mar-2026 22:18:36 UTC]   -> coins_after=20, troops=0
+[24-Mar-2026 22:18:36 UTC]   Day 3 summary: troops=0, food=0 (produced 0), coins=42 (+0), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 4: STARVATION streak=1, 5% deserted (0 troops), troops now: 3
+[24-Mar-2026 22:18:36 UTC]   Day 4 summary: troops=3, food=0 (produced 0), coins=21 (+12), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 5: STARVATION streak=2, 10% deserted (0 troops), troops now: 3
+[24-Mar-2026 22:18:36 UTC]   Day 5 summary: troops=3, food=0 (produced 0), coins=44 (+12), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 6: STARVATION streak=3, 20% deserted (0 troops), troops now: 3
+[24-Mar-2026 22:18:36 UTC]   Day 6 summary: troops=3, food=0 (produced 0), coins=95 (+12), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 7: STARVATION streak=4, 40% deserted (2 troops), troops now: 5
+[24-Mar-2026 22:18:36 UTC]   Day 7 summary: troops=5, food=0 (produced 0), coins=49 (+28), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 8: STARVATION streak=5, 80% deserted (4 troops), troops now: 1
+[24-Mar-2026 22:18:36 UTC]   Day 8 summary: troops=1, food=0 (produced 0), coins=78 (+20), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 9: STARVATION streak=6, 100% deserted (1 troops), troops now: 0
+[24-Mar-2026 22:18:36 UTC]   Day 9 summary: troops=0, food=0 (produced 0), coins=121 (+4), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 10: STARVATION streak=7, 100% deserted (2 troops), troops now: 0
+[24-Mar-2026 22:18:36 UTC]   Day 10 summary: troops=0, food=0 (produced 0), coins=118 (+8), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC] SPEND FAILED: Day 10, action=recruit, need=25, have=22
+[24-Mar-2026 22:18:36 UTC] SPEND FAILED: Day 10, action=recruit, need=25, have=22
+[24-Mar-2026 22:18:36 UTC]   Day 11: STARVATION streak=8, 100% deserted (4 troops), troops now: 0
+[24-Mar-2026 22:18:36 UTC]   Day 11 summary: troops=0, food=0 (produced 0), coins=57 (+16), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC] SPEND FAILED: Day 11, action=recruit, need=26, have=13
+[24-Mar-2026 22:18:36 UTC]   Day 12: STARVATION streak=9, 100% deserted (2 troops), troops now: 0
+[24-Mar-2026 22:18:36 UTC]   Day 12 summary: troops=0, food=0 (produced 0), coins=31 (+8), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC] SPEND FAILED: Day 12, action=recruit, need=27, have=23
+[24-Mar-2026 22:18:36 UTC] SPEND FAILED: Day 12, action=recruit, need=27, have=23
+[24-Mar-2026 22:18:36 UTC] SPEND FAILED: Day 12, action=recruit, need=27, have=23
+[24-Mar-2026 22:18:36 UTC] SPEND FAILED: Day 12, action=recruit, need=27, have=23
+[24-Mar-2026 22:18:36 UTC]   Day 13: STARVATION streak=10, 100% deserted (1 troops), troops now: 0
+[24-Mar-2026 22:18:36 UTC]   Day 13 summary: troops=0, food=0 (produced 0), coins=27 (+4), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC] SPEND FAILED: Day 13, action=recruit, need=28, have=22
+[24-Mar-2026 22:18:36 UTC] SPEND FAILED: Day 13, action=recruit, need=28, have=22
+[24-Mar-2026 22:18:36 UTC] SPEND FAILED: Day 13, action=recruit, need=28, have=22
+[24-Mar-2026 22:18:36 UTC]   Day 14: STARVATION streak=11, 100% deserted (1 troops), troops now: 0
+[24-Mar-2026 22:18:36 UTC]   Day 14 summary: troops=0, food=0 (produced 0), coins=26 (+4), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 15: Starvation ended (was streak 11)
+[24-Mar-2026 22:18:36 UTC]   Day 15 summary: troops=0, food=0 (produced 0), coins=59 (+0), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 16 summary: troops=0, food=0 (produced 0), coins=97 (+0), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 17 summary: troops=0, food=0 (produced 0), coins=136 (+0), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 18 summary: troops=0, food=0 (produced 0), coins=174 (+0), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC]   Day 19 summary: troops=0, food=0 (produced 0), coins=212 (+0), farms=0, ppt=1
+[24-Mar-2026 22:18:36 UTC] Action counts: {"beg":496,"recruit":27}
+[24-Mar-2026 22:18:36 UTC] Final replay state: day=19, coins=233, troops=0, farms=0
+[24-Mar-2026 22:18:36 UTC] === SNAPSHOT VALIDATION ===
+[24-Mar-2026 22:18:36 UTC] Replay final state: day=19, troops=0, coins=233, food=0, farms=0
+[24-Mar-2026 22:18:36 UTC] Snapshots to check: 3
+[24-Mar-2026 22:18:36 UTC] --- Snapshot day 10 ---
+[24-Mar-2026 22:18:36 UTC]   Snapshot: troops=9, coins=142, food=470, farms=0
+[24-Mar-2026 22:18:36 UTC]   Replay:   troops=0, coins=233, food=0, farms=0
+[24-Mar-2026 22:18:36 UTC]   Troop ratio: 0
+[24-Mar-2026 22:18:36 UTC]   -> FLAGGING troop mismatch!
+[24-Mar-2026 22:18:36 UTC]   Coin ratio: 1.6408450704225
+[24-Mar-2026 22:18:36 UTC] Skipping snapshot day 20 (replay only at day 19)
+[24-Mar-2026 22:18:36 UTC] Skipping snapshot day 24 (replay only at day 19)
+[24-Mar-2026 22:18:36 UTC] Flags after validation: ["Day 10: Insufficient coins for recruit (need 25, have 22)","Day 10: Insufficient coins for recruit (need 25, have 22)","Day 11: Insufficient coins for recruit (need 26, have 13)","Day 12: Insufficient coins for recruit (need 27, have 23)","Day 12: Insufficient coins for recruit (need 27, have 23)","Day 12: Insufficient coins for recruit (need 27, have 23)","Day 12: Insufficient coins for recruit (need 27, have 23)","Day 13: Insufficient coins for recruit (need 28, have 22)","Day 13: Insufficient coins for recruit (need 28, have 22)","Day 13: Insufficient coins for recruit (need 28, have 22)","Day 10: Troop mismatch - replay has 0, log shows 9 (ratio: 0)"]
+[24-Mar-2026 22:18:36 UTC] Replay flags: ["Day 10: Insufficient coins for recruit (need 25, have 22)","Day 10: Insufficient coins for recruit (need 25, have 22)","Day 11: Insufficient coins for recruit (need 26, have 13)","Day 12: Insufficient coins for recruit (need 27, have 23)","Day 12: Insufficient coins for recruit (need 27, have 23)","Day 12: Insufficient coins for recruit (need 27, have 23)","Day 12: Insufficient coins for recruit (need 27, have 23)","Day 13: Insufficient coins for recruit (need 28, have 22)","Day 13: Insufficient coins for recruit (need 28, have 22)","Day 13: Insufficient coins for recruit (need 28, have 22)","Day 10: Troop mismatch - replay has 0, log shows 9 (ratio: 0)"]
+[24-Mar-2026 22:18:36 UTC] Running consistency checks...
+[24-Mar-2026 22:18:36 UTC] Consistency flags: []
+[24-Mar-2026 22:18:36 UTC] === EarlyGameValidator::validate() END - Total flags: 11 ===
+[24-Mar-2026 22:18:36 UTC] EarlyGame flags count: 11
+[24-Mar-2026 22:18:36 UTC] Running MiddleGameValidator...
+[24-Mar-2026 22:18:36 UTC] MiddleGame flags count: 0
+[24-Mar-2026 22:18:36 UTC] Running LateGameValidator...
+[24-Mar-2026 22:18:36 UTC] LateGame flags count: 0
+[24-Mar-2026 22:18:36 UTC] Total flags: 11, cheated: YES
+[24-Mar-2026 22:18:36 UTC] All flags: ["[EarlyGame] Day 10: Insufficient coins for recruit (need 25, have 22)","[EarlyGame] Day 10: Insufficient coins for recruit (need 25, have 22)","[EarlyGame] Day 11: Insufficient coins for recruit (need 26, have 13)","[EarlyGame] Day 12: Insufficient coins for recruit (need 27, have 23)","[EarlyGame] Day 12: Insufficient coins for recruit (need 27, have 23)","[EarlyGame] Day 12: Insufficient coins for recruit (need 27, have 23)","[EarlyGame] Day 12: Insufficient coins for recruit (need 27, have 23)","[EarlyGame] Day 13: Insufficient coins for recruit (need 28, have 22)","[EarlyGame] Day 13: Insufficient coins for recruit (need 28, have 22)","[EarlyGame] Day 13: Insufficient coins for recruit (need 28, have 22)","[EarlyGame] Day 10: Troop mismatch - replay has 0, log shows 9 (ratio: 0)"]
+[24-Mar-2026 22:18:36 UTC] FLAGGED as cheater: day 20 - [EarlyGame] Day 10: Insufficient coins for recruit (need 25, have 22); [EarlyGame] Day 10: Insufficient coins for recruit (need 25, have 22); [EarlyGame] Day 11: Insufficient coins for recruit (need 26, have 13); [EarlyGame] Day 12: Insufficient coins for recruit (need 27, have 23); [EarlyGame] Day 12: Insufficient coins for recruit (need 27, have 23); [EarlyGame] Day 12: Insufficient coins for recruit (need 27, have 23); [EarlyGame] Day 12: Insufficient coins for recruit (need 27, have 23); [EarlyGame] Day 13: Insufficient coins for recruit (need 28, have 22); [EarlyGame] Day 13: Insufficient coins for recruit (need 28, have 22); [EarlyGame] Day 13: Insufficient coins for recruit (need 28, have 22); [EarlyGame] Day 10: Troop mismatch - replay has 0, log shows 9 (ratio: 0)
+[24-Mar-2026 22:23:15 UTC] Leaderboard submission: day 12 (practice) - day 15, coins: 408
+[24-Mar-2026 22:23:15 UTC] === LEADERBOARD SUBMISSION: day 12 (practice) ===
+[24-Mar-2026 22:23:15 UTC] BasicValidator flags: []
+[24-Mar-2026 22:23:15 UTC] Running EarlyGameValidator...
+[24-Mar-2026 22:23:15 UTC] === EarlyGameValidator::validate() START ===
+[24-Mar-2026 22:23:15 UTC] Click log count: 255
+[24-Mar-2026 22:23:15 UTC] First 5 clicks: [{"t":0,"day":0,"action":"beg","coins":0,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":540,"day":1,"action":"beg","coins":1,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":644,"day":1,"action":"beg","coins":2,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":814,"day":1,"action":"beg","coins":3,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":1011,"day":1,"action":"beg","coins":4,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0}]
+[24-Mar-2026 22:23:15 UTC] Magic unlocked: no
+[24-Mar-2026 22:23:15 UTC] Running replay validation...
+[24-Mar-2026 22:23:15 UTC] GameReplay::validateEarlyGame() - clicks: 255, snapshots: 2
+[24-Mar-2026 22:23:15 UTC] Snapshots range: day 10 to day 15
+[24-Mar-2026 22:23:15 UTC] Click #1: day=0, action=beg, coins_before=0, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=1, troops=0
+[24-Mar-2026 22:23:15 UTC]   Day 1 summary: troops=0, food=500 (produced 0), coins=1 (+0), farms=0, ppt=1
+[24-Mar-2026 22:23:15 UTC] Click #2: day=1, action=beg, coins_before=1, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=2, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #3: day=1, action=beg, coins_before=2, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=3, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #4: day=1, action=beg, coins_before=3, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=4, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #5: day=1, action=beg, coins_before=4, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=5, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #6: day=1, action=beg, coins_before=5, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=6, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #7: day=1, action=beg, coins_before=6, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=7, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #8: day=1, action=beg, coins_before=7, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=8, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #9: day=1, action=beg, coins_before=8, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=9, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #10: day=1, action=beg, coins_before=9, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=10, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #11: day=1, action=beg, coins_before=10, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=11, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #12: day=1, action=beg, coins_before=11, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=12, troops=0
+[24-Mar-2026 22:23:15 UTC]   Day 2 summary: troops=0, food=500 (produced 0), coins=12 (+0), farms=0, ppt=1
+[24-Mar-2026 22:23:15 UTC] Click #13: day=2, action=beg, coins_before=12, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=13, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #14: day=2, action=beg, coins_before=13, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=14, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #15: day=2, action=beg, coins_before=14, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=15, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #16: day=2, action=beg, coins_before=15, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=16, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #17: day=2, action=beg, coins_before=16, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=17, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #18: day=2, action=beg, coins_before=17, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=18, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #19: day=2, action=beg, coins_before=18, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=19, troops=0
+[24-Mar-2026 22:23:15 UTC] Click #20: day=2, action=beg, coins_before=19, recruits_count=0
+[24-Mar-2026 22:23:15 UTC]   -> coins_after=20, troops=0
+[24-Mar-2026 22:23:15 UTC]   Day 3 summary: troops=0, food=500 (produced 0), coins=49 (+0), farms=0, ppt=1
+[24-Mar-2026 22:23:15 UTC]   Day 4 summary: troops=2, food=498 (produced 0), coins=38 (+8), farms=0, ppt=1
+[24-Mar-2026 22:23:15 UTC]   Day 5 summary: troops=4, food=494 (produced 0), coins=31 (+16), farms=0, ppt=1
+[24-Mar-2026 22:23:15 UTC]   Day 6 summary: troops=4, food=490 (produced 0), coins=82 (+16), farms=0, ppt=1
+[24-Mar-2026 22:23:15 UTC]   Day 7 summary: troops=7, food=483 (produced 0), coins=63 (+28), farms=0, ppt=1
+[24-Mar-2026 22:23:15 UTC] SPEND FAILED: Day 7, action=recruit, need=24, have=16
+[24-Mar-2026 22:23:15 UTC]   Day 8 summary: troops=10, food=473 (produced 0), coins=56 (+40), farms=0, ppt=1
+[24-Mar-2026 22:23:15 UTC]   Day 9 summary: troops=10, food=463 (produced 0), coins=131 (+40), farms=0, ppt=1
+[24-Mar-2026 22:23:15 UTC]   Day 10 summary: troops=15, food=448 (produced 0), coins=83 (+60), farms=0, ppt=1
+[24-Mar-2026 22:23:15 UTC] Action counts: {"beg":236,"recruit":19}
+[24-Mar-2026 22:23:15 UTC] Final replay state: day=10, coins=25, troops=18, farms=0
+[24-Mar-2026 22:23:15 UTC] === SNAPSHOT VALIDATION ===
+[24-Mar-2026 22:23:15 UTC] Replay final state: day=10, troops=18, coins=25, food=448, farms=0
+[24-Mar-2026 22:23:15 UTC] Snapshots to check: 2
+[24-Mar-2026 22:23:15 UTC] --- Snapshot day 10 ---
+[24-Mar-2026 22:23:15 UTC]   Snapshot: troops=16, coins=40, food=461, farms=0
+[24-Mar-2026 22:23:15 UTC]   Replay:   troops=18, coins=25, food=448, farms=0
+[24-Mar-2026 22:23:15 UTC]   Troop ratio: 1.125
+[24-Mar-2026 22:23:15 UTC]   Coin ratio: 0.625
+[24-Mar-2026 22:23:15 UTC] Skipping snapshot day 15 (replay only at day 10)
+[24-Mar-2026 22:23:15 UTC] Flags after validation: ["Day 7: Insufficient coins for recruit (need 24, have 16)"]
+[24-Mar-2026 22:23:15 UTC] Replay flags: ["Day 7: Insufficient coins for recruit (need 24, have 16)"]
+[24-Mar-2026 22:23:15 UTC] Running consistency checks...
+[24-Mar-2026 22:23:15 UTC] Consistency flags: []
+[24-Mar-2026 22:23:15 UTC] === EarlyGameValidator::validate() END - Total flags: 1 ===
+[24-Mar-2026 22:23:15 UTC] EarlyGame flags count: 1
+[24-Mar-2026 22:23:15 UTC] Running MiddleGameValidator...
+[24-Mar-2026 22:23:15 UTC] MiddleGame flags count: 0
+[24-Mar-2026 22:23:15 UTC] Running LateGameValidator...
+[24-Mar-2026 22:23:15 UTC] LateGame flags count: 0
+[24-Mar-2026 22:23:15 UTC] Total flags: 1, cheated: NO
+[24-Mar-2026 22:23:15 UTC] All flags: ["[EarlyGame] Day 7: Insufficient coins for recruit (need 24, have 16)"]
+[24-Mar-2026 22:23:46 UTC] Leaderboard submission: day 21 (practice) - day 24, coins: 1,557
+[24-Mar-2026 22:23:46 UTC] === LEADERBOARD SUBMISSION: day 21 (practice) ===
+[24-Mar-2026 22:23:46 UTC] BasicValidator flags: []
+[24-Mar-2026 22:23:46 UTC] Running EarlyGameValidator...
+[24-Mar-2026 22:23:46 UTC] === EarlyGameValidator::validate() START ===
+[24-Mar-2026 22:23:46 UTC] Click log count: 596
+[24-Mar-2026 22:23:46 UTC] First 5 clicks: [{"t":0,"day":1,"action":"beg","coins":0,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":435,"day":1,"action":"beg","coins":1,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":592,"day":1,"action":"beg","coins":2,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":789,"day":2,"action":"beg","coins":3,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":936,"day":2,"action":"beg","coins":4,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0}]
+[24-Mar-2026 22:23:46 UTC] Magic unlocked: no
+[24-Mar-2026 22:23:46 UTC] Running replay validation...
+[24-Mar-2026 22:23:46 UTC] GameReplay::validateEarlyGame() - clicks: 596, snapshots: 3
+[24-Mar-2026 22:23:46 UTC] Snapshots range: day 10 to day 24
+[24-Mar-2026 22:23:46 UTC]   Day 1 summary: troops=0, food=500 (produced 0), coins=0 (+0), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC] Click #1: day=1, action=beg, coins_before=0, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=1, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #2: day=1, action=beg, coins_before=1, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=2, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #3: day=1, action=beg, coins_before=2, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=3, troops=0
+[24-Mar-2026 22:23:46 UTC]   Day 2 summary: troops=0, food=500 (produced 0), coins=3 (+0), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC] Click #4: day=2, action=beg, coins_before=3, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=4, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #5: day=2, action=beg, coins_before=4, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=5, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #6: day=2, action=beg, coins_before=5, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=6, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #7: day=2, action=beg, coins_before=6, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=7, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #8: day=2, action=beg, coins_before=7, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=8, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #9: day=2, action=beg, coins_before=8, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=9, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #10: day=2, action=beg, coins_before=9, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=10, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #11: day=2, action=beg, coins_before=10, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=11, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #12: day=2, action=beg, coins_before=11, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=12, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #13: day=2, action=beg, coins_before=12, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=13, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #14: day=2, action=beg, coins_before=13, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=14, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #15: day=2, action=beg, coins_before=14, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=15, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #16: day=2, action=beg, coins_before=15, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=16, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #17: day=2, action=beg, coins_before=16, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=17, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #18: day=2, action=beg, coins_before=17, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=18, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #19: day=2, action=beg, coins_before=18, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=19, troops=0
+[24-Mar-2026 22:23:46 UTC] Click #20: day=2, action=beg, coins_before=19, recruits_count=0
+[24-Mar-2026 22:23:46 UTC]   -> coins_after=20, troops=0
+[24-Mar-2026 22:23:46 UTC]   Day 3 summary: troops=0, food=500 (produced 0), coins=30 (+0), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 4 summary: troops=1, food=499 (produced 0), coins=50 (+4), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 5 summary: troops=3, food=496 (produced 0), coins=42 (+12), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC] SPEND FAILED: Day 5, action=recruit, need=22, have=21
+[24-Mar-2026 22:23:46 UTC]   Day 6 summary: troops=5, food=491 (produced 0), coins=42 (+20), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 7 summary: troops=5, food=486 (produced 0), coins=100 (+20), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 8 summary: troops=9, food=477 (produced 0), coins=67 (+36), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 9 summary: troops=12, food=465 (produced 0), coins=67 (+48), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 10 summary: troops=12, food=453 (produced 0), coins=148 (+48), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 11 summary: troops=18, food=435 (produced 0), coins=83 (+72), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 12 summary: troops=18, food=417 (produced 0), coins=191 (+72), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 13 summary: troops=25, food=392 (produced 0), coins=100 (+100), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 14 summary: troops=25, food=367 (produced 0), coins=236 (+100), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 15 summary: troops=32, food=335 (produced 0), coins=141 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 16 summary: troops=32, food=303 (produced 0), coins=307 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 17 summary: troops=32, food=271 (produced 0), coins=474 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 18 summary: troops=32, food=239 (produced 0), coins=639 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 19 summary: troops=32, food=207 (produced 0), coins=806 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC]   Day 20 summary: troops=32, food=175 (produced 0), coins=973 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:46 UTC] Action counts: {"beg":563,"recruit":33}
+[24-Mar-2026 22:23:46 UTC] Final replay state: day=20, coins=995, troops=32, farms=0
+[24-Mar-2026 22:23:46 UTC] === SNAPSHOT VALIDATION ===
+[24-Mar-2026 22:23:46 UTC] Replay final state: day=20, troops=32, coins=995, food=175, farms=0
+[24-Mar-2026 22:23:46 UTC] Snapshots to check: 3
+[24-Mar-2026 22:23:46 UTC] --- Snapshot day 10 ---
+[24-Mar-2026 22:23:46 UTC]   Snapshot: troops=13, coins=111, food=461, farms=0
+[24-Mar-2026 22:23:46 UTC]   Replay:   troops=32, coins=995, food=175, farms=0
+[24-Mar-2026 22:23:46 UTC]   Troop ratio: 2.4615384615385
+[24-Mar-2026 22:23:46 UTC]   -> FLAGGING troop mismatch!
+[24-Mar-2026 22:23:46 UTC]   Coin ratio: 8.963963963964
+[24-Mar-2026 22:23:46 UTC]   -> FLAGGING coin discrepancy!
+[24-Mar-2026 22:23:46 UTC] --- Snapshot day 20 ---
+[24-Mar-2026 22:23:46 UTC]   Snapshot: troops=33, coins=908, food=193, farms=0
+[24-Mar-2026 22:23:46 UTC]   Replay:   troops=32, coins=995, food=175, farms=0
+[24-Mar-2026 22:23:46 UTC]   Troop ratio: 0.96969696969697
+[24-Mar-2026 22:23:46 UTC]   Coin ratio: 1.0958149779736
+[24-Mar-2026 22:23:46 UTC] Skipping snapshot day 24 (replay only at day 20)
+[24-Mar-2026 22:23:46 UTC] Flags after validation: ["Day 5: Insufficient coins for recruit (need 22, have 21)","Day 10: Troop mismatch - replay has 32, log shows 13 (ratio: 2.462)","Day 10: Coin discrepancy - replay has 995, log shows 111 (ratio: 8.964)"]
+[24-Mar-2026 22:23:46 UTC] Replay flags: ["Day 5: Insufficient coins for recruit (need 22, have 21)","Day 10: Troop mismatch - replay has 32, log shows 13 (ratio: 2.462)","Day 10: Coin discrepancy - replay has 995, log shows 111 (ratio: 8.964)"]
+[24-Mar-2026 22:23:46 UTC] Running consistency checks...
+[24-Mar-2026 22:23:46 UTC] Consistency flags: []
+[24-Mar-2026 22:23:46 UTC] === EarlyGameValidator::validate() END - Total flags: 3 ===
+[24-Mar-2026 22:23:46 UTC] EarlyGame flags count: 3
+[24-Mar-2026 22:23:46 UTC] Running MiddleGameValidator...
+[24-Mar-2026 22:23:46 UTC] MiddleGame flags count: 0
+[24-Mar-2026 22:23:46 UTC] Running LateGameValidator...
+[24-Mar-2026 22:23:46 UTC] LateGame flags count: 0
+[24-Mar-2026 22:23:46 UTC] Total flags: 3, cheated: YES
+[24-Mar-2026 22:23:46 UTC] All flags: ["[EarlyGame] Day 5: Insufficient coins for recruit (need 22, have 21)","[EarlyGame] Day 10: Troop mismatch - replay has 32, log shows 13 (ratio: 2.462)","[EarlyGame] Day 10: Coin discrepancy - replay has 995, log shows 111 (ratio: 8.964)"]
+[24-Mar-2026 22:23:46 UTC] FLAGGED as cheater: day 21 - [EarlyGame] Day 5: Insufficient coins for recruit (need 22, have 21); [EarlyGame] Day 10: Troop mismatch - replay has 32, log shows 13 (ratio: 2.462); [EarlyGame] Day 10: Coin discrepancy - replay has 995, log shows 111 (ratio: 8.964)
+[24-Mar-2026 22:23:57 UTC] Leaderboard submission: day 21 (practice) - day 35, coins: 1,974
+[24-Mar-2026 22:23:57 UTC] === LEADERBOARD SUBMISSION: day 21 (practice) ===
+[24-Mar-2026 22:23:57 UTC] BasicValidator flags: []
+[24-Mar-2026 22:23:57 UTC] Running EarlyGameValidator...
+[24-Mar-2026 22:23:57 UTC] === EarlyGameValidator::validate() START ===
+[24-Mar-2026 22:23:57 UTC] Click log count: 596
+[24-Mar-2026 22:23:57 UTC] First 5 clicks: [{"t":0,"day":1,"action":"beg","coins":0,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":435,"day":1,"action":"beg","coins":1,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":592,"day":1,"action":"beg","coins":2,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":789,"day":2,"action":"beg","coins":3,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":936,"day":2,"action":"beg","coins":4,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0}]
+[24-Mar-2026 22:23:57 UTC] Magic unlocked: no
+[24-Mar-2026 22:23:57 UTC] Running replay validation...
+[24-Mar-2026 22:23:57 UTC] GameReplay::validateEarlyGame() - clicks: 596, snapshots: 5
+[24-Mar-2026 22:23:57 UTC] Snapshots range: day 10 to day 35
+[24-Mar-2026 22:23:57 UTC]   Day 1 summary: troops=0, food=500 (produced 0), coins=0 (+0), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC] Click #1: day=1, action=beg, coins_before=0, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=1, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #2: day=1, action=beg, coins_before=1, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=2, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #3: day=1, action=beg, coins_before=2, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=3, troops=0
+[24-Mar-2026 22:23:57 UTC]   Day 2 summary: troops=0, food=500 (produced 0), coins=3 (+0), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC] Click #4: day=2, action=beg, coins_before=3, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=4, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #5: day=2, action=beg, coins_before=4, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=5, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #6: day=2, action=beg, coins_before=5, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=6, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #7: day=2, action=beg, coins_before=6, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=7, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #8: day=2, action=beg, coins_before=7, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=8, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #9: day=2, action=beg, coins_before=8, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=9, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #10: day=2, action=beg, coins_before=9, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=10, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #11: day=2, action=beg, coins_before=10, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=11, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #12: day=2, action=beg, coins_before=11, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=12, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #13: day=2, action=beg, coins_before=12, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=13, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #14: day=2, action=beg, coins_before=13, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=14, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #15: day=2, action=beg, coins_before=14, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=15, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #16: day=2, action=beg, coins_before=15, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=16, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #17: day=2, action=beg, coins_before=16, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=17, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #18: day=2, action=beg, coins_before=17, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=18, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #19: day=2, action=beg, coins_before=18, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=19, troops=0
+[24-Mar-2026 22:23:57 UTC] Click #20: day=2, action=beg, coins_before=19, recruits_count=0
+[24-Mar-2026 22:23:57 UTC]   -> coins_after=20, troops=0
+[24-Mar-2026 22:23:57 UTC]   Day 3 summary: troops=0, food=500 (produced 0), coins=30 (+0), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 4 summary: troops=1, food=499 (produced 0), coins=50 (+4), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 5 summary: troops=3, food=496 (produced 0), coins=42 (+12), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC] SPEND FAILED: Day 5, action=recruit, need=22, have=21
+[24-Mar-2026 22:23:57 UTC]   Day 6 summary: troops=5, food=491 (produced 0), coins=42 (+20), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 7 summary: troops=5, food=486 (produced 0), coins=100 (+20), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 8 summary: troops=9, food=477 (produced 0), coins=67 (+36), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 9 summary: troops=12, food=465 (produced 0), coins=67 (+48), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 10 summary: troops=12, food=453 (produced 0), coins=148 (+48), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 11 summary: troops=18, food=435 (produced 0), coins=83 (+72), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 12 summary: troops=18, food=417 (produced 0), coins=191 (+72), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 13 summary: troops=25, food=392 (produced 0), coins=100 (+100), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 14 summary: troops=25, food=367 (produced 0), coins=236 (+100), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 15 summary: troops=32, food=335 (produced 0), coins=141 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 16 summary: troops=32, food=303 (produced 0), coins=307 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 17 summary: troops=32, food=271 (produced 0), coins=474 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 18 summary: troops=32, food=239 (produced 0), coins=639 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 19 summary: troops=32, food=207 (produced 0), coins=806 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC]   Day 20 summary: troops=32, food=175 (produced 0), coins=973 (+128), farms=0, ppt=1
+[24-Mar-2026 22:23:57 UTC] Action counts: {"beg":563,"recruit":33}
+[24-Mar-2026 22:23:57 UTC] Final replay state: day=20, coins=995, troops=32, farms=0
+[24-Mar-2026 22:23:57 UTC] === SNAPSHOT VALIDATION ===
+[24-Mar-2026 22:23:57 UTC] Replay final state: day=20, troops=32, coins=995, food=175, farms=0
+[24-Mar-2026 22:23:57 UTC] Snapshots to check: 5
+[24-Mar-2026 22:23:57 UTC] --- Snapshot day 10 ---
+[24-Mar-2026 22:23:57 UTC]   Snapshot: troops=13, coins=111, food=461, farms=0
+[24-Mar-2026 22:23:57 UTC]   Replay:   troops=32, coins=995, food=175, farms=0
+[24-Mar-2026 22:23:57 UTC]   Troop ratio: 2.4615384615385
+[24-Mar-2026 22:23:57 UTC]   -> FLAGGING troop mismatch!
+[24-Mar-2026 22:23:57 UTC]   Coin ratio: 8.963963963964
+[24-Mar-2026 22:23:57 UTC]   -> FLAGGING coin discrepancy!
+[24-Mar-2026 22:23:57 UTC] --- Snapshot day 20 ---
+[24-Mar-2026 22:23:57 UTC]   Snapshot: troops=33, coins=908, food=193, farms=0
+[24-Mar-2026 22:23:57 UTC]   Replay:   troops=32, coins=995, food=175, farms=0
+[24-Mar-2026 22:23:57 UTC]   Troop ratio: 0.96969696969697
+[24-Mar-2026 22:23:57 UTC]   Coin ratio: 1.0958149779736
+[24-Mar-2026 22:23:57 UTC] Skipping snapshot day 24 (replay only at day 20)
+[24-Mar-2026 22:23:57 UTC] Skipping snapshot day 30 (replay only at day 20)
+[24-Mar-2026 22:23:57 UTC] Skipping snapshot day 35 (replay only at day 20)
+[24-Mar-2026 22:23:57 UTC] Flags after validation: ["Day 5: Insufficient coins for recruit (need 22, have 21)","Day 10: Troop mismatch - replay has 32, log shows 13 (ratio: 2.462)","Day 10: Coin discrepancy - replay has 995, log shows 111 (ratio: 8.964)"]
+[24-Mar-2026 22:23:57 UTC] Replay flags: ["Day 5: Insufficient coins for recruit (need 22, have 21)","Day 10: Troop mismatch - replay has 32, log shows 13 (ratio: 2.462)","Day 10: Coin discrepancy - replay has 995, log shows 111 (ratio: 8.964)"]
+[24-Mar-2026 22:23:57 UTC] Running consistency checks...
+[24-Mar-2026 22:23:57 UTC] Consistency flags: []
+[24-Mar-2026 22:23:57 UTC] === EarlyGameValidator::validate() END - Total flags: 3 ===
+[24-Mar-2026 22:23:57 UTC] EarlyGame flags count: 3
+[24-Mar-2026 22:23:57 UTC] Running MiddleGameValidator...
+[24-Mar-2026 22:23:57 UTC] MiddleGame flags count: 0
+[24-Mar-2026 22:23:57 UTC] Running LateGameValidator...
+[24-Mar-2026 22:23:57 UTC] LateGame flags count: 0
+[24-Mar-2026 22:23:57 UTC] Total flags: 3, cheated: YES
+[24-Mar-2026 22:23:57 UTC] All flags: ["[EarlyGame] Day 5: Insufficient coins for recruit (need 22, have 21)","[EarlyGame] Day 10: Troop mismatch - replay has 32, log shows 13 (ratio: 2.462)","[EarlyGame] Day 10: Coin discrepancy - replay has 995, log shows 111 (ratio: 8.964)"]
+[24-Mar-2026 22:23:57 UTC] FLAGGED as cheater: day 21 - [EarlyGame] Day 5: Insufficient coins for recruit (need 22, have 21); [EarlyGame] Day 10: Troop mismatch - replay has 32, log shows 13 (ratio: 2.462); [EarlyGame] Day 10: Coin discrepancy - replay has 995, log shows 111 (ratio: 8.964)
+[24-Mar-2026 22:34:12 UTC] Leaderboard submission: day 13 (easy) - day 17, coins: 587
+[24-Mar-2026 22:34:12 UTC] === LEADERBOARD SUBMISSION: day 13 (easy) ===
+[24-Mar-2026 22:34:12 UTC] BasicValidator flags: []
+[24-Mar-2026 22:34:12 UTC] Running EarlyGameValidator...
+[24-Mar-2026 22:34:12 UTC] === EarlyGameValidator::validate() START ===
+[24-Mar-2026 22:34:12 UTC] Click log count: 320
+[24-Mar-2026 22:34:12 UTC] First 5 clicks: [{"t":0,"day":0,"action":"beg","coins":0,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":468,"day":1,"action":"beg","coins":1,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":583,"day":1,"action":"beg","coins":2,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":902,"day":1,"action":"beg","coins":3,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":964,"day":1,"action":"beg","coins":4,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0}]
+[24-Mar-2026 22:34:12 UTC] Magic unlocked: no
+[24-Mar-2026 22:34:12 UTC] Running replay validation...
+[24-Mar-2026 22:34:12 UTC] GameReplay::validateEarlyGame() - clicks: 320, snapshots: 2
+[24-Mar-2026 22:34:12 UTC] Snapshots range: day 10 to day 17
+[24-Mar-2026 22:34:12 UTC] Click #1: day=0, action=beg, coins_before=0, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=1, troops=0
+[24-Mar-2026 22:34:12 UTC]   Day 1 summary: troops=0, food=500 (produced 0), coins=1 (+0), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC] Click #2: day=1, action=beg, coins_before=1, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=2, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #3: day=1, action=beg, coins_before=2, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=3, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #4: day=1, action=beg, coins_before=3, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=4, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #5: day=1, action=beg, coins_before=4, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=5, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #6: day=1, action=beg, coins_before=5, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=6, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #7: day=1, action=beg, coins_before=6, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=7, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #8: day=1, action=beg, coins_before=7, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=8, troops=0
+[24-Mar-2026 22:34:12 UTC]   Day 2 summary: troops=0, food=500 (produced 0), coins=8 (+0), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC] Click #9: day=2, action=beg, coins_before=8, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=9, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #10: day=2, action=beg, coins_before=9, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=10, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #11: day=2, action=beg, coins_before=10, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=11, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #12: day=2, action=beg, coins_before=11, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=12, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #13: day=2, action=beg, coins_before=12, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=13, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #14: day=2, action=beg, coins_before=13, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=14, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #15: day=2, action=beg, coins_before=14, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=15, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #16: day=2, action=beg, coins_before=15, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=16, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #17: day=2, action=beg, coins_before=16, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=17, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #18: day=2, action=beg, coins_before=17, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=18, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #19: day=2, action=beg, coins_before=18, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=19, troops=0
+[24-Mar-2026 22:34:12 UTC] Click #20: day=2, action=beg, coins_before=19, recruits_count=0
+[24-Mar-2026 22:34:12 UTC]   -> coins_after=20, troops=0
+[24-Mar-2026 22:34:12 UTC]   Day 3 summary: troops=0, food=500 (produced 0), coins=47 (+0), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC]   Day 4 summary: troops=3, food=497 (produced 0), coins=32 (+12), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC]   Day 5 summary: troops=3, food=494 (produced 0), coins=64 (+12), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC]   Day 6 summary: troops=5, food=489 (produced 0), coins=74 (+20), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC]   Day 7 summary: troops=7, food=482 (produced 0), coins=71 (+28), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC]   Day 8 summary: troops=7, food=475 (produced 0), coins=137 (+28), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC]   Day 9 summary: troops=12, food=463 (produced 0), coins=88 (+48), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC]   Day 10 summary: troops=14, food=449 (produced 0), coins=129 (+56), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC]   Day 11 summary: troops=18, food=431 (produced 0), coins=118 (+72), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC]   Day 12 summary: troops=22, food=409 (produced 0), coins=102 (+88), farms=0, ppt=1
+[24-Mar-2026 22:34:12 UTC] Action counts: {"beg":298,"recruit":22}
+[24-Mar-2026 22:34:12 UTC] Final replay state: day=12, coins=127, troops=22, farms=0
+[24-Mar-2026 22:34:12 UTC] === SNAPSHOT VALIDATION ===
+[24-Mar-2026 22:34:12 UTC] Replay final state: day=12, troops=22, coins=127, food=409, farms=0
+[24-Mar-2026 22:34:12 UTC] Snapshots to check: 2
+[24-Mar-2026 22:34:12 UTC] --- Snapshot day 10 ---
+[24-Mar-2026 22:34:12 UTC]   Snapshot: troops=14, coins=94, food=463, farms=0
+[24-Mar-2026 22:34:12 UTC]   Replay:   troops=22, coins=127, food=409, farms=0
+[24-Mar-2026 22:34:12 UTC]   Troop ratio: 1.5714285714286
+[24-Mar-2026 22:34:12 UTC]   Coin ratio: 1.3510638297872
+[24-Mar-2026 22:34:12 UTC] Skipping snapshot day 17 (replay only at day 12)
+[24-Mar-2026 22:34:12 UTC] Flags after validation: []
+[24-Mar-2026 22:34:12 UTC] Replay flags: []
+[24-Mar-2026 22:34:12 UTC] Running consistency checks...
+[24-Mar-2026 22:34:12 UTC] Consistency flags: []
+[24-Mar-2026 22:34:12 UTC] === EarlyGameValidator::validate() END - Total flags: 0 ===
+[24-Mar-2026 22:34:12 UTC] EarlyGame flags count: 0
+[24-Mar-2026 22:34:12 UTC] Running MiddleGameValidator...
+[24-Mar-2026 22:34:12 UTC] MiddleGame flags count: 0
+[24-Mar-2026 22:34:12 UTC] Running LateGameValidator...
+[24-Mar-2026 22:34:12 UTC] LateGame flags count: 0
+[24-Mar-2026 22:34:12 UTC] Total flags: 0, cheated: NO
+[24-Mar-2026 22:34:12 UTC] All flags: []
+[24-Mar-2026 22:34:48 UTC] Leaderboard submission: day 26 (practice) - day 30, coins: 820
+[24-Mar-2026 22:34:48 UTC] === LEADERBOARD SUBMISSION: day 26 (practice) ===
+[24-Mar-2026 22:34:48 UTC] BasicValidator flags: []
+[24-Mar-2026 22:34:48 UTC] Running EarlyGameValidator...
+[24-Mar-2026 22:34:48 UTC] === EarlyGameValidator::validate() START ===
+[24-Mar-2026 22:34:48 UTC] Click log count: 680
+[24-Mar-2026 22:34:48 UTC] First 5 clicks: [{"t":0,"day":1,"action":"beg","coins":0,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":452,"day":1,"action":"beg","coins":1,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":551,"day":1,"action":"beg","coins":2,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":912,"day":2,"action":"beg","coins":3,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":951,"day":2,"action":"beg","coins":4,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0}]
+[24-Mar-2026 22:34:48 UTC] Magic unlocked: no
+[24-Mar-2026 22:34:48 UTC] Running replay validation...
+[24-Mar-2026 22:34:48 UTC] GameReplay::validateEarlyGame() - clicks: 680, snapshots: 4
+[24-Mar-2026 22:34:48 UTC] Snapshots range: day 10 to day 30
+[24-Mar-2026 22:34:48 UTC]   Day 1 summary: troops=0, food=500 (produced 0), coins=0 (+0), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC] Click #1: day=1, action=beg, coins_before=0, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=1, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #2: day=1, action=beg, coins_before=1, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=2, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #3: day=1, action=beg, coins_before=2, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=3, troops=0
+[24-Mar-2026 22:34:48 UTC]   Day 2 summary: troops=0, food=500 (produced 0), coins=3 (+0), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC] Click #4: day=2, action=beg, coins_before=3, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=4, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #5: day=2, action=beg, coins_before=4, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=5, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #6: day=2, action=beg, coins_before=5, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=6, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #7: day=2, action=beg, coins_before=6, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=7, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #8: day=2, action=beg, coins_before=7, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=8, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #9: day=2, action=beg, coins_before=8, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=9, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #10: day=2, action=beg, coins_before=9, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=10, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #11: day=2, action=beg, coins_before=10, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=11, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #12: day=2, action=beg, coins_before=11, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=12, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #13: day=2, action=beg, coins_before=12, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=13, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #14: day=2, action=beg, coins_before=13, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=14, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #15: day=2, action=beg, coins_before=14, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=15, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #16: day=2, action=beg, coins_before=15, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=16, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #17: day=2, action=beg, coins_before=16, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=17, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #18: day=2, action=beg, coins_before=17, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=18, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #19: day=2, action=beg, coins_before=18, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=19, troops=0
+[24-Mar-2026 22:34:48 UTC] Click #20: day=2, action=beg, coins_before=19, recruits_count=0
+[24-Mar-2026 22:34:48 UTC]   -> coins_after=20, troops=0
+[24-Mar-2026 22:34:48 UTC]   Day 3 summary: troops=0, food=500 (produced 0), coins=28 (+0), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 4 summary: troops=0, food=500 (produced 0), coins=66 (+0), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 5 summary: troops=4, food=496 (produced 0), coins=24 (+16), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 6 summary: troops=6, food=490 (produced 0), coins=40 (+24), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 7 summary: troops=7, food=483 (produced 0), coins=67 (+28), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 8 summary: troops=10, food=473 (produced 0), coins=64 (+40), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 9 summary: troops=13, food=460 (produced 0), coins=76 (+52), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 10 summary: troops=14, food=446 (produced 0), coins=130 (+56), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 11 summary: troops=19, food=427 (produced 0), coins=92 (+76), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 12 summary: troops=22, food=405 (produced 0), coins=117 (+88), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 13 summary: troops=26, food=379 (produced 0), coins=122 (+104), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 14 summary: troops=26, food=353 (produced 0), coins=263 (+104), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 15 summary: troops=26, food=327 (produced 0), coins=404 (+104), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 16 summary: troops=26, food=301 (produced 0), coins=547 (+104), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 17 summary: troops=26, food=275 (produced 0), coins=689 (+104), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 18 summary: troops=26, food=249 (produced 0), coins=830 (+104), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 19 summary: troops=26, food=223 (produced 0), coins=973 (+104), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC]   Day 20 summary: troops=26, food=197 (produced 0), coins=1115 (+104), farms=0, ppt=1
+[24-Mar-2026 22:34:48 UTC] Action counts: {"beg":652,"recruit":26,"farm":1,"squad_leader":1}
+[24-Mar-2026 22:34:48 UTC] Final replay state: day=25, coins=324, troops=26, farms=1
+[24-Mar-2026 22:34:48 UTC] === SNAPSHOT VALIDATION ===
+[24-Mar-2026 22:34:48 UTC] Replay final state: day=25, troops=26, coins=324, food=567, farms=1
+[24-Mar-2026 22:34:48 UTC] Snapshots to check: 4
+[24-Mar-2026 22:34:48 UTC] --- Snapshot day 10 ---
+[24-Mar-2026 22:34:48 UTC]   Snapshot: troops=14, coins=89, food=460, farms=0
+[24-Mar-2026 22:34:48 UTC]   Replay:   troops=26, coins=324, food=567, farms=1
+[24-Mar-2026 22:34:48 UTC]   Troop ratio: 1.8571428571429
+[24-Mar-2026 22:34:48 UTC]   Coin ratio: 3.6404494382022
+[24-Mar-2026 22:34:48 UTC] --- Snapshot day 20 ---
+[24-Mar-2026 22:34:48 UTC]   Snapshot: troops=26, coins=1,039, food=223, farms=0
+[24-Mar-2026 22:34:48 UTC]   Replay:   troops=26, coins=324, food=567, farms=1
+[24-Mar-2026 22:34:48 UTC]   Troop ratio: 1
+[24-Mar-2026 22:34:48 UTC]   Coin ratio: 0.31183830606352
+[24-Mar-2026 22:34:48 UTC] Skipping snapshot day 30 (replay only at day 25)
+[24-Mar-2026 22:34:48 UTC] Skipping snapshot day 30 (replay only at day 25)
+[24-Mar-2026 22:34:48 UTC] Flags after validation: []
+[24-Mar-2026 22:34:48 UTC] Replay flags: []
+[24-Mar-2026 22:34:48 UTC] Running consistency checks...
+[24-Mar-2026 22:34:48 UTC] Consistency flags: []
+[24-Mar-2026 22:34:48 UTC] === EarlyGameValidator::validate() END - Total flags: 0 ===
+[24-Mar-2026 22:34:48 UTC] EarlyGame flags count: 0
+[24-Mar-2026 22:34:48 UTC] Running MiddleGameValidator...
+[24-Mar-2026 22:34:48 UTC] MiddleGame flags count: 0
+[24-Mar-2026 22:34:48 UTC] Running LateGameValidator...
+[24-Mar-2026 22:34:48 UTC] LateGame flags count: 0
+[24-Mar-2026 22:34:48 UTC] Total flags: 0, cheated: NO
+[24-Mar-2026 22:34:48 UTC] All flags: []
+[24-Mar-2026 22:36:09 UTC] Leaderboard submission: day 65 (practice) - day 68, coins: 7,156
+[24-Mar-2026 22:36:09 UTC] === LEADERBOARD SUBMISSION: day 65 (practice) ===
+[24-Mar-2026 22:36:09 UTC] BasicValidator flags: []
+[24-Mar-2026 22:36:09 UTC] Running EarlyGameValidator...
+[24-Mar-2026 22:36:09 UTC] === EarlyGameValidator::validate() START ===
+[24-Mar-2026 22:36:09 UTC] Click log count: 1252
+[24-Mar-2026 22:36:09 UTC] First 5 clicks: [{"t":0,"day":0,"action":"beg","coins":0,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":415,"day":1,"action":"beg","coins":1,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":723,"day":1,"action":"beg","coins":2,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":899,"day":1,"action":"beg","coins":3,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0},{"t":914,"day":1,"action":"beg","coins":4,"troops":0,"ppt":1,"rp":1,"sl":0,"bar":0,"mb":0,"king":0,"train":0,"armyClicks":0}]
+[24-Mar-2026 22:36:09 UTC] Magic unlocked: no
+[24-Mar-2026 22:36:09 UTC] Running replay validation...
+[24-Mar-2026 22:36:09 UTC] GameReplay::validateEarlyGame() - clicks: 1252, snapshots: 7
+[24-Mar-2026 22:36:09 UTC] Snapshots range: day 10 to day 68
+[24-Mar-2026 22:36:09 UTC] Click #1: day=0, action=beg, coins_before=0, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=1, troops=0
+[24-Mar-2026 22:36:09 UTC]   Day 1 summary: troops=0, food=500 (produced 0), coins=1 (+0), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC] Click #2: day=1, action=beg, coins_before=1, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=2, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #3: day=1, action=beg, coins_before=2, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=3, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #4: day=1, action=beg, coins_before=3, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=4, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #5: day=1, action=beg, coins_before=4, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=5, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #6: day=1, action=beg, coins_before=5, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=6, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #7: day=1, action=beg, coins_before=6, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=7, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #8: day=1, action=beg, coins_before=7, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=8, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #9: day=1, action=beg, coins_before=8, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=9, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #10: day=1, action=beg, coins_before=9, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=10, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #11: day=1, action=beg, coins_before=10, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=11, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #12: day=1, action=beg, coins_before=11, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=12, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #13: day=1, action=beg, coins_before=12, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=13, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #14: day=1, action=beg, coins_before=13, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=14, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #15: day=1, action=beg, coins_before=14, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=15, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #16: day=1, action=beg, coins_before=15, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=16, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #17: day=1, action=beg, coins_before=16, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=17, troops=0
+[24-Mar-2026 22:36:09 UTC]   Day 2 summary: troops=0, food=500 (produced 0), coins=17 (+0), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC] Click #18: day=2, action=beg, coins_before=17, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=18, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #19: day=2, action=beg, coins_before=18, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=19, troops=0
+[24-Mar-2026 22:36:09 UTC] Click #20: day=2, action=beg, coins_before=19, recruits_count=0
+[24-Mar-2026 22:36:09 UTC]   -> coins_after=20, troops=0
+[24-Mar-2026 22:36:09 UTC]   Day 3 summary: troops=0, food=500 (produced 0), coins=56 (+0), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 4 summary: troops=0, food=500 (produced 0), coins=95 (+0), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 5 summary: troops=0, food=500 (produced 0), coins=133 (+0), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 6 summary: troops=6, food=494 (produced 0), coins=41 (+24), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 7 summary: troops=6, food=488 (produced 0), coins=96 (+24), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 8 summary: troops=10, food=478 (produced 0), coins=67 (+40), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 9 summary: troops=12, food=466 (produced 0), coins=88 (+48), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 10 summary: troops=14, food=452 (produced 0), coins=110 (+56), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC] SPEND FAILED: Day 10, action=recruit, need=29, have=6
+[24-Mar-2026 22:36:09 UTC]   Day 11 summary: troops=19, food=433 (produced 0), coins=82 (+76), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 12 summary: troops=19, food=414 (produced 0), coins=189 (+76), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 13 summary: troops=23, food=391 (produced 0), coins=166 (+92), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 14 summary: troops=23, food=368 (produced 0), coins=296 (+92), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 15 summary: troops=23, food=345 (produced 0), coins=426 (+92), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 16 summary: troops=23, food=322 (produced 0), coins=555 (+92), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 17 summary: troops=23, food=299 (produced 0), coins=686 (+92), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 18 summary: troops=23, food=276 (produced 0), coins=816 (+92), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 19 summary: troops=23, food=253 (produced 0), coins=946 (+92), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 20 summary: troops=23, food=230 (produced 0), coins=1075 (+92), farms=0, ppt=1
+[24-Mar-2026 22:36:09 UTC] SPEND FAILED: Day 21, action=recruit, need=35, have=18
+[24-Mar-2026 22:36:09 UTC] SPEND FAILED: Day 29, action=recruit, need=45, have=43
+[24-Mar-2026 22:36:09 UTC]   Day 30 summary: troops=60, food=875 (produced 100), coins=283 (+240), farms=1, ppt=1
+[24-Mar-2026 22:36:09 UTC] SPEND FAILED: Day 32, action=recruit, need=52, have=19
+[24-Mar-2026 22:36:09 UTC]   Day 40 summary: troops=92, food=1019 (produced 100), coins=1327 (+368), farms=1, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 48: STARVATION streak=1, 5% deserted (15 troops), troops now: 293
+[24-Mar-2026 22:36:09 UTC]   Day 49: STARVATION streak=2, 10% deserted (29 troops), troops now: 264
+[24-Mar-2026 22:36:09 UTC]   Day 50: STARVATION streak=3, 20% deserted (52 troops), troops now: 212
+[24-Mar-2026 22:36:09 UTC]   Day 50 summary: troops=212, food=0 (produced 100), coins=4128 (+1056), farms=1, ppt=1
+[24-Mar-2026 22:36:09 UTC]   Day 51: STARVATION streak=4, 40% deserted (84 troops), troops now: 128
+[24-Mar-2026 22:36:09 UTC]   Day 52: Starvation ended (was streak 4)
+[24-Mar-2026 22:36:09 UTC]   Day 60 summary: troops=216, food=2132 (produced 400), coins=2717.4578809448 (+926.32494422046), farms=4, ppt=1.072135352107
+[24-Mar-2026 22:36:09 UTC] Action counts: {"beg":1103,"recruit":132,"farm":4,"squad_leader":3,"barracks":3,"train":7}
+[24-Mar-2026 22:36:09 UTC] Final replay state: day=62, coins=2,001, troops=228, farms=4
+[24-Mar-2026 22:36:09 UTC] === SNAPSHOT VALIDATION ===
+[24-Mar-2026 22:36:09 UTC] Replay final state: day=62, troops=228, coins=2,001, food=2,476, farms=4
+[24-Mar-2026 22:36:09 UTC] Snapshots to check: 7
+[24-Mar-2026 22:36:09 UTC] --- Snapshot day 10 ---
+[24-Mar-2026 22:36:09 UTC]   Snapshot: troops=14, coins=82, food=466, farms=0
+[24-Mar-2026 22:36:09 UTC]   Replay:   troops=228, coins=2,001, food=2,476, farms=4
+[24-Mar-2026 22:36:09 UTC]   Troop ratio: 16.285714285714
+[24-Mar-2026 22:36:09 UTC]   -> FLAGGING troop mismatch!
+[24-Mar-2026 22:36:09 UTC]   Coin ratio: 24.402838575463
+[24-Mar-2026 22:36:09 UTC]   -> FLAGGING coin discrepancy!
+[24-Mar-2026 22:36:09 UTC]   -> FLAGGING farm mismatch!
+[24-Mar-2026 22:36:09 UTC] --- Snapshot day 20 ---
+[24-Mar-2026 22:36:09 UTC]   Snapshot: troops=24, coins=1,028, food=244, farms=0
+[24-Mar-2026 22:36:09 UTC]   Replay:   troops=228, coins=2,001, food=2,476, farms=4
+[24-Mar-2026 22:36:09 UTC]   Troop ratio: 9.5
+[24-Mar-2026 22:36:09 UTC]   -> FLAGGING troop mismatch!
+[24-Mar-2026 22:36:09 UTC]   Coin ratio: 1.9465299252801
+[24-Mar-2026 22:36:09 UTC]   -> FLAGGING farm mismatch!
+[24-Mar-2026 22:36:09 UTC] --- Snapshot day 30 ---
+[24-Mar-2026 22:36:09 UTC]   Snapshot: troops=65, coins=99, food=808, farms=1
+[24-Mar-2026 22:36:09 UTC]   Replay:   troops=228, coins=2,001, food=2,476, farms=4
+[24-Mar-2026 22:36:09 UTC]   Troop ratio: 3.5076923076923
+[24-Mar-2026 22:36:09 UTC]   -> FLAGGING troop mismatch!
+[24-Mar-2026 22:36:09 UTC]   Coin ratio: 20.212452153414
+[24-Mar-2026 22:36:09 UTC]   -> FLAGGING coin discrepancy!
+[24-Mar-2026 22:36:09 UTC]   -> FLAGGING farm mismatch!
+[24-Mar-2026 22:36:09 UTC] --- Snapshot day 40 ---
+[24-Mar-2026 22:36:09 UTC]   Snapshot: troops=101, coins=1,308, food=906, farms=1
+[24-Mar-2026 22:36:09 UTC]   Replay:   troops=228, coins=2,001, food=2,476, farms=4
+[24-Mar-2026 22:36:09 UTC]   Troop ratio: 2.2574257425743
+[24-Mar-2026 22:36:09 UTC]   -> FLAGGING troop mismatch!
+[24-Mar-2026 22:36:09 UTC]   Coin ratio: 1.5298415620703
+[24-Mar-2026 22:36:09 UTC]   -> FLAGGING farm mismatch!
+[24-Mar-2026 22:36:09 UTC] --- Snapshot day 50 ---
+[24-Mar-2026 22:36:09 UTC]   Snapshot: troops=217, coins=3,205, food=0, farms=1
+[24-Mar-2026 22:36:09 UTC]   Replay:   troops=228, coins=2,001, food=2,476, farms=4
+[24-Mar-2026 22:36:09 UTC]   Troop ratio: 1.0515247108307
+[24-Mar-2026 22:36:09 UTC]   Coin ratio: 0.62434719600248
+[24-Mar-2026 22:36:09 UTC]   -> FLAGGING farm mismatch!
+[24-Mar-2026 22:36:09 UTC] --- Snapshot day 60 ---
+[24-Mar-2026 22:36:09 UTC]   Snapshot: troops=218, coins=1,032, food=2,002, farms=4
+[24-Mar-2026 22:36:09 UTC]   Replay:   troops=228, coins=2,001, food=2,476, farms=4
+[24-Mar-2026 22:36:09 UTC]   Troop ratio: 1.0454073604014
+[24-Mar-2026 22:36:09 UTC]   Coin ratio: 1.9389852356472
+[24-Mar-2026 22:36:09 UTC] Skipping snapshot day 68 (replay only at day 62)
+[24-Mar-2026 22:36:09 UTC] Flags after validation: ["Day 10: Insufficient coins for recruit (need 29, have 6)","Day 21: Insufficient coins for recruit (need 35, have 18)","Day 29: Insufficient coins for recruit (need 45, have 43)","Day 32: Insufficient coins for recruit (need 52, have 19)","Day 10: Troop mismatch - replay has 228, log shows 14 (ratio: 16.286)","Day 10: Coin discrepancy - replay has 2,001, log shows 82 (ratio: 24.403)","Day 10: Farm count mismatch - replay has 4, log shows 0","Day 20: Troop mismatch - replay has 228, log shows 24 (ratio: 9.5)","Day 20: Farm count mismatch - replay has 4, log shows 0","Day 30: Troop mismatch - replay has 228, log shows 65 (ratio: 3.508)","Day 30: Coin discrepancy - replay has 2,001, log shows 99 (ratio: 20.212)","Day 30: Farm count mismatch - replay has 4, log shows 1","Day 40: Troop mismatch - replay has 228, log shows 101 (ratio: 2.257)","Day 40: Farm count mismatch - replay has 4, log shows 1","Day 50: Farm count mismatch - replay has 4, log shows 1"]
+[24-Mar-2026 22:36:09 UTC] Replay flags: ["Day 10: Insufficient coins for recruit (need 29, have 6)","Day 21: Insufficient coins for recruit (need 35, have 18)","Day 29: Insufficient coins for recruit (need 45, have 43)","Day 32: Insufficient coins for recruit (need 52, have 19)","Day 10: Troop mismatch - replay has 228, log shows 14 (ratio: 16.286)","Day 10: Coin discrepancy - replay has 2,001, log shows 82 (ratio: 24.403)","Day 10: Farm count mismatch - replay has 4, log shows 0","Day 20: Troop mismatch - replay has 228, log shows 24 (ratio: 9.5)","Day 20: Farm count mismatch - replay has 4, log shows 0","Day 30: Troop mismatch - replay has 228, log shows 65 (ratio: 3.508)","Day 30: Coin discrepancy - replay has 2,001, log shows 99 (ratio: 20.212)","Day 30: Farm count mismatch - replay has 4, log shows 1","Day 40: Troop mismatch - replay has 228, log shows 101 (ratio: 2.257)","Day 40: Farm count mismatch - replay has 4, log shows 1","Day 50: Farm count mismatch - replay has 4, log shows 1"]
+[24-Mar-2026 22:36:09 UTC] Running consistency checks...
+[24-Mar-2026 22:36:09 UTC] Consistency flags: []
+[24-Mar-2026 22:36:09 UTC] === EarlyGameValidator::validate() END - Total flags: 15 ===
+[24-Mar-2026 22:36:09 UTC] EarlyGame flags count: 15
+[24-Mar-2026 22:36:09 UTC] Running MiddleGameValidator...
+[24-Mar-2026 22:36:09 UTC] MiddleGame flags count: 0
+[24-Mar-2026 22:36:09 UTC] Running LateGameValidator...
+[24-Mar-2026 22:36:09 UTC] LateGame flags count: 0
+[24-Mar-2026 22:36:09 UTC] Total flags: 15, cheated: YES
+[24-Mar-2026 22:36:09 UTC] All flags: ["[EarlyGame] Day 10: Insufficient coins for recruit (need 29, have 6)","[EarlyGame] Day 21: Insufficient coins for recruit (need 35, have 18)","[EarlyGame] Day 29: Insufficient coins for recruit (need 45, have 43)","[EarlyGame] Day 32: Insufficient coins for recruit (need 52, have 19)","[EarlyGame] Day 10: Troop mismatch - replay has 228, log shows 14 (ratio: 16.286)","[EarlyGame] Day 10: Coin discrepancy - replay has 2,001, log shows 82 (ratio: 24.403)","[EarlyGame] Day 10: Farm count mismatch - replay has 4, log shows 0","[EarlyGame] Day 20: Troop mismatch - replay has 228, log shows 24 (ratio: 9.5)","[EarlyGame] Day 20: Farm count mismatch - replay has 4, log shows 0","[EarlyGame] Day 30: Troop mismatch - replay has 228, log shows 65 (ratio: 3.508)","[EarlyGame] Day 30: Coin discrepancy - replay has 2,001, log shows 99 (ratio: 20.212)","[EarlyGame] Day 30: Farm count mismatch - replay has 4, log shows 1","[EarlyGame] Day 40: Troop mismatch - replay has 228, log shows 101 (ratio: 2.257)","[EarlyGame] Day 40: Farm count mismatch - replay has 4, log shows 1","[EarlyGame] Day 50: Farm count mismatch - replay has 4, log shows 1"]
+[24-Mar-2026 22:36:09 UTC] FLAGGED as cheater: day 65 - [EarlyGame] Day 10: Insufficient coins for recruit (need 29, have 6); [EarlyGame] Day 21: Insufficient coins for recruit (need 35, have 18); [EarlyGame] Day 29: Insufficient coins for recruit (need 45, have 43); [EarlyGame] Day 32: Insufficient coins for recruit (need 52, have 19); [EarlyGame] Day 10: Troop mismatch - replay has 228, log shows 14 (ratio: 16.286); [EarlyGame] Day 10: Coin discrepancy - replay has 2,001, log shows 82 (ratio: 24.403); [EarlyGame] Day 10: Farm count mismatch - replay has 4, log shows 0; [EarlyGame] Day 20: Troop mismatch - replay has 228, log shows 24 (ratio: 9.5); [EarlyGame] Day 20: Farm count mismatch - replay has 4, log shows 0; [EarlyGame] Day 30: Troop mismatch - replay has 228, log shows 65 (ratio: 3.508); [EarlyGame] Day 30: Coin discrepancy - replay has 2,001, log shows 99 (ratio: 20.212); [EarlyGame] Day 30: Farm count mismatch - replay has 4, log shows 1; [EarlyGame] Day 40: Troop mismatch - replay has 228, log shows 101 (ratio: 2.257); [EarlyGame] Day 40: Farm count mismatch - replay has 4, log shows 1; [EarlyGame] Day 50: Farm count mismatch - replay has 4, log shows 1

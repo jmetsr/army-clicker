@@ -58,6 +58,7 @@ function setCheckFlavorEvents(fn) { checkFlavorEventsRef = fn; }
 function setGetUpgradeMult(fn) { getUpgradeMultRef = fn; }
 
 // Log to event display
+var _latestEventTimeout = null;
 function log(msg, cls) {
   var el = document.getElementById("logEntries");
   if (!el) return;
@@ -66,6 +67,19 @@ function log(msg, cls) {
   e.textContent = msg;
   el.insertBefore(e, el.firstChild);
   while (el.children.length > 50) el.removeChild(el.lastChild);
+
+  // Also show in latest event banner at top
+  var latest = document.getElementById("latestEvent");
+  if (latest) {
+    latest.textContent = msg;
+    latest.className = "latest-event visible" + (cls ? " " + cls : "");
+    // Clear previous timeout
+    if (_latestEventTimeout) clearTimeout(_latestEventTimeout);
+    // Fade out after 4 seconds
+    _latestEventTimeout = setTimeout(function() {
+      latest.classList.remove("visible");
+    }, 4000);
+  }
 }
 
 // Gameplay logging

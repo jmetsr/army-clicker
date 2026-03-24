@@ -129,8 +129,13 @@ class GameReplay {
         // Sort clicks by time/day
         usort($clicks, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
 
-        // Sort snapshots by day for comparison
+        // Sort snapshots by day and index them for quick lookup
         usort($snapshots, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
+        $snapshotsByDay = [];
+        foreach ($snapshots as $snap) {
+            $snapDay = $snap['day'] ?? 0;
+            $snapshotsByDay[$snapDay] = $snap;
+        }
 
         // Log snapshot info
         if (!empty($snapshots)) {
@@ -138,6 +143,9 @@ class GameReplay {
             $lastSnap = end($snapshots);
             error_log("Snapshots range: day " . ($firstSnap['day'] ?? '?') . " to day " . ($lastSnap['day'] ?? '?'));
         }
+
+        // Track which days we've already validated
+        $validatedDays = [];
 
         // Process each click
         $prevDay = 0;
@@ -151,7 +159,26 @@ class GameReplay {
 
             // Advance day and add income
             if ($clickDay > $prevDay) {
-                $this->advanceToDay($clickDay, $prevDay);
+                // Check for snapshots at each day as we advance
+                // Snapshot at day N was taken AFTER G.day++ but BEFORE day N's processing
+                // So snapshot day N should be compared to state BEFORE simulating day N
+                for ($d = $prevDay + 1; $d <= $clickDay; $d++) {
+                    // If there's a snapshot at day $d, validate before simulating day $d
+                    if (isset($snapshotsByDay[$d]) && !isset($validatedDays[$d])) {
+                        // Advance up to day $d-1 first (state = end of day $d-1 = start of day $d)
+                        if ($d - 1 > $prevDay) {
+                            $this->advanceToDay($d - 1, $prevDay);
+                            $prevDay = $d - 1;
+                        }
+                        $this->validateSnapshotAtDay($snapshotsByDay[$d], $d);
+                        $validatedDays[$d] = true;
+                    }
+                }
+
+                // Now advance to clickDay
+                if ($clickDay > $prevDay) {
+                    $this->advanceToDay($clickDay, $prevDay);
+                }
                 $prevDay = $clickDay;
             }
 
@@ -168,12 +195,20 @@ class GameReplay {
             }
         }
 
+        // Validate any remaining snapshots at or after the current day
+        foreach ($snapshotsByDay as $snapDay => $snap) {
+            if (!isset($validatedDays[$snapDay]) && $snapDay <= $this->day) {
+                // Advance to snap day if needed
+                if ($snapDay > $this->day) {
+                    $this->advanceToDay($snapDay, $this->day);
+                }
+                $this->validateSnapshotAtDay($snap, $snapDay);
+                $validatedDays[$snapDay] = true;
+            }
+        }
+
         error_log("Action counts: " . json_encode($actionCounts));
         error_log("Final replay state: day={$this->day}, coins={$this->coins->toString()}, troops={$this->troops->toString()}, farms={$this->farms}");
-
-        // Compare final state to snapshots
-        $this->validateAgainstSnapshots($snapshots);
-
         error_log("Flags after validation: " . json_encode($this->flags));
 
         return $this->flags;
@@ -477,64 +512,49 @@ class GameReplay {
     /**
      * Compare replay state against logged snapshots
      */
-    private function validateAgainstSnapshots(array $snapshots): void {
-        error_log("=== SNAPSHOT VALIDATION ===");
-        error_log("Replay final state: day={$this->day}, troops={$this->troops->toString()}, " .
-            "coins={$this->coins->toString()}, food={$this->food->toString()}, farms={$this->farms}");
-        error_log("Snapshots to check: " . count($snapshots));
+    /**
+     * Validate replay state against a single snapshot at the current replay day
+     * This is called DURING replay, at the moment we reach each snapshot's day
+     */
+    private function validateSnapshotAtDay(array $snap, int $snapDay): void {
+        $player = $snap['player'] ?? [];
 
-        if (empty($snapshots)) {
-            error_log("WARNING: No snapshots to validate against!");
-            return;
+        $snapTroops = new OrdinalNumber($player['troops'] ?? 0);
+        $snapCoins = new OrdinalNumber($player['coins'] ?? 0);
+        $snapFood = new OrdinalNumber($player['food'] ?? 0);
+        $snapFarms = $player['farms'] ?? 0;
+
+        error_log("--- Validating snapshot day $snapDay (replay at day {$this->day}) ---");
+        error_log("  Snapshot: troops={$snapTroops->toString()}, coins={$snapCoins->toString()}, " .
+            "food={$snapFood->toString()}, farms=$snapFarms");
+        error_log("  Replay:   troops={$this->troops->toString()}, coins={$this->coins->toString()}, " .
+            "food={$this->food->toString()}, farms={$this->farms}");
+
+        // Compare troops - allow 0.5x to 2x due to timing differences
+        $troopRatio = $this->safeRatio($this->troops, $snapTroops);
+        error_log("  Troop ratio: $troopRatio");
+        if ($troopRatio < 0.5 || $troopRatio > 2.0) {
+            error_log("  -> FLAGGING troop mismatch!");
+            $this->flags[] = "Day $snapDay: Troop mismatch - replay has " .
+                $this->troops->toString() . ", log shows " . $snapTroops->toString() .
+                " (ratio: " . round($troopRatio, 3) . ")";
         }
 
-        foreach ($snapshots as $snap) {
-            $snapDay = $snap['day'] ?? 0;
-            $player = $snap['player'] ?? [];
+        // Compare coins - allow 0.2x to 5x due to timing/spending differences
+        $coinRatio = $this->safeRatio($this->coins, $snapCoins);
+        error_log("  Coin ratio: $coinRatio");
+        if ($coinRatio < 0.2 || $coinRatio > 5.0) {
+            error_log("  -> FLAGGING coin discrepancy!");
+            $this->flags[] = "Day $snapDay: Coin discrepancy - replay has " .
+                $this->coins->toString() . ", log shows " . $snapCoins->toString() .
+                " (ratio: " . round($coinRatio, 3) . ")";
+        }
 
-            // Skip if we haven't reached this day in replay
-            if ($snapDay > $this->day) {
-                error_log("Skipping snapshot day $snapDay (replay only at day {$this->day})");
-                continue;
-            }
-
-            $snapTroops = new OrdinalNumber($player['troops'] ?? 0);
-            $snapCoins = new OrdinalNumber($player['coins'] ?? 0);
-            $snapFood = new OrdinalNumber($player['food'] ?? 0);
-            $snapFarms = $player['farms'] ?? 0;
-
-            error_log("--- Snapshot day $snapDay ---");
-            error_log("  Snapshot: troops={$snapTroops->toString()}, coins={$snapCoins->toString()}, " .
-                "food={$snapFood->toString()}, farms=$snapFarms");
-            error_log("  Replay:   troops={$this->troops->toString()}, coins={$this->coins->toString()}, " .
-                "food={$this->food->toString()}, farms={$this->farms}");
-
-            // Compare troops - now with starvation, should be tighter (0.5x to 2x)
-            $troopRatio = $this->safeRatio($this->troops, $snapTroops);
-            error_log("  Troop ratio: $troopRatio");
-            if ($troopRatio < 0.5 || $troopRatio > 2.0) {
-                error_log("  -> FLAGGING troop mismatch!");
-                $this->flags[] = "Day $snapDay: Troop mismatch - replay has " .
-                    $this->troops->toString() . ", log shows " . $snapTroops->toString() .
-                    " (ratio: " . round($troopRatio, 3) . ")";
-            }
-
-            // Compare coins - allow 0.2x to 5x due to timing/spending differences
-            $coinRatio = $this->safeRatio($this->coins, $snapCoins);
-            error_log("  Coin ratio: $coinRatio");
-            if ($coinRatio < 0.2 || $coinRatio > 5.0) {
-                error_log("  -> FLAGGING coin discrepancy!");
-                $this->flags[] = "Day $snapDay: Coin discrepancy - replay has " .
-                    $this->coins->toString() . ", log shows " . $snapCoins->toString() .
-                    " (ratio: " . round($coinRatio, 3) . ")";
-            }
-
-            // Compare farms - should be exact or very close
-            if (abs($this->farms - $snapFarms) > 2) {
-                error_log("  -> FLAGGING farm mismatch!");
-                $this->flags[] = "Day $snapDay: Farm count mismatch - replay has " .
-                    $this->farms . ", log shows $snapFarms";
-            }
+        // Compare farms - should be exact or very close
+        if (abs($this->farms - $snapFarms) > 2) {
+            error_log("  -> FLAGGING farm mismatch!");
+            $this->flags[] = "Day $snapDay: Farm count mismatch - replay has " .
+                $this->farms . ", log shows $snapFarms";
         }
     }
 

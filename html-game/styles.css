@@ -47,6 +47,34 @@ header .timer {
   font-family: 'IBM Plex Mono', monospace;
 }
 
+.latest-event {
+  text-align: center;
+  padding: 6px 12px;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  min-height: 1.5em;
+  color: var(--text);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.latest-event.visible {
+  opacity: 1;
+}
+
+.latest-event.milestone {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.latest-event.danger-msg {
+  color: #ff6b6b;
+}
+
+.latest-event.magic-msg {
+  color: var(--magic);
+}
+
 .resources {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
