@@ -131,8 +131,8 @@ function handleSubmitRun(): void {
         $validationResult->addFlag("[LateGame] $flag");
     }
 
-    // Flag as cheated if 2+ issues found
-    $cheated = count($validationResult->flags) >= 2;
+    // Flag as cheated if any issues found
+    $cheated = count($validationResult->flags) >= 1;
     error_log("Total flags: " . count($validationResult->flags) . ", cheated: " . ($cheated ? "YES" : "NO"));
     error_log("All flags: " . json_encode($validationResult->flags));
     $cheatReason = !empty($validationResult->flags) ? implode('; ', $validationResult->flags) : null;
