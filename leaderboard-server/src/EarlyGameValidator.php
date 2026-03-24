@@ -82,61 +82,15 @@ class EarlyGameValidator {
 
     /**
      * Additional consistency checks for early game
+     *
+     * Note: Most heuristic checks removed - the replay validation in GameReplay
+     * now properly tracks all game mechanics (army chain, economy chain, etc.)
+     * and compares against snapshots. Heuristic checks were causing false positives
+     * because they didn't account for the exponential boosting mechanics.
      */
     private function checkEarlyGameConsistency(): array {
-        $flags = [];
-        $clicks = $this->parser->getClickLog();
-        $snapshots = $this->parser->getSnapshots();
-
-        if (empty($clicks) || empty($snapshots)) {
-            return $flags;
-        }
-
-        // Count actions from click log
-        $actionCounts = [];
-        foreach ($clicks as $click) {
-            $action = $click['action'] ?? 'unknown';
-            $actionCounts[$action] = ($actionCounts[$action] ?? 0) + 1;
-        }
-
-        // Get final snapshot
-        usort($snapshots, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
-        $final = end($snapshots);
-        $finalPlayer = $final['player'] ?? [];
-
-        // Check: if they claim many farms, they should have clicked farm
-        $snapFarms = $finalPlayer['farms'] ?? 0;
-        $clickFarms = $actionCounts['farm'] ?? 0;
-        // Allow for plantations boosting farm count
-        $clickPlantations = $actionCounts['plantation'] ?? 0;
-        $maxPossibleFarms = $clickFarms + ($clickFarms * $clickPlantations);
-        if ($snapFarms > $maxPossibleFarms * 2 && $snapFarms > 10) {
-            $flags[] = "Farm count ($snapFarms) exceeds what's possible from clicks (farm: $clickFarms, plantation: $clickPlantations)";
-        }
-
-        // Check: troop growth rate should be reasonable
-        $firstSnap = reset($snapshots);
-        $firstDay = $firstSnap['day'] ?? 0;
-        $finalDay = $final['day'] ?? 0;
-        $daysPassed = $finalDay - $firstDay;
-
-        if ($daysPassed > 10) {
-            $finalTroops = LogParser::ordinalToFloat($finalPlayer['troops'] ?? 0);
-            $firstTroops = LogParser::ordinalToFloat($firstSnap['player']['troops'] ?? 0);
-
-            // Rough check: troops shouldn't grow faster than exponentially reasonable
-            // Even with max clicking, troop growth is limited by coin income
-            $recruits = $actionCounts['recruit'] ?? 0;
-
-            // If they have way more troops than recruits could provide
-            // (allowing for some SL boosting), that's suspicious
-            $maxReasonableTroops = $recruits * 1000;  // Very generous multiplier for SL effects
-            if ($finalTroops > $maxReasonableTroops && $finalTroops > 1e6) {
-                $flags[] = "Troop count (" . number_format($finalTroops) . ") seems too high for $recruits recruit clicks";
-            }
-        }
-
-        return $flags;
+        // All validation now done by GameReplay with proper mechanic simulation
+        return [];
     }
 
     /**
