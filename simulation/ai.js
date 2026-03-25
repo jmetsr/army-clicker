@@ -3,6 +3,8 @@
  *
  * Logic matches html-game/js/ai-strategy.js exactly.
  * Uses modular imports from other simulation files.
+ *
+ * Includes percentage-priority mode with threshold=0.02
  */
 
 const { C, PARAMS } = require('./constants');
@@ -13,6 +15,9 @@ const { buySL, buyBarracks, buyMB, buyKingdom, buyEmpire,
         buyFarm, buyPlantation, buyColony,
         recruit, train, beg } = require('./actions');
 const { calcScore, slBetterThanRecruit, barracksBetterThanSL, findBestMilitaryTarget } = require('./scoring');
+
+// Percentage priority threshold (matches game)
+const PCT_PRIORITY_THRESHOLD = 0.02;
 
 /**
  * Run AI for one day (all clicks)
@@ -95,6 +100,156 @@ function runAIDay(ai, clicks, enemyPower = 0, noStarve = false) {
     const coinsNeeded = costToBuy - coins;
     const daysToAfford = coinsNeeded / Math.max(incomePerDay, 1);
     return daysToAfford > daysOfBuffer;
+  }
+
+  // === PERCENTAGE PRIORITY MODE FUNCTIONS ===
+  function checkPriorityModeEligible(coins) {
+    const recruitCost = getRecruitCost(ai);
+    const empireCost = getEmpireCost(ai);
+    return recruitCost < coins / PCT_PRIORITY_THRESHOLD && empireCost < coins / PCT_PRIORITY_THRESHOLD;
+  }
+
+  function getBestArmyByPercentage(coins, troopCount) {
+    const slCount = getCount(ai, "squad_leader");
+    const barracksCount = getCount(ai, "barracks");
+    const mbCount = getCount(ai, "military_base");
+    const kingdomCount = getCount(ai, "kingdom");
+    const empireCount = getCount(ai, "empire");
+
+    function pctInc(power, count) {
+      if (count === 0) return Infinity;
+      return power / count;
+    }
+
+    const options = [];
+
+    // Squad Leader
+    if (troopCount >= 2) {
+      options.push({
+        name: 'squad_leader',
+        pctIncrease: pctInc(ai.squadLeaderPower, slCount),
+        cost: getSLCost(ai),
+        affordable: ai.coins.gte(getSLCost(ai)),
+        fn: () => buySL(ai)
+      });
+    }
+
+    // Barracks
+    if (slCount >= 3) {
+      options.push({
+        name: 'barracks',
+        pctIncrease: pctInc(ai.barracksPower, barracksCount),
+        cost: getBarracksCost(ai),
+        affordable: ai.coins.gte(getBarracksCost(ai)),
+        fn: () => buyBarracks(ai)
+      });
+    }
+
+    // Military Base
+    if (barracksCount >= 3) {
+      const cost = getMBCost(ai);
+      options.push({
+        name: 'military_base',
+        pctIncrease: pctInc(ai.militaryBasePower, mbCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: () => buyMB(ai)
+      });
+    }
+
+    // Kingdom
+    if (mbCount >= 3) {
+      const cost = getKingdomCost(ai);
+      options.push({
+        name: 'kingdom',
+        pctIncrease: pctInc(ai.kingdomPower, kingdomCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: () => buyKingdom(ai)
+      });
+    }
+
+    // Empire
+    if (kingdomCount >= 3) {
+      const cost = getEmpireCost(ai);
+      options.push({
+        name: 'empire',
+        pctIncrease: pctInc(ai.empirePower, empireCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: () => buyEmpire(ai)
+      });
+    }
+
+    if (options.length === 0) return null;
+
+    // Sort by percentage increase (highest first)
+    // Tie-breaker: prefer affordable, then prefer cheaper
+    options.sort((a, b) => {
+      if (b.pctIncrease !== a.pctIncrease) return b.pctIncrease - a.pctIncrease;
+      if (a.affordable !== b.affordable) return a.affordable ? -1 : 1;
+      return a.cost - b.cost;
+    });
+
+    const ideal = options[0];
+    if (!ideal.affordable) return null;
+    return ideal;
+  }
+
+  function getBestEconomyByPercentage() {
+    const farmCount = getCount(ai, "farm");
+    const plantationCount = getCount(ai, "plantation");
+    const colonyCount = getCount(ai, "colony");
+
+    function pctInc(power, count) {
+      if (count === 0) return Infinity;
+      return power / count;
+    }
+
+    const options = [];
+
+    // Farm (always available)
+    options.push({
+      name: 'farm',
+      pctIncrease: pctInc(ai.fp, farmCount),
+      cost: getFarmCost(ai),
+      affordable: ai.coins.gte(getFarmCost(ai)),
+      fn: () => buyFarm(ai)
+    });
+
+    // Plantation
+    if (farmCount >= 3) {
+      options.push({
+        name: 'plantation',
+        pctIncrease: pctInc(ai.pp, plantationCount),
+        cost: getPlantationCost(ai),
+        affordable: ai.coins.gte(getPlantationCost(ai)),
+        fn: () => buyPlantation(ai)
+      });
+    }
+
+    // Colony
+    if (plantationCount >= 3) {
+      options.push({
+        name: 'colony',
+        pctIncrease: pctInc(1, colonyCount),
+        cost: getColonyCost(ai),
+        affordable: ai.coins.gte(getColonyCost(ai)),
+        fn: () => buyColony(ai)
+      });
+    }
+
+    // Sort by percentage increase (highest first)
+    // Tie-breaker: prefer affordable, then prefer cheaper
+    options.sort((a, b) => {
+      if (b.pctIncrease !== a.pctIncrease) return b.pctIncrease - a.pctIncrease;
+      if (a.affordable !== b.affordable) return a.affordable ? -1 : 1;
+      return a.cost - b.cost;
+    });
+
+    const ideal = options[0];
+    if (!ideal.affordable) return null;
+    return ideal;
   }
 
   // === MAIN LOOP (one iteration per click) ===
@@ -245,6 +400,49 @@ function runAIDay(ai, clicks, enemyPower = 0, noStarve = false) {
     const best = actions[0];
     const bestIsBuilding = (best.name !== 'train' && best.name !== 'recruit');
     const bestIsUnaffordable = bestIsBuilding && best.cost > coins;
+    const bestIsEconomy = !noStarve && (best.name === 'farm' || best.name === 'plantation' || best.name === 'colony');
+    const armyBuildingNames = ['squad_leader', 'barracks', 'military_base', 'kingdom', 'empire'];
+    const bestIsArmyBuilding = armyBuildingNames.includes(best.name);
+
+    // === PERCENTAGE PRIORITY MODE ===
+    const inPriorityMode = checkPriorityModeEligible(coins);
+    if (inPriorityMode) {
+      ai._hasBeenInPriorityMode = true;
+    }
+    const hasBeenInPriority = ai._hasBeenInPriorityMode || false;
+
+    // PERCENTAGE PRIORITY MODE LOGIC (matches game):
+    // 1. If normal mode wants economy, use percentage-based economy selection
+    // 2. If normal mode wants army/train/recruit, use percentage-based army selection
+    // 3. After leaving priority mode: only allow train/economy, army buildings force re-entry
+
+    if (inPriorityMode && bestIsEconomy && !bestIsUnaffordable) {
+      const pctBest = getBestEconomyByPercentage();
+      if (pctBest && pctBest.fn()) {
+        continue;
+      }
+    }
+
+    if (inPriorityMode && !bestIsEconomy && !bestIsUnaffordable) {
+      const pctBest = getBestArmyByPercentage(coins, troopCount);
+      if (pctBest && pctBest.fn()) {
+        continue;
+      }
+    }
+
+    if (!inPriorityMode && hasBeenInPriority && bestIsArmyBuilding && !bestIsUnaffordable) {
+      if (checkPriorityModeEligible(coins)) {
+        const pctBest = getBestArmyByPercentage(coins, troopCount);
+        if (pctBest && pctBest.fn()) {
+          continue;
+        }
+      } else {
+        if (troopCount >= 5 && ai.coins.gte(getTrainCost(ai))) {
+          train(ai);
+          continue;
+        }
+      }
+    }
 
     // Handle waiting for unaffordable building
     if (bestIsUnaffordable) {
@@ -256,8 +454,6 @@ function runAIDay(ai, clicks, enemyPower = 0, noStarve = false) {
         beg(ai);
         continue;
       }
-
-      const bestIsEconomy = !noStarve && (best.name === 'farm' || best.name === 'plantation' || best.name === 'colony');
 
       if (bestIsEconomy) {
         if (doesTrainHelp(best.cost, coins, incomePerDay)) {
