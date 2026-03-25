@@ -967,23 +967,49 @@ function runAI(clicks) {
     // === PERCENTAGE PRIORITY MODE ===
     // When rich enough, use percentage-based selection for more balanced building
     var inPriorityMode = checkPriorityModeEligible();
+    if (inPriorityMode) {
+      ai._hasBeenInPriorityMode = true;
+    }
+    var hasBeenInPriority = ai._hasBeenInPriorityMode || false;
 
-    if (inPriorityMode && !bestIsUnaffordable) {
-      // In priority mode - use percentage-based selection
-      if (bestIsEconomy) {
-        // Normal mode wants economy - use percentage-based economy selection
-        var pctBest = getBestEconomyByPercentage();
-        if (pctBest && pctBest.fn()) {
-          continue;
-        }
-      } else if (bestIsArmyBuilding) {
-        // Normal mode wants army building - use percentage-based army selection
+    // PERCENTAGE PRIORITY MODE LOGIC (matches simulation):
+    // 1. If normal mode wants economy, use percentage-based economy selection
+    // 2. If normal mode wants army/train/recruit, use percentage-based army selection
+    // 3. After leaving priority mode: only allow train/economy, army buildings force re-entry
+
+    if (inPriorityMode && bestIsEconomy && !bestIsUnaffordable) {
+      // In priority mode and normal mode wants economy - use percentage-based economy selection
+      var pctBest = getBestEconomyByPercentage();
+      if (pctBest && pctBest.fn()) {
+        continue;
+      }
+    }
+
+    if (inPriorityMode && !bestIsEconomy && !bestIsUnaffordable) {
+      // In priority mode and normal mode wants army/train/recruit - use percentage-based army selection
+      var pctBest = getBestArmyByPercentage();
+      if (pctBest && pctBest.fn()) {
+        continue;
+      }
+    }
+
+    if (!inPriorityMode && hasBeenInPriority && bestIsArmyBuilding && !bestIsUnaffordable) {
+      // Left priority mode, but want to buy army building
+      // Check if we can re-enter priority mode for this purchase
+      if (checkPriorityModeEligible()) {
+        // Re-enter and use percentage selection
         var pctBest = getBestArmyByPercentage();
         if (pctBest && pctBest.fn()) {
           continue;
         }
+      } else {
+        // Can't re-enter - do train instead if possible, otherwise skip to next action
+        if (troopCount >= 5 && ai.coins.gte(aiTrainCost())) {
+          doTrain();
+          continue;
+        }
+        // Fall through to try other actions (economy, etc.)
       }
-      // For train/recruit, fall through to normal logic
     }
 
     // Handle waiting for unaffordable building
