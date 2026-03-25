@@ -88,7 +88,7 @@ function logClick(action) {
   var elapsed = Date.now() - G.logStartTime;
   G.clickLog.push({
     t: elapsed,
-    day: G.day,
+    tick: G._totalTicks || 0,  // Global tick counter (increments 4x per day)
     action: action,
     coins: G.coins.toNumber(),
     troops: G.troops.toNumber(),
@@ -99,7 +99,10 @@ function logClick(action) {
     mb: cnt("military_base"),
     king: cnt("kingdom"),
     train: cnt("train"),
-    armyClicks: G._armyClicks || 0
+    armyClicks: G._armyClicks || 0,
+    farms: cnt("farm"),
+    plantations: cnt("plantation"),
+    colonies: cnt("colony")
   });
 }
 
@@ -165,13 +168,24 @@ function getGameLog() {
   };
 }
 
-function logBattle(result, playerPower, enemyPower) {
+function logBattle(result, playerPower, enemyPower, lossPct) {
   G.gameLog.push({
     type: "battle",
-    day: G.day,
+    tick: G._totalTicks || 0,
     result: result,
     playerPower: serializeON(playerPower),
-    enemyPower: serializeON(enemyPower)
+    enemyPower: serializeON(enemyPower),
+    lossPct: lossPct || 0,
+    // State AFTER the battle (for validator to know current state)
+    troops: G.troops.toNumber(),
+    ppt: G.ppt,
+    coins: G.coins.toNumber(),
+    farms: cnt("farm"),
+    plantations: cnt("plantation"),
+    colonies: cnt("colony"),
+    sl: cnt("squad_leader"),
+    barracks: cnt("barracks"),
+    mb: cnt("military_base")
   });
 }
 
@@ -538,7 +552,7 @@ function doBattle() {
       if (losses.length > 5) lossText += "<br>...and " + (losses.length - 5) + " more";
       text.innerHTML = "\ud83d\udc80 DEFEAT! \ud83d\udc80<div class='battle-sub'>" + lossText + streakMsg + "</div>";
       log("DEFEAT! Lost " + lossPct + "% - " + losses.join(", "), "danger-msg");
-      logBattle("lose", playerPower, enemyPower);
+      logBattle("lose", playerPower, enemyPower, lossPct);
 
       if (G.troops.lt(1)) {
         G.troops = ON(0);
@@ -553,9 +567,13 @@ function doBattle() {
   }, 200);
 }
 
-// AUTO-LOOT: runs 4x per second
+// AUTO-LOOT: runs 4x per second (4x per day)
 function lootTick() {
   if (!G.gameStarted) return;
+
+  // Increment global tick counter (for logging precision)
+  G._totalTicks = (G._totalTicks || 0) + 1;
+
   if (G.troops.lt(1)) return;
   var mult = getUpgradeMultRef ? getUpgradeMultRef('loot') : 1;
   var gain = tp().mul(C.lootBase).floor();

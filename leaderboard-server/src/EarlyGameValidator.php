@@ -53,14 +53,14 @@ class EarlyGameValidator {
         foreach ($clicks as $i => $click) {
             $action = $click['action'] ?? '';
             $coins = $click['coins'] ?? 0;
-            $day = $click['day'] ?? 0;
+            $tick = $click['tick'] ?? 0;
             $armyClicks = $click['armyClicks'] ?? 0;
             $trainClicks = $click['train'] ?? 0;
 
             // Check if action was affordable
             $cost = $this->getActionCost($action, $armyClicks, $trainClicks, $recruitCount, $econClicks);
             if ($cost > 0 && $coins < $cost) {
-                $flags[] = "Day $day: $action with $coins coins (needs $cost)";
+                $flags[] = "Tick $tick: $action with $coins coins (needs $cost)";
             }
 
             // Check transition from previous click
@@ -81,6 +81,11 @@ class EarlyGameValidator {
             $prevClick = $click;
         }
 
+        // Check final state against last click (catches cheating AFTER last click)
+        $lastClick = end($clicks);
+        $finalStateFlags = $this->checkFinalState($lastClick);
+        $flags = array_merge($flags, $finalStateFlags);
+
         error_log("EarlyGameValidator found " . count($flags) . " issues");
         return $flags;
     }
@@ -95,15 +100,15 @@ class EarlyGameValidator {
         $currCoins = $curr['coins'] ?? 0;
         $prevTroops = $prev['troops'] ?? 0;
         $prevPpt = $prev['ppt'] ?? 1;
-        $prevDay = $prev['day'] ?? 0;
-        $currDay = $curr['day'] ?? 0;
+        $prevTick = $prev['tick'] ?? 0;
+        $currTick = $curr['tick'] ?? 0;
         $prevAction = $prev['action'] ?? '';
 
-        // Calculate expected coin change
-        $daysPassed = max(0, $currDay - $prevDay);
+        // Ticks passed (simple subtraction - tick is a monotonic counter)
+        $ticksPassed = max(0, $currTick - $prevTick);
 
-        // Passive income: troops × ppt × 4 per day
-        $passiveIncome = $prevTroops * $prevPpt * 4 * $daysPassed;
+        // Passive income: troops × ppt × 1 per tick
+        $passiveIncome = $prevTroops * $prevPpt * $ticksPassed;
 
         // Cost of previous action
         $prevArmyClicks = $prev['armyClicks'] ?? 0;
@@ -124,8 +129,51 @@ class EarlyGameValidator {
             $excess = $currCoins - $expectedCoins;
             // Only flag significant discrepancies
             if ($excess > 1000 && $currCoins > $expectedCoins * 1.5) {
-                $flags[] = "Day $currDay: Coins jumped from $prevCoins to $currCoins (expected ~" . round($expectedCoins) . ")";
+                $flags[] = "[EarlyGame] Tick $currTick: Coins jumped from $prevCoins to $currCoins (expected ~" . round($expectedCoins) . ")";
             }
+        }
+
+        return $flags;
+    }
+
+    /**
+     * Check if final submitted state is consistent with last logged click
+     * Catches cheating that happens AFTER the last click (before submit)
+     */
+    private function checkFinalState(array $lastClick): array {
+        $flags = [];
+
+        // Get the final snapshot from game events
+        $snapshots = $this->parser->getSnapshots();
+        if (empty($snapshots)) {
+            return $flags; // No snapshot to compare against
+        }
+
+        // Get last snapshot (final state)
+        usort($snapshots, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
+        $finalSnapshot = end($snapshots);
+        $finalCoins = $finalSnapshot['player']['coins'] ?? 0;
+
+        // Handle OrdinalNumber format
+        if (is_array($finalCoins)) {
+            $finalCoins = LogParser::ordinalToFloat($finalCoins);
+        }
+
+        $lastClickCoins = $lastClick['coins'] ?? 0;
+        $lastClickTroops = $lastClick['troops'] ?? 0;
+        $lastClickPpt = $lastClick['ppt'] ?? 1;
+
+        // Income per tick = troops × ppt
+        $incomePerTick = $lastClickTroops * $lastClickPpt;
+
+        // Max expected = last click coins + 1000 ticks of passive income
+        // 1000 ticks = 250 seconds = ~4 minutes of waiting before submit
+        // We can't trust time logs (could be manipulated), so use fixed generous buffer
+        $maxReasonableIncome = $incomePerTick * 1000;
+        $maxExpected = $lastClickCoins + $maxReasonableIncome;
+
+        if ($finalCoins > $maxExpected) {
+            $flags[] = "[EarlyGame] Final coins ($finalCoins) exceeds max possible ($lastClickCoins + $maxReasonableIncome from ~4min passive income)";
         }
 
         return $flags;
@@ -151,7 +199,11 @@ class EarlyGameValidator {
             case 'empire':
                 return floor(self::EMPIRE_COST * pow(1.04, $armyClicks));
             case 'train':
-                return floor(self::TRAIN_COST * pow(1.04, $trainClicks));
+                // Train uses 1.02 inflation (not 1.04 like army), then 1.03 after 111
+                if ($trainClicks >= 111) {
+                    return floor(self::TRAIN_COST * pow(1.02, 111) * pow(1.03, $trainClicks - 111));
+                }
+                return floor(self::TRAIN_COST * pow(1.02, $trainClicks));
             case 'farm':
                 return floor(self::FARM_COST * pow(1.02, $econClicks));
             case 'plantation':
