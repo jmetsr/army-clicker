@@ -542,7 +542,14 @@ function runAI(clicks) {
     if (options.length === 0) return null;
 
     // Sort by percentage increase (highest first)
-    options.sort(function(a, b) { return b.pctIncrease - a.pctIncrease; });
+    // Tie-breaker: prefer affordable, then prefer cheaper
+    options.sort(function(a, b) {
+      if (b.pctIncrease !== a.pctIncrease) return b.pctIncrease - a.pctIncrease;
+      // Both Infinity or same pct - prefer affordable
+      if (a.affordable !== b.affordable) return a.affordable ? -1 : 1;
+      // Both same affordability - prefer cheaper
+      return a.cost - b.cost;
+    });
 
     var ideal = options[0];
 
@@ -597,7 +604,12 @@ function runAI(clicks) {
     }
 
     // Sort by percentage increase (highest first)
-    options.sort(function(a, b) { return b.pctIncrease - a.pctIncrease; });
+    // Tie-breaker: prefer affordable, then prefer cheaper
+    options.sort(function(a, b) {
+      if (b.pctIncrease !== a.pctIncrease) return b.pctIncrease - a.pctIncrease;
+      if (a.affordable !== b.affordable) return a.affordable ? -1 : 1;
+      return a.cost - b.cost;
+    });
 
     var ideal = options[0];
 
