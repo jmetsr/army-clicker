@@ -1,7 +1,8 @@
 // ================================================================
 //  AI STRATEGY - AI decision making and strategy
-//  VERSION: urgency-farm-v1 (2026-03-12)
+//  VERSION: pct-priority-v1 (2026-03-25)
 //  TUNED: tierMult=70, divisor=1, VAL_SL=5, FARM_THRESHOLD=6
+//  NEW: Percentage-priority mode with threshold=0.02
 // ================================================================
 
 // AI LOGIC - Score-based strategy
@@ -21,6 +22,7 @@ function runAI(clicks) {
   var trainMult = 0.01;
   var tierMult = 70;
   var divisor = 1;  // for SL helper formula
+  var PCT_PRIORITY_THRESHOLD = 0.02;  // Enter percentage priority when recruit + empire < coins / threshold
 
   var VAL_BARRACKS = tierMult * VAL_SL;
   var VAL_MB = tierMult * VAL_BARRACKS;
@@ -314,6 +316,161 @@ function runAI(clicks) {
     if (ai.coins.lt(aiBarracksCost())) return false;
     if (aiCnt("squad_leader") < 3) return false;  // Need 3 SLs to unlock barracks
     return true;
+  }
+
+  // === PERCENTAGE PRIORITY MODE ===
+  // When rich enough, switch to buying whatever gives highest % increase
+  // This balances building counts more efficiently at high income levels
+
+  function checkPriorityModeEligible() {
+    var c = ai.coins.toNumber();
+    var recruitCost = aiRecruitCost();
+    var empireCost = aiArmyCost(C.empire_baseCost);
+    // Both recruit and empire must be affordable at threshold level
+    return recruitCost < c / PCT_PRIORITY_THRESHOLD && empireCost < c / PCT_PRIORITY_THRESHOLD;
+  }
+
+  // Get best ARMY building by percentage increase
+  // Returns { name, cost, fn } or null if should save for unaffordable ideal
+  function getBestArmyByPercentage() {
+    var c = ai.coins.toNumber();
+    var slCount = aiCnt("squad_leader");
+    var barracksCount = aiCnt("barracks");
+    var mbCount = aiCnt("military_base");
+    var kingdomCount = aiCnt("kingdom");
+    var empireCount = aiCnt("empire");
+
+    function pctInc(power, count) {
+      if (count === 0) return Infinity;
+      return power / count;
+    }
+
+    var options = [];
+
+    // Squad Leader
+    if (troopCount >= 2) {
+      options.push({
+        name: 'squad_leader',
+        pctIncrease: pctInc(ai.squadLeaderPower, slCount),
+        cost: aiSLCost(),
+        affordable: ai.coins.gte(aiSLCost()),
+        fn: doBuySL
+      });
+    }
+
+    // Barracks
+    if (slCount >= 3) {
+      options.push({
+        name: 'barracks',
+        pctIncrease: pctInc(ai.barracksPower, barracksCount),
+        cost: aiBarracksCost(),
+        affordable: ai.coins.gte(aiBarracksCost()),
+        fn: doBuyBarracks
+      });
+    }
+
+    // Military Base
+    if (barracksCount >= 3) {
+      var mbCost = aiArmyCost(C.militaryBase_baseCost);
+      options.push({
+        name: 'military_base',
+        pctIncrease: pctInc(ai.militaryBasePower, mbCount),
+        cost: mbCost,
+        affordable: ai.coins.gte(mbCost),
+        fn: function() { return buyArmy("military_base", C.militaryBase_baseCost, "militaryBasePower", "barracksPower"); }
+      });
+    }
+
+    // Kingdom
+    if (mbCount >= 3) {
+      var kingCost = aiArmyCost(C.kingdom_baseCost);
+      options.push({
+        name: 'kingdom',
+        pctIncrease: pctInc(ai.kingdomPower, kingdomCount),
+        cost: kingCost,
+        affordable: ai.coins.gte(kingCost),
+        fn: function() { return buyArmy("kingdom", C.kingdom_baseCost, "kingdomPower", "militaryBasePower"); }
+      });
+    }
+
+    // Empire
+    if (kingdomCount >= 3) {
+      var empCost = aiArmyCost(C.empire_baseCost);
+      options.push({
+        name: 'empire',
+        pctIncrease: pctInc(ai.empirePower, empireCount),
+        cost: empCost,
+        affordable: ai.coins.gte(empCost),
+        fn: function() { return buyArmy("empire", C.empire_baseCost, "empirePower", "kingdomPower"); }
+      });
+    }
+
+    if (options.length === 0) return null;
+
+    // Sort by percentage increase (highest first)
+    options.sort(function(a, b) { return b.pctIncrease - a.pctIncrease; });
+
+    var ideal = options[0];
+
+    // If ideal is unaffordable, save for it (return null)
+    if (!ideal.affordable) return null;
+
+    return ideal;
+  }
+
+  // Get best ECONOMY building by percentage increase
+  function getBestEconomyByPercentage() {
+    var farmCount = aiCnt("farm");
+    var plantationCount = aiCnt("plantation");
+    var colonyCount = aiCnt("colony");
+
+    function pctInc(power, count) {
+      if (count === 0) return Infinity;
+      return power / count;
+    }
+
+    var options = [];
+
+    // Farm (always available)
+    options.push({
+      name: 'farm',
+      pctIncrease: pctInc(ai.fp, farmCount),
+      cost: aiFarmCost(),
+      affordable: ai.coins.gte(aiFarmCost()),
+      fn: doBuyFarm
+    });
+
+    // Plantation (unlocked when farm >= 3)
+    if (farmCount >= 3) {
+      options.push({
+        name: 'plantation',
+        pctIncrease: pctInc(ai.pp, plantationCount),
+        cost: aiPlantationCost(),
+        affordable: ai.coins.gte(aiPlantationCost()),
+        fn: doBuyPlantation
+      });
+    }
+
+    // Colony (unlocked when plantation >= 3)
+    if (plantationCount >= 3) {
+      options.push({
+        name: 'colony',
+        pctIncrease: pctInc(1, colonyCount),
+        cost: aiColonyCost(),
+        affordable: ai.coins.gte(aiColonyCost()),
+        fn: doBuyColony
+      });
+    }
+
+    // Sort by percentage increase (highest first)
+    options.sort(function(a, b) { return b.pctIncrease - a.pctIncrease; });
+
+    var ideal = options[0];
+
+    // If ideal is unaffordable, save for it
+    if (!ideal.affordable) return null;
+
+    return ideal;
   }
 
   // Does recruiting help reach target faster?
@@ -654,6 +811,31 @@ function runAI(clicks) {
     var best = actions[0];
     var bestIsBuilding = (best.name !== 'train' && best.name !== 'recruit');
     var bestIsUnaffordable = bestIsBuilding && best.cost > coins;
+    var bestIsEconomy = !G.enemyNoStarve && (best.name === 'farm' || best.name === 'plantation' || best.name === 'colony');
+    var bestIsArmyBuilding = (best.name === 'squad_leader' || best.name === 'barracks' ||
+                              best.name === 'military_base' || best.name === 'kingdom' || best.name === 'empire');
+
+    // === PERCENTAGE PRIORITY MODE ===
+    // When rich enough, use percentage-based selection for more balanced building
+    var inPriorityMode = checkPriorityModeEligible();
+
+    if (inPriorityMode && !bestIsUnaffordable) {
+      // In priority mode - use percentage-based selection
+      if (bestIsEconomy) {
+        // Normal mode wants economy - use percentage-based economy selection
+        var pctBest = getBestEconomyByPercentage();
+        if (pctBest && pctBest.fn()) {
+          continue;
+        }
+      } else if (bestIsArmyBuilding) {
+        // Normal mode wants army building - use percentage-based army selection
+        var pctBest = getBestArmyByPercentage();
+        if (pctBest && pctBest.fn()) {
+          continue;
+        }
+      }
+      // For train/recruit, fall through to normal logic
+    }
 
     // Handle waiting for unaffordable building
     if (bestIsUnaffordable) {
