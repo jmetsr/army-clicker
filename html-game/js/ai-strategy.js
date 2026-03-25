@@ -405,6 +405,140 @@ function runAI(clicks) {
       });
     }
 
+    // === ASTRONOMICAL TIER ===
+    var planetCount = aiCnt("planet");
+    var solarSystemCount = aiCnt("solar_system");
+    var galaxyCount = aiCnt("galaxy");
+    var galaxyClusterCount = aiCnt("galaxy_cluster");
+    var superclusterCount = aiCnt("supercluster");
+
+    // Planet
+    if ((G.planetUnlocked || G.astronomicalUnlocked) && empireCount >= 3) {
+      var cost = aiArmyCost(PLANET_BASE);
+      options.push({
+        name: 'planet',
+        pctIncrease: pctInc(ai.planetPower, planetCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: function() { return buyArmy("planet", PLANET_BASE, "planetPower", "empirePower"); }
+      });
+    }
+
+    // Solar System
+    if ((G.solarSystemUnlocked || G.astronomicalUnlocked) && planetCount >= 3) {
+      var cost = aiArmyCost(SOLAR_SYSTEM_BASE);
+      options.push({
+        name: 'solar_system',
+        pctIncrease: pctInc(ai.solarSystemPower, solarSystemCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: function() { return buyArmy("solar_system", SOLAR_SYSTEM_BASE, "solarSystemPower", "planetPower"); }
+      });
+    }
+
+    // Galaxy
+    if ((G.galaxyUnlocked || G.astronomicalUnlocked) && solarSystemCount >= 3) {
+      var cost = aiArmyCost(GALAXY_BASE);
+      options.push({
+        name: 'galaxy',
+        pctIncrease: pctInc(ai.galaxyPower, galaxyCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: function() { return buyArmy("galaxy", GALAXY_BASE, "galaxyPower", "solarSystemPower"); }
+      });
+    }
+
+    // Galaxy Cluster
+    if ((G.galaxyClusterUnlocked || G.astronomicalUnlocked) && galaxyCount >= 3) {
+      var cost = aiArmyCost(GALAXY_CLUSTER_BASE);
+      options.push({
+        name: 'galaxy_cluster',
+        pctIncrease: pctInc(ai.galaxyClusterPower, galaxyClusterCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: function() { return buyArmy("galaxy_cluster", GALAXY_CLUSTER_BASE, "galaxyClusterPower", "galaxyPower"); }
+      });
+    }
+
+    // Supercluster
+    if ((G.superclusterUnlocked || G.astronomicalUnlocked) && galaxyClusterCount >= 3) {
+      var cost = aiArmyCost(SUPERCLUSTER_BASE);
+      options.push({
+        name: 'supercluster',
+        pctIncrease: pctInc(ai.superclusterPower, superclusterCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: function() { return buyArmy("supercluster", SUPERCLUSTER_BASE, "superclusterPower", "galaxyClusterPower"); }
+      });
+    }
+
+    // === MULTIVERSAL TIER ===
+    var observableUniverseCount = aiCnt("observable_universe");
+    var fullUniverseCount = aiCnt("full_universe");
+    var quantumMultiverseCount = aiCnt("quantum_multiverse");
+    var cosmologicalMultiverseCount = aiCnt("cosmological_multiverse");
+    var mathematicalMultiverseCount = aiCnt("mathematical_multiverse");
+
+    // Observable Universe
+    if ((G.observableUniverseUnlocked || G.multiversalUnlocked) && superclusterCount >= 3) {
+      var cost = aiArmyCost(OBSERVABLE_UNIVERSE_BASE);
+      options.push({
+        name: 'observable_universe',
+        pctIncrease: pctInc(ai.observableUniversePower, observableUniverseCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: function() { return buyArmy("observable_universe", OBSERVABLE_UNIVERSE_BASE, "observableUniversePower", "superclusterPower"); }
+      });
+    }
+
+    // Full Universe
+    if ((G.fullUniverseUnlocked || G.multiversalUnlocked) && observableUniverseCount >= 3) {
+      var cost = aiArmyCost(FULL_UNIVERSE_BASE);
+      options.push({
+        name: 'full_universe',
+        pctIncrease: pctInc(ai.fullUniversePower, fullUniverseCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: function() { return buyArmy("full_universe", FULL_UNIVERSE_BASE, "fullUniversePower", "observableUniversePower"); }
+      });
+    }
+
+    // Quantum Multiverse
+    if ((G.quantumMultiverseUnlocked || G.multiversalUnlocked) && fullUniverseCount >= 3) {
+      var cost = aiArmyCost(QUANTUM_MULTIVERSE_BASE);
+      options.push({
+        name: 'quantum_multiverse',
+        pctIncrease: pctInc(ai.quantumMultiversePower, quantumMultiverseCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: function() { return buyArmy("quantum_multiverse", QUANTUM_MULTIVERSE_BASE, "quantumMultiversePower", "fullUniversePower"); }
+      });
+    }
+
+    // Cosmological Multiverse
+    if ((G.cosmologicalMultiverseUnlocked || G.multiversalUnlocked) && quantumMultiverseCount >= 3) {
+      var cost = aiArmyCost(COSMOLOGICAL_MULTIVERSE_BASE);
+      options.push({
+        name: 'cosmological_multiverse',
+        pctIncrease: pctInc(ai.cosmologicalMultiversePower, cosmologicalMultiverseCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: function() { return buyArmy("cosmological_multiverse", COSMOLOGICAL_MULTIVERSE_BASE, "cosmologicalMultiversePower", "quantumMultiversePower"); }
+      });
+    }
+
+    // Mathematical Multiverse
+    if ((G.mathematicalMultiverseUnlocked || G.multiversalUnlocked) && cosmologicalMultiverseCount >= 3) {
+      var cost = aiArmyCost(MATHEMATICAL_MULTIVERSE_BASE);
+      options.push({
+        name: 'mathematical_multiverse',
+        pctIncrease: pctInc(ai.mathematicalMultiversePower, mathematicalMultiverseCount),
+        cost: cost,
+        affordable: ai.coins.gte(cost),
+        fn: function() { return buyArmy("mathematical_multiverse", MATHEMATICAL_MULTIVERSE_BASE, "mathematicalMultiversePower", "cosmologicalMultiversePower"); }
+      });
+    }
+
     if (options.length === 0) return null;
 
     // Sort by percentage increase (highest first)
@@ -812,8 +946,11 @@ function runAI(clicks) {
     var bestIsBuilding = (best.name !== 'train' && best.name !== 'recruit');
     var bestIsUnaffordable = bestIsBuilding && best.cost > coins;
     var bestIsEconomy = !G.enemyNoStarve && (best.name === 'farm' || best.name === 'plantation' || best.name === 'colony');
-    var bestIsArmyBuilding = (best.name === 'squad_leader' || best.name === 'barracks' ||
-                              best.name === 'military_base' || best.name === 'kingdom' || best.name === 'empire');
+    var armyBuildingNames = ['squad_leader', 'barracks', 'military_base', 'kingdom', 'empire',
+                              'planet', 'solar_system', 'galaxy', 'galaxy_cluster', 'supercluster',
+                              'observable_universe', 'full_universe', 'quantum_multiverse',
+                              'cosmological_multiverse', 'mathematical_multiverse'];
+    var bestIsArmyBuilding = armyBuildingNames.indexOf(best.name) >= 0;
 
     // === PERCENTAGE PRIORITY MODE ===
     // When rich enough, use percentage-based selection for more balanced building
