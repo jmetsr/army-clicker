@@ -162,18 +162,28 @@ class EarlyGameValidator {
         $lastClickCoins = $lastClick['coins'] ?? 0;
         $lastClickTroops = $lastClick['troops'] ?? 0;
         $lastClickPpt = $lastClick['ppt'] ?? 1;
+        $lastAction = $lastClick['action'] ?? '';
+
+        // Click log records state BEFORE the action, so account for last action's effect
+        // Beg adds 1 coin, purchases subtract cost
+        $lastActionEffect = 0;
+        if ($lastAction === 'beg') {
+            $lastActionEffect = 1;
+        }
+        // For purchases, coins decrease - but that's fine, we're checking for EXCESS coins
+        // so we don't need to subtract cost (that would make maxExpected lower, more strict)
 
         // Income per tick = troops × ppt
         $incomePerTick = $lastClickTroops * $lastClickPpt;
 
-        // Max expected = last click coins + 1000 ticks of passive income
+        // Max expected = last click coins + last action effect + 1000 ticks of passive income
         // 1000 ticks = 250 seconds = ~4 minutes of waiting before submit
         // We can't trust time logs (could be manipulated), so use fixed generous buffer
         $maxReasonableIncome = $incomePerTick * 1000;
-        $maxExpected = $lastClickCoins + $maxReasonableIncome;
+        $maxExpected = $lastClickCoins + $lastActionEffect + $maxReasonableIncome;
 
         if ($finalCoins > $maxExpected) {
-            $flags[] = "[EarlyGame] Final coins ($finalCoins) exceeds max possible ($lastClickCoins + $maxReasonableIncome from ~4min passive income)";
+            $flags[] = "[EarlyGame] Final coins ($finalCoins) exceeds max possible ($lastClickCoins + $lastActionEffect + $maxReasonableIncome from ~4min passive income)";
         }
 
         return $flags;
