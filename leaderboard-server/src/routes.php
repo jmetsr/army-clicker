@@ -258,14 +258,24 @@ function queryLeaderboard(string $category, string $mode, int $limit = 100): arr
         $whereClause = implode(' AND ', $where);
 
         // Speed categories: ORDER ASC (lower is better)
-        // Coin categories: ORDER DESC (higher is better) - but stored as strings...
+        // Coin categories: ORDER DESC (higher is better)
         if (in_array($category, $speedCategories)) {
             $orderBy = "$category ASC";
         } else {
-            // For coin categories, we need to sort by the numeric value
-            // Since they're stored as strings like "10^15" or "1234567", this is tricky
-            // For now, sort by length DESC then value DESC (approximation)
-            $orderBy = "LENGTH($category) DESC, $category DESC";
+            // Coin values stored as scientific notation (e.g., "1.5e15") or arrow notation ("10^15")
+            // Sort by: tier (arrow > caret > scientific) then exponent then mantissa
+            $orderBy = "
+                CASE
+                    WHEN $category LIKE '%↑%' THEN 3
+                    WHEN $category LIKE '10^%' THEN 2
+                    ELSE 1
+                END DESC,
+                CASE
+                    WHEN $category LIKE '%e%' THEN CAST(SUBSTRING_INDEX($category, 'e', -1) AS SIGNED)
+                    WHEN $category LIKE '10^%' THEN CAST(SUBSTRING($category, 4) AS SIGNED)
+                    ELSE LENGTH($category)
+                END DESC,
+                CAST($category AS DOUBLE) DESC";
         }
 
         $sql = "
