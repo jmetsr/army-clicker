@@ -1,3 +1,45 @@
+<?php
+/**
+ * Format coins for display:
+ * - Up to 1 million: number notation with commas (e.g., 500,000)
+ * - Above 1 million: named notation (e.g., 1.5 million, 2.3 billion)
+ */
+function formatCoins($value) {
+    // Handle OrdinalNumber notation (10^X, 10^^X, etc.)
+    if (is_string($value) && preg_match('/^10\^/', $value)) {
+        return $value; // Already formatted, keep as-is
+    }
+
+    // Parse numeric value
+    $num = is_numeric($value) ? (float)$value : 0;
+
+    if ($num < 1e6) {
+        return number_format($num);
+    }
+
+    $names = [
+        1e18 => 'quintillion',
+        1e15 => 'quadrillion',
+        1e12 => 'trillion',
+        1e9  => 'billion',
+        1e6  => 'million',
+    ];
+
+    foreach ($names as $threshold => $name) {
+        if ($num >= $threshold) {
+            $formatted = $num / $threshold;
+            // Show 1 decimal place if needed, otherwise whole number
+            if ($formatted == floor($formatted)) {
+                return number_format($formatted) . ' ' . $name;
+            } else {
+                return number_format($formatted, 1) . ' ' . $name;
+            }
+        }
+    }
+
+    return number_format($num);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -249,7 +291,7 @@
                             <tr>
                                 <td class="rank <?= $rankClass ?>">#<?= $rank ?></td>
                                 <td class="player-name"><?= htmlspecialchars($entry['player_name']) ?></td>
-                                <td class="score"><?= $isSpeed ? "Day $score" : htmlspecialchars($score) ?></td>
+                                <td class="score"><?= $isSpeed ? "Day $score" : formatCoins($score) ?></td>
                                 <?php if ($mode === 'all'): ?>
                                     <td class="mode"><?= htmlspecialchars($modeDisplay) ?></td>
                                 <?php endif; ?>

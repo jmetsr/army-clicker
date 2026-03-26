@@ -225,39 +225,75 @@ class LogParser {
             'dayQuintillionCoins' => 1e18,
         ];
 
+        // Build combined event list from clicks and battles
+        $events = [];
+
+        // Add clicks
+        foreach ($this->getClickLog() as $click) {
+            $events[] = [
+                'tick' => $click['tick'] ?? 0,
+                'coins' => $click['coins'] ?? 0,
+                'troops' => $click['troops'] ?? 0,
+                'ppt' => $click['ppt'] ?? 1,
+            ];
+        }
+
+        // Add battles (they have post-battle state)
+        foreach ($this->getEventsOfType('battle') as $battle) {
+            $events[] = [
+                'tick' => $battle['tick'] ?? 0,
+                'coins' => $battle['coins'] ?? 0,
+                'troops' => $battle['troops'] ?? 0,
+                'ppt' => $battle['ppt'] ?? 1,
+            ];
+        }
+
+        // Sort by tick
+        usort($events, fn($a, $b) => $a['tick'] <=> $b['tick']);
+
         // Track which thresholds we've found
         $foundThresholds = [];
 
-        // Process snapshots in order
-        $snapshots = $this->getSnapshots();
-        usort($snapshots, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
+        // Check events for coin thresholds
+        foreach ($events as $event) {
+            $tick = $event['tick'];
+            $day = (int)floor($tick / 4);
+            $coins = $event['coins'];
 
-        $lastSnapshot = null;
-        foreach ($snapshots as $snap) {
-            $day = $snap['day'] ?? 0;
-            $coins = $snap['player']['coins'] ?? 0;
-
-            // Check each threshold
             foreach ($thresholds as $milestone => $threshold) {
-                if (!isset($foundThresholds[$milestone]) && self::ordinalGte($coins, $threshold)) {
+                if (!isset($foundThresholds[$milestone]) && $coins >= $threshold) {
                     $milestones[$milestone] = $day;
                     $foundThresholds[$milestone] = true;
                 }
             }
-
-            // Year snapshots
-            if ($day === 365 || ($day > 365 && $milestones['coinsAtYear1'] === null)) {
-                $milestones['coinsAtYear1'] = self::formatOrdinal($coins);
-            }
-            if ($day === 730 || ($day > 730 && $milestones['coinsAtYear2'] === null)) {
-                $milestones['coinsAtYear2'] = self::formatOrdinal($coins);
-            }
-
-            $lastSnapshot = $snap;
         }
 
-        // Final coins from last snapshot
-        if ($lastSnapshot) {
+        // Calculate year milestones by projecting from last event before target day
+        foreach ([365 => 'coinsAtYear1', 730 => 'coinsAtYear2'] as $targetDay => $milestone) {
+            $targetTick = $targetDay * 4;
+            $lastEventBefore = null;
+
+            foreach ($events as $event) {
+                if ($event['tick'] <= $targetTick) {
+                    $lastEventBefore = $event;
+                } else {
+                    break;
+                }
+            }
+
+            if ($lastEventBefore) {
+                $ticksRemaining = $targetTick - $lastEventBefore['tick'];
+                $passiveIncome = $lastEventBefore['troops'] * $lastEventBefore['ppt'] * $ticksRemaining;
+                $coinsAtTarget = $lastEventBefore['coins'] + $passiveIncome;
+                $milestones[$milestone] = self::formatOrdinal($coinsAtTarget);
+            }
+        }
+
+        // Final coins from final snapshot (submission state)
+        $snapshots = $this->getSnapshots();
+        if (!empty($snapshots)) {
+            usort($snapshots, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
+            $lastSnapshot = end($snapshots);
             $milestones['finalCoins'] = self::formatOrdinal($lastSnapshot['player']['coins'] ?? 0);
         }
 
