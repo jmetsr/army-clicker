@@ -268,29 +268,42 @@ class LogParser {
             }
         }
 
-        // Calculate year milestones by projecting from last event before target day
+        // Get snapshots (now only at day 365, 730, and final)
+        $snapshots = $this->getSnapshots();
+        $snapshotsByDay = [];
+        foreach ($snapshots as $snap) {
+            $snapshotsByDay[$snap['day'] ?? 0] = $snap;
+        }
+
+        // Year milestones - use snapshot if available, otherwise project from last event
         foreach ([365 => 'coinsAtYear1', 730 => 'coinsAtYear2'] as $targetDay => $milestone) {
-            $targetTick = $targetDay * 4;
-            $lastEventBefore = null;
+            // Check if we have a snapshot at exactly this day
+            if (isset($snapshotsByDay[$targetDay])) {
+                $coins = $snapshotsByDay[$targetDay]['player']['coins'] ?? 0;
+                $milestones[$milestone] = self::formatOrdinal($coins);
+            } else {
+                // Project from last event before target day
+                $targetTick = $targetDay * 4;
+                $lastEventBefore = null;
 
-            foreach ($events as $event) {
-                if ($event['tick'] <= $targetTick) {
-                    $lastEventBefore = $event;
-                } else {
-                    break;
+                foreach ($events as $event) {
+                    if ($event['tick'] <= $targetTick) {
+                        $lastEventBefore = $event;
+                    } else {
+                        break;
+                    }
                 }
-            }
 
-            if ($lastEventBefore) {
-                $ticksRemaining = $targetTick - $lastEventBefore['tick'];
-                $passiveIncome = $lastEventBefore['troops'] * $lastEventBefore['ppt'] * $ticksRemaining;
-                $coinsAtTarget = $lastEventBefore['coins'] + $passiveIncome;
-                $milestones[$milestone] = self::formatOrdinal($coinsAtTarget);
+                if ($lastEventBefore) {
+                    $ticksRemaining = $targetTick - $lastEventBefore['tick'];
+                    $passiveIncome = $lastEventBefore['troops'] * $lastEventBefore['ppt'] * $ticksRemaining;
+                    $coinsAtTarget = $lastEventBefore['coins'] + $passiveIncome;
+                    $milestones[$milestone] = self::formatOrdinal($coinsAtTarget);
+                }
             }
         }
 
         // Final coins from final snapshot (submission state)
-        $snapshots = $this->getSnapshots();
         if (!empty($snapshots)) {
             usort($snapshots, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
             $lastSnapshot = end($snapshots);

@@ -220,8 +220,8 @@ function tick() {
   // Increment day
   G.day++;
 
-  // Snapshot every 10 days for logging
-  if (G.day % 10 === 0) logSnapshot();
+  // Snapshot only at year milestones (final snapshot taken at submit)
+  if (G.day === 365 || G.day === 730) logSnapshot();
 
   // Food system: farms produce, troops consume daily (unless Eternal Feast active)
   var farmProduction = cnt("farm") * C.farm_production;

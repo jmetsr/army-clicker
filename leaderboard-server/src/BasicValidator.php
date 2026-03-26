@@ -207,19 +207,9 @@ class BasicValidator {
      */
     private function checkMilestoneConsistency(ValidationResult $result): void {
         $milestones = $this->parser->extractMilestones();
-        $snapshots = $this->parser->getSnapshots();
 
-        if (empty($snapshots)) {
-            return;
-        }
-
-        // Sort snapshots by day
-        usort($snapshots, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
-
-        // Check coin milestones - verify we see appropriate coin values
-        $this->checkCoinMilestone($result, $snapshots, $milestones['dayMillionCoins'], 1e6, 'million');
-        $this->checkCoinMilestone($result, $snapshots, $milestones['dayBillionCoins'], 1e9, 'billion');
-        $this->checkCoinMilestone($result, $snapshots, $milestones['dayTrillionCoins'], 1e12, 'trillion');
+        // Coin milestones are extracted from clicks+battles by LogParser
+        // No need to cross-check against snapshots (they only exist at day 365/730 now)
 
         // Check vanquish/surrender - should have corresponding event
         if ($milestones['dayVanquish'] !== null) {
@@ -234,44 +224,6 @@ class BasicValidator {
             if (empty($surrenderEvents)) {
                 $result->addFlag("Claims surrender at day {$milestones['daySurrender']} but no surrender event in log");
             }
-        }
-    }
-
-    /**
-     * Check a specific coin milestone
-     */
-    private function checkCoinMilestone(ValidationResult $result, array $snapshots, ?int $claimedDay, float $threshold, string $name): void {
-        if ($claimedDay === null) {
-            return; // Not claimed
-        }
-
-        // Find snapshot at or near claimed day
-        $foundThreshold = false;
-        $beforeDay = null;
-        $afterDay = null;
-
-        foreach ($snapshots as $snap) {
-            $day = $snap['day'] ?? 0;
-            $coins = $snap['player']['coins'] ?? 0;
-            $coinValue = LogParser::ordinalToFloat($coins);
-
-            if ($coinValue >= $threshold) {
-                $foundThreshold = true;
-                if ($afterDay === null || $day < $afterDay) {
-                    $afterDay = $day;
-                }
-            } else {
-                if ($beforeDay === null || $day > $beforeDay) {
-                    $beforeDay = $day;
-                }
-            }
-        }
-
-        if (!$foundThreshold) {
-            $result->addFlag("Claims $name coins at day $claimedDay but log never shows coins >= $threshold");
-        } elseif ($afterDay !== null && abs($afterDay - $claimedDay) > 20) {
-            // Allow some tolerance (snapshots are every 10 days)
-            $result->addFlag("Claims $name coins at day $claimedDay but log shows it at day $afterDay (off by " . abs($afterDay - $claimedDay) . " days)");
         }
     }
 }

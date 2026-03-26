@@ -98,6 +98,16 @@ function handleSubmitRun(): void {
     // Log the submission for debugging
     error_log("Leaderboard submission: $playerName ($gameMode) - day {$milestones['finalDay']}, coins: {$milestones['finalCoins']}");
 
+    // Save full game log for debugging
+    $logsDir = __DIR__ . '/../logs';
+    if (!is_dir($logsDir)) {
+        mkdir($logsDir, 0755, true);
+    }
+    $timestamp = date('Y-m-d_H-i-s');
+    $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $playerName);
+    $logFile = "$logsDir/{$timestamp}_{$safeName}.json";
+    file_put_contents($logFile, json_encode($gameLog, JSON_PRETTY_PRINT));
+
     // Run basic validation (anti-cheat)
     error_log("=== LEADERBOARD SUBMISSION: $playerName ($gameMode) ===");
     $validator = new BasicValidator($parser);
