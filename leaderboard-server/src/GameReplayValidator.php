@@ -72,6 +72,13 @@ class GameReplayValidator {
             'darkRituals' => 0,
             'lootMult' => 1,
             'tick' => 0,
+            // Separate cost tracking (when separate_costs magic is active)
+            'separateCosts' => false,
+            'slClicks' => 0,
+            'barClicks' => 0,
+            'mbClicks' => 0,
+            'kingClicks' => 0,
+            'empClicks' => 0,
         ];
 
         $prevClick = null;
@@ -229,11 +236,24 @@ class GameReplayValidator {
                 $state['recruitCount']++;
                 break;
             case 'squad_leader':
+                $state['armyClicks']++;
+                $state['slClicks']++;
+                break;
             case 'barracks':
+                $state['armyClicks']++;
+                $state['barClicks']++;
+                break;
             case 'military_base':
+                $state['armyClicks']++;
+                $state['mbClicks']++;
+                break;
             case 'kingdom':
+                $state['armyClicks']++;
+                $state['kingClicks']++;
+                break;
             case 'empire':
                 $state['armyClicks']++;
+                $state['empClicks']++;
                 break;
             case 'train':
                 $state['trainClicks']++;
@@ -246,6 +266,16 @@ class GameReplayValidator {
             case 'dark_ritual':
                 $state['darkRituals']++;
                 break;
+            case 'separate_costs':
+                // When separate_costs is activated, ALL button click counters are
+                // initialized to the current shared pool total (so costs don't drop)
+                $state['slClicks'] = $state['armyClicks'];
+                $state['barClicks'] = $state['armyClicks'];
+                $state['mbClicks'] = $state['armyClicks'];
+                $state['kingClicks'] = $state['armyClicks'];
+                $state['empClicks'] = $state['armyClicks'];
+                $state['separateCosts'] = true;
+                break;
         }
 
         // Update lootMult from click data
@@ -257,10 +287,13 @@ class GameReplayValidator {
      * Get cost of an action
      */
     private function getActionCost(string $action, array $state): float {
-        $armyClicks = $state['armyClicks'];
         $trainClicks = $state['trainClicks'];
         $recruitCount = $state['recruitCount'];
         $econClicks = $state['econClicks'];
+
+        // When separate_costs is active, each army building has its own inflation counter
+        // Otherwise, they all share the same armyClicks pool
+        $separateCosts = $state['separateCosts'];
 
         switch ($action) {
             case 'beg':
@@ -268,15 +301,20 @@ class GameReplayValidator {
             case 'recruit':
                 return floor(self::RECRUIT_COST * pow(1.02, $recruitCount));
             case 'squad_leader':
-                return floor(self::SQUAD_LEADER_COST * pow(1.04, $armyClicks));
+                $clicks = $separateCosts ? $state['slClicks'] : $state['armyClicks'];
+                return floor(self::SQUAD_LEADER_COST * pow(1.04, $clicks));
             case 'barracks':
-                return floor(self::BARRACKS_COST * pow(1.04, $armyClicks));
+                $clicks = $separateCosts ? $state['barClicks'] : $state['armyClicks'];
+                return floor(self::BARRACKS_COST * pow(1.04, $clicks));
             case 'military_base':
-                return floor(self::MILITARY_BASE_COST * pow(1.04, $armyClicks));
+                $clicks = $separateCosts ? $state['mbClicks'] : $state['armyClicks'];
+                return floor(self::MILITARY_BASE_COST * pow(1.04, $clicks));
             case 'kingdom':
-                return floor(self::KINGDOM_COST * pow(1.04, $armyClicks));
+                $clicks = $separateCosts ? $state['kingClicks'] : $state['armyClicks'];
+                return floor(self::KINGDOM_COST * pow(1.04, $clicks));
             case 'empire':
-                return floor(self::EMPIRE_COST * pow(1.04, $armyClicks));
+                $clicks = $separateCosts ? $state['empClicks'] : $state['armyClicks'];
+                return floor(self::EMPIRE_COST * pow(1.04, $clicks));
             case 'train':
                 if ($trainClicks >= 111) {
                     return floor(self::TRAIN_COST * pow(1.02, 111) * pow(1.03, $trainClicks - 111));
