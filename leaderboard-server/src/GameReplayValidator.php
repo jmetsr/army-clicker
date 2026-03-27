@@ -129,15 +129,18 @@ class GameReplayValidator {
         $currCoins = $curr['coins'] ?? 0;
         $prevTroops = $prev['troops'] ?? 0;
         $prevPpt = $prev['ppt'] ?? 1;
-        $prevLootMult = $prev['lootMult'] ?? 1;
         $prevTick = $prev['tick'] ?? 0;
         $currTick = $curr['tick'] ?? 0;
         $prevAction = $prev['action'] ?? '';
 
+        // Use CURRENT lootMult, not previous - click log records state BEFORE action,
+        // so if prev action was upgrade_button, lootMult changed after that click
+        $effectiveLootMult = $curr['lootMult'] ?? 1;
+
         $ticksPassed = max(0, $currTick - $prevTick);
 
         // Passive income: troops × ppt × lootMult per tick
-        $passiveIncome = $prevTroops * $prevPpt * $prevLootMult * $ticksPassed;
+        $passiveIncome = $prevTroops * $prevPpt * $effectiveLootMult * $ticksPassed;
 
         // Cost of previous action
         $actionCost = $this->getActionCost($prevAction, $state);
@@ -155,7 +158,7 @@ class GameReplayValidator {
         if ($currCoins > $expectedCoins + $tolerance) {
             $excess = $currCoins - $expectedCoins;
             if ($excess > 10000 && $currCoins > $expectedCoins * 1.5) {
-                $flags[] = "Tick $currTick: Coins jumped from $prevCoins to $currCoins (expected ~" . round($expectedCoins) . ", lootMult=$prevLootMult)";
+                $flags[] = "Tick $currTick: Coins jumped from $prevCoins to $currCoins (expected ~" . round($expectedCoins) . ", lootMult=$effectiveLootMult)";
             }
         }
 
@@ -322,15 +325,22 @@ class GameReplayValidator {
         // Account for last action effect
         $lastActionEffect = ($lastAction === 'beg') ? 1 : 0;
 
+        // If last action was upgrade_button, lootMult increased after the click
+        // Click log records state BEFORE action, so we need to account for the increase
+        $effectiveLootMult = $lastClickLootMult;
+        if ($lastAction === 'upgrade_button') {
+            $effectiveLootMult = $lastClickLootMult * 10; // upgrade_button multiplies by 10
+        }
+
         // Income per tick with loot multiplier
-        $incomePerTick = $lastClickTroops * $lastClickPpt * $lastClickLootMult;
+        $incomePerTick = $lastClickTroops * $lastClickPpt * $effectiveLootMult;
 
         // Allow 1000 ticks (~4 minutes) of passive income before submit
         $maxReasonableIncome = $incomePerTick * 1000;
         $maxExpected = $lastClickCoins + $lastActionEffect + $maxReasonableIncome;
 
         if ($finalCoins > $maxExpected) {
-            $flags[] = "Final coins ($finalCoins) exceeds max possible ($lastClickCoins + $maxReasonableIncome from ~4min passive income, lootMult=$lastClickLootMult)";
+            $flags[] = "Final coins ($finalCoins) exceeds max possible ($lastClickCoins + $maxReasonableIncome from ~4min passive income, lootMult=$effectiveLootMult)";
         }
 
         return $flags;
