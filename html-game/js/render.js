@@ -272,9 +272,12 @@ function updateUI() {
       enemyTroopName = modeNames[G.difficulty] || "Troops";
     }
 
-    var troopStr = fmt(G.enemyTroops) + " " + enemyTroopName;
-    if (G.dragonCohorts.length > 0) {
-      var typeGroups = {};
+    var hasDragons = G.dragonCohorts.length > 0;
+    var hasTroops = G.enemyTroops.gte(1);
+
+    // Build dragon groups first
+    var typeGroups = {};
+    if (hasDragons) {
       for (var c = 0; c < G.dragonCohorts.length; c++) {
         var cohort = G.dragonCohorts[c];
         if (cohort.count.gte(1)) {
@@ -288,13 +291,29 @@ function updateUI() {
           }
         }
       }
-      var typeNames = Object.keys(typeGroups).sort(function(a, b) {
-        return typeGroups[b].maxPpt - typeGroups[a].maxPpt;
-      });
+    }
+    var typeNames = Object.keys(typeGroups).sort(function(a, b) {
+      return typeGroups[b].maxPpt - typeGroups[a].maxPpt;
+    });
+    var hasDragonDisplay = typeNames.length > 0;
+
+    // Build display string - skip "0 Troops" if only dragons
+    var troopStr;
+    if (hasTroops) {
+      troopStr = fmt(G.enemyTroops) + " " + enemyTroopName;
       for (var t = 0; t < typeNames.length; t++) {
         var typeName = typeNames[t];
         troopStr += "\nand " + fmt(typeGroups[typeName].count) + " " + typeName;
       }
+    } else if (hasDragonDisplay) {
+      // Only dragons, no troops
+      troopStr = fmt(typeGroups[typeNames[0]].count) + " " + typeNames[0];
+      for (var t = 1; t < typeNames.length; t++) {
+        var typeName = typeNames[t];
+        troopStr += "\nand " + fmt(typeGroups[typeName].count) + " " + typeName;
+      }
+    } else {
+      troopStr = fmt(G.enemyTroops) + " " + enemyTroopName;
     }
     document.getElementById("enemyTroops").textContent = troopStr;
     document.getElementById("enemyTroops").style.whiteSpace = "pre-line";
