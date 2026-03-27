@@ -8,9 +8,7 @@ ini_set('error_log', __DIR__ . '/../debug.log');
 
 require_once __DIR__ . '/LogParser.php';
 require_once __DIR__ . '/BasicValidator.php';
-require_once __DIR__ . '/EarlyGameValidator.php';
-require_once __DIR__ . '/MiddleGameValidator.php';
-require_once __DIR__ . '/LateGameValidator.php';
+require_once __DIR__ . '/GameReplayValidator.php';
 
 function route(string $method, string $uri): void {
     // API routes
@@ -114,31 +112,13 @@ function handleSubmitRun(): void {
     $validationResult = $validator->validate();
     error_log("BasicValidator flags: " . json_encode($validationResult->flags));
 
-    // Run early game replay validation (07g)
-    error_log("Running EarlyGameValidator...");
-    $earlyGameValidator = new EarlyGameValidator($parser);
-    $earlyGameFlags = $earlyGameValidator->validate();
-    error_log("EarlyGame flags count: " . count($earlyGameFlags));
-    foreach ($earlyGameFlags as $flag) {
-        $validationResult->addFlag("[EarlyGame] $flag");
-    }
-
-    // Run middle game replay validation (07h)
-    error_log("Running MiddleGameValidator...");
-    $middleGameValidator = new MiddleGameValidator($parser);
-    $middleGameFlags = $middleGameValidator->validate();
-    error_log("MiddleGame flags count: " . count($middleGameFlags));
-    foreach ($middleGameFlags as $flag) {
-        $validationResult->addFlag("[MiddleGame] $flag");
-    }
-
-    // Run late game validation (07i)
-    error_log("Running LateGameValidator...");
-    $lateGameValidator = new LateGameValidator($parser);
-    $lateGameFlags = $lateGameValidator->validate();
-    error_log("LateGame flags count: " . count($lateGameFlags));
-    foreach ($lateGameFlags as $flag) {
-        $validationResult->addFlag("[LateGame] $flag");
+    // Run unified game replay validation
+    error_log("Running GameReplayValidator...");
+    $replayValidator = new GameReplayValidator($parser);
+    $replayFlags = $replayValidator->validate();
+    error_log("GameReplay flags count: " . count($replayFlags));
+    foreach ($replayFlags as $flag) {
+        $validationResult->addFlag("[GameReplay] $flag");
     }
 
     // Flag as cheated if any issues found

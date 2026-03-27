@@ -86,6 +86,12 @@ function log(msg, cls) {
 function logClick(action) {
   if (!G.logStartTime) G.logStartTime = Date.now();
   var elapsed = Date.now() - G.logStartTime;
+  // Get loot multiplier if available
+  var lootMult = 1;
+  if (typeof getUpgradeMultRef === 'function') {
+    var m = getUpgradeMultRef('loot');
+    lootMult = (typeof m === 'number') ? m : (m && m.toNumber ? m.toNumber() : 1);
+  }
   G.clickLog.push({
     t: elapsed,
     tick: G._totalTicks || 0,  // Global tick counter (increments 4x per day)
@@ -98,11 +104,15 @@ function logClick(action) {
     bar: cnt("barracks"),
     mb: cnt("military_base"),
     king: cnt("kingdom"),
+    emp: cnt("empire"),
     train: cnt("train"),
     armyClicks: G._armyClicks || 0,
     farms: cnt("farm"),
     plantations: cnt("plantation"),
-    colonies: cnt("colony")
+    colonies: cnt("colony"),
+    lootMult: lootMult,
+    magic: G.magic || 0,
+    food: G.food ? G.food.toNumber() : 0
   });
 }
 
