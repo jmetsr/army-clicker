@@ -225,6 +225,30 @@ class LogParser {
             'dayQuintillionCoins' => 1e18,
         ];
 
+        // Milestone name to field mapping
+        $milestoneNameToField = [
+            'million' => 'dayMillionCoins',
+            'billion' => 'dayBillionCoins',
+            'trillion' => 'dayTrillionCoins',
+            'quadrillion' => 'dayQuadrillionCoins',
+            'quintillion' => 'dayQuintillionCoins',
+        ];
+
+        // First, check for explicit milestone events (most accurate)
+        $foundThresholds = [];
+        foreach ($this->getEventsOfType('milestone') as $event) {
+            $name = $event['milestone'] ?? '';
+            $day = $event['day'] ?? 0;
+            if (isset($milestoneNameToField[$name])) {
+                $field = $milestoneNameToField[$name];
+                // Only use first occurrence (earliest day)
+                if (!isset($foundThresholds[$field])) {
+                    $milestones[$field] = $day;
+                    $foundThresholds[$field] = true;
+                }
+            }
+        }
+
         // Build combined event list from clicks and battles
         $events = [];
 
@@ -251,17 +275,16 @@ class LogParser {
         // Sort by tick
         usort($events, fn($a, $b) => $a['tick'] <=> $b['tick']);
 
-        // Track which thresholds we've found
-        $foundThresholds = [];
-
-        // Check events for coin thresholds
+        // Check events for coin thresholds (fallback for logs without milestone events)
         foreach ($events as $event) {
             $tick = $event['tick'];
             $day = (int)floor($tick / 4);
-            $coins = $event['coins'];
+            // Handle OrdinalNumber coins (serialized as {arrows, height})
+            $coins = OrdinalNumber::from($event['coins']);
 
             foreach ($thresholds as $milestone => $threshold) {
-                if (!isset($foundThresholds[$milestone]) && $coins >= $threshold) {
+                $thresholdON = OrdinalNumber::from($threshold);
+                if (!isset($foundThresholds[$milestone]) && $coins->gte($thresholdON)) {
                     $milestones[$milestone] = $day;
                     $foundThresholds[$milestone] = true;
                 }
@@ -296,8 +319,12 @@ class LogParser {
 
                 if ($lastEventBefore) {
                     $ticksRemaining = $targetTick - $lastEventBefore['tick'];
-                    $passiveIncome = $lastEventBefore['troops'] * $lastEventBefore['ppt'] * $ticksRemaining;
-                    $coinsAtTarget = $lastEventBefore['coins'] + $passiveIncome;
+                    // Handle OrdinalNumber values (serialized as arrays with arrows/height)
+                    $troops = OrdinalNumber::from($lastEventBefore['troops']);
+                    $ppt = OrdinalNumber::from($lastEventBefore['ppt']);
+                    $coins = OrdinalNumber::from($lastEventBefore['coins']);
+                    $passiveIncome = $troops->multiply($ppt)->multiply($ticksRemaining);
+                    $coinsAtTarget = $coins->add($passiveIncome);
                     $milestones[$milestone] = self::formatOrdinal($coinsAtTarget);
                 }
             }

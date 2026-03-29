@@ -96,8 +96,8 @@ function logClick(action) {
     t: elapsed,
     tick: G._totalTicks || 0,  // Global tick counter (increments 4x per day)
     action: action,
-    coins: G.coins.toNumber(),
-    troops: G.troops.toNumber(),
+    coins: serializeON(G.coins),
+    troops: serializeON(G.troops),
     ppt: G.ppt,
     rp: G.rp,
     sl: cnt("squad_leader"),
@@ -112,7 +112,7 @@ function logClick(action) {
     colonies: cnt("colony"),
     lootMult: lootMult,
     magic: G.magic || 0,
-    food: G.food ? G.food.toNumber() : 0
+    food: G.food ? serializeON(G.food) : 0
   });
 }
 
@@ -166,6 +166,33 @@ function logVanquish(type) {
     coins: serializeON(G.coins),
     power: serializeON(tp())
   });
+}
+
+// Coin milestones to track
+var COIN_MILESTONES = [
+  { name: 'million', threshold: ON(1e6) },
+  { name: 'billion', threshold: ON(1e9) },
+  { name: 'trillion', threshold: ON(1e12) },
+  { name: 'quadrillion', threshold: ON(1e15) },
+  { name: 'quintillion', threshold: ON(1e18) }
+];
+
+function checkCoinMilestones(oldCoins, newCoins) {
+  if (!G.milestonesReached) G.milestonesReached = {};
+
+  for (var i = 0; i < COIN_MILESTONES.length; i++) {
+    var m = COIN_MILESTONES[i];
+    if (!G.milestonesReached[m.name] && oldCoins.lt(m.threshold) && newCoins.gte(m.threshold)) {
+      G.milestonesReached[m.name] = true;
+      G.gameLog.push({
+        type: 'milestone',
+        milestone: m.name,
+        day: G.day,
+        tick: G._totalTicks || 0,
+        coins: serializeON(newCoins)
+      });
+    }
+  }
 }
 
 function getGameLog() {
@@ -588,7 +615,14 @@ function lootTick() {
   var mult = getUpgradeMultRef ? getUpgradeMultRef('loot') : 1;
   var gain = tp().mul(C.lootBase).floor();
   if (gain.lt(1)) gain = ON(1);
+
+  // Track old coins for milestone detection
+  var oldCoins = G.coins;
   G.coins = G.coins.add(gain.mul(mult));
+
+  // Check if any coin milestones were crossed
+  checkCoinMilestones(oldCoins, G.coins);
+
   // Update coins display
   var el = document.getElementById("coinCount");
   if (el) el.textContent = fmt(G.coins);
