@@ -22,6 +22,9 @@ class GameReplayValidator {
     const KINGDOM_COST = 400000;
     const EMPIRE_COST = 40000000;
     const TRAIN_COST = 160;
+    const SAPPHIRE_COST = 10000000000;  // 1e10
+    const EMERALD_COST = 10000000000000;  // 1e13
+    const RUBY_COST = 100000000000000000;  // 1e17
     const FARM_COST = 1000;
     const PLANTATION_COST = 5000;
     const COLONY_COST = 25000;
@@ -87,6 +90,7 @@ class GameReplayValidator {
             'colClicks' => 0,
             // Freeze costs magic - when active, click counters stop incrementing
             'costsFrozen' => false,
+            'frozenCosts' => [], // Captured costs when freeze_costs is activated
             // Training chain tracking for ppt validation
             'rubyClicks' => 0,
             'emeraldClicks' => 0,
@@ -160,6 +164,97 @@ class GameReplayValidator {
         $finalFlags = $this->checkFinalState($prevClick);
         $flags = array_merge($flags, $finalFlags);
 
+        // Verify milestone events
+        $milestoneFlags = $this->checkMilestones($clicks);
+        $flags = array_merge($flags, $milestoneFlags);
+
+        return $flags;
+    }
+
+    /**
+     * Verify milestone events are plausible
+     */
+    private function checkMilestones(array $clicks): array {
+        $flags = [];
+
+        $thresholds = [
+            'million' => 1e6,
+            'billion' => 1e9,
+            'trillion' => 1e12,
+            'quadrillion' => 1e15,
+            'quintillion' => 1e18,
+        ];
+
+        $milestoneEvents = $this->parser->getEventsOfType('milestone');
+        if (empty($milestoneEvents)) {
+            return []; // No milestone events to verify
+        }
+
+        // Sort clicks by tick for binary search
+        usort($clicks, fn($a, $b) => ($a['tick'] ?? 0) <=> ($b['tick'] ?? 0));
+
+        foreach ($milestoneEvents as $event) {
+            $name = $event['milestone'] ?? '';
+            $reportedDay = $event['day'] ?? 0;
+            $reportedTick = $event['tick'] ?? ($reportedDay * 4);
+
+            if (!isset($thresholds[$name])) continue;
+
+            $threshold = OrdinalNumber::from($thresholds[$name]);
+
+            // Find the last click at or before this milestone tick
+            $lastClick = null;
+            foreach ($clicks as $click) {
+                $clickTick = $click['tick'] ?? 0;
+                if ($clickTick <= $reportedTick) {
+                    $lastClick = $click;
+                } else {
+                    break;
+                }
+            }
+
+            if (!$lastClick) continue;
+
+            $lastClickCoins = OrdinalNumber::from($lastClick['coins'] ?? 0);
+            $lastClickTick = $lastClick['tick'] ?? 0;
+            $lastClickTroops = OrdinalNumber::from($lastClick['troops'] ?? 0);
+            $lastClickPpt = OrdinalNumber::from($lastClick['ppt'] ?? 1);
+            $lastClickLootMult = OrdinalNumber::from($lastClick['lootMult'] ?? 1);
+
+            // If last click already had coins >= threshold, milestone should have been earlier
+            if ($lastClickCoins->gte($threshold)) {
+                $lastClickDay = (int)floor($lastClickTick / 4);
+                if ($reportedDay > $lastClickDay + 1) {
+                    $flags[] = "Milestone '$name': Reported day $reportedDay but player had " .
+                               $lastClickCoins->toString() . " coins at day $lastClickDay";
+                }
+                continue;
+            }
+
+            // Calculate passive income per tick
+            $incomePerTick = $lastClickTroops->multiply($lastClickPpt)->multiply($lastClickLootMult);
+
+            if ($incomePerTick->toFloat() <= 0) continue;
+
+            // How much more coins needed to reach threshold?
+            $coinsNeeded = $threshold->subtract($lastClickCoins);
+            if ($coinsNeeded->toFloat() <= 0) continue;
+
+            // How many ticks needed?
+            $ticksNeeded = $coinsNeeded->toFloat() / $incomePerTick->toFloat();
+            if (!is_finite($ticksNeeded) || $ticksNeeded < 0) continue;
+
+            // Project when threshold would be crossed
+            $projectedTick = $lastClickTick + $ticksNeeded;
+            $projectedDay = (int)floor($projectedTick / 4);
+
+            // Allow tolerance of 1 day (income can vary due to battles, training, etc.)
+            if ($reportedDay < $projectedDay - 1) {
+                $flags[] = "Milestone '$name': Reported day $reportedDay but projected day is $projectedDay " .
+                           "(from " . $lastClickCoins->toString() . " coins, income " . $incomePerTick->toString() . "/tick)";
+            }
+        }
+
         return $flags;
     }
 
@@ -230,14 +325,28 @@ class GameReplayValidator {
     private function checkAffordable(array $state, array $click): array {
         $flags = [];
         $action = $click['action'] ?? '';
-        $coins = $click['coins'] ?? 0;
+        $rawCoins = $click['coins'] ?? 0;
         $magic = $click['magic'] ?? 0;
+
+        // Handle OrdinalNumber coins (serialized as {arrows, height})
+        if (is_array($rawCoins) && isset($rawCoins['arrows'])) {
+            // OrdinalNumber - convert to comparable value
+            // For arrows=1, value is 10^height which is always huge
+            // Any normal cost is affordable with OrdinalNumber coins
+            $coins = PHP_FLOAT_MAX;
+        } elseif ($rawCoins === null) {
+            // Null coins (legacy logging bug) - skip affordability check
+            return $flags;
+        } else {
+            $coins = $rawCoins;
+        }
 
         // Coin-based actions
         $cost = $this->getActionCost($action, $state);
         if ($cost > 0 && $coins < $cost) {
             $tick = $click['tick'] ?? 0;
-            $flags[] = "Tick $tick: $action with $coins coins (needs $cost)";
+            $coinsStr = is_numeric($rawCoins) ? $rawCoins : json_encode($rawCoins);
+            $flags[] = "Tick $tick: $action with $coinsStr coins (needs $cost)";
         }
 
         // Magic-based actions
@@ -538,11 +647,33 @@ class GameReplayValidator {
                 $state['farmClicks'] = $state['econClicks'];
                 $state['plantClicks'] = $state['econClicks'];
                 $state['colClicks'] = $state['econClicks'];
+                // Training tier buttons (train, sapphire, emerald, ruby)
+                // Note: sapphireClicks/emeraldClicks/rubyClicks are already being tracked
+                // but need to be initialized to trainClicks for cost calculation
+                $state['sapphireClicks'] = $state['trainClicks'];
+                $state['emeraldClicks'] = $state['trainClicks'];
+                $state['rubyClicks'] = $state['trainClicks'];
                 $state['separateCosts'] = true;
                 break;
             case 'freeze_costs':
-                // Freeze costs - all click counters stop incrementing after this
+                // Freeze costs - capture current costs and stop incrementing
                 $state['costsFrozen'] = true;
+                // Capture frozen costs for all buttons (like the game does)
+                $state['frozenCosts'] = [
+                    'recruit' => $this->getActionCost('recruit', $state, false),
+                    'squad_leader' => $this->getActionCost('squad_leader', $state, false),
+                    'barracks' => $this->getActionCost('barracks', $state, false),
+                    'military_base' => $this->getActionCost('military_base', $state, false),
+                    'kingdom' => $this->getActionCost('kingdom', $state, false),
+                    'empire' => $this->getActionCost('empire', $state, false),
+                    'train' => $this->getActionCost('train', $state, false),
+                    'farm' => $this->getActionCost('farm', $state, false),
+                    'plantation' => $this->getActionCost('plantation', $state, false),
+                    'colony' => $this->getActionCost('colony', $state, false),
+                    'sapphire' => $this->getActionCost('sapphire', $state, false),
+                    'emerald' => $this->getActionCost('emerald', $state, false),
+                    'ruby' => $this->getActionCost('ruby', $state, false),
+                ];
                 break;
         }
 
@@ -560,6 +691,11 @@ class GameReplayValidator {
      *                           (i.e., subtract 1 from the relevant counter)
      */
     private function getActionCost(string $action, array $state, bool $beforeAction = false): float {
+        // If costs are frozen and we have a frozen cost for this action, use it
+        if ($state['costsFrozen'] && isset($state['frozenCosts'][$action])) {
+            return $state['frozenCosts'][$action];
+        }
+
         $trainClicks = $state['trainClicks'];
         $recruitCount = $state['recruitCount'];
         $econClicks = $state['econClicks'];
@@ -617,6 +753,19 @@ class GameReplayValidator {
                 $clicks = $separateCosts ? $state['colClicks'] : $econClicks;
                 $clicks = max(0, $clicks - $offset);
                 return floor(self::COLONY_COST * pow(1.02, $clicks));
+            case 'sapphire':
+                // Gem tier uses training pool (1.02 inflation)
+                $clicks = $separateCosts ? $state['sapphireClicks'] : $trainClicks;
+                $clicks = max(0, $clicks - $offset);
+                return floor(self::SAPPHIRE_COST * pow(1.02, $clicks));
+            case 'emerald':
+                $clicks = $separateCosts ? $state['emeraldClicks'] : $trainClicks;
+                $clicks = max(0, $clicks - $offset);
+                return floor(self::EMERALD_COST * pow(1.02, $clicks));
+            case 'ruby':
+                $clicks = $separateCosts ? $state['rubyClicks'] : $trainClicks;
+                $clicks = max(0, $clicks - $offset);
+                return floor(self::RUBY_COST * pow(1.02, $clicks));
             default:
                 return 0;
         }
