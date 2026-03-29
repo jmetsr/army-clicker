@@ -75,11 +75,18 @@ class GameReplayValidator {
             'tick' => 0,
             // Separate cost tracking (when separate_costs magic is active)
             'separateCosts' => false,
+            // Army buttons
             'slClicks' => 0,
             'barClicks' => 0,
             'mbClicks' => 0,
             'kingClicks' => 0,
             'empClicks' => 0,
+            // Economy buttons
+            'farmClicks' => 0,
+            'plantClicks' => 0,
+            'colClicks' => 0,
+            // Freeze costs magic - when active, click counters stop incrementing
+            'costsFrozen' => false,
         ];
 
         $prevClick = null;
@@ -168,7 +175,10 @@ class GameReplayValidator {
         $passiveIncome = $effectiveTroops->multiply($currPpt)->multiply($currLootMult)->multiply($ticksPassed);
 
         // Cost of previous action
-        $actionCost = $this->toOrdinal($this->getActionCost($prevAction, $state));
+        // If costs are frozen, counters weren't incremented, so don't subtract offset
+        // Otherwise, subtract 1 because state already has the post-action increment
+        $beforeAction = !$state['costsFrozen'];
+        $actionCost = $this->toOrdinal($this->getActionCost($prevAction, $state, $beforeAction));
 
         // Beg gives +1
         $begIncome = $this->toOrdinal(($prevAction === 'beg') ? 1 : 0);
@@ -319,43 +329,74 @@ class GameReplayValidator {
      */
     private function applyAction(array &$state, array $click): void {
         $action = $click['action'] ?? '';
+        $costsFrozen = $state['costsFrozen'];
 
         switch ($action) {
             case 'recruit':
-                $state['recruitCount']++;
+                // Recruit count always increments (affects troop addition)
+                // but cost calculation uses recruitCount which should freeze
+                if (!$costsFrozen) {
+                    $state['recruitCount']++;
+                }
                 // Add rp troops (rp is logged in the click)
                 $rp = $this->toOrdinal($click['rp'] ?? 1);
                 $state['troops'] = $state['troops']->add($rp);
                 break;
             case 'squad_leader':
-                $state['armyClicks']++;
-                $state['slClicks']++;
+                if (!$costsFrozen) {
+                    $state['armyClicks']++;
+                    $state['slClicks']++;
+                }
                 break;
             case 'barracks':
-                $state['armyClicks']++;
-                $state['barClicks']++;
+                if (!$costsFrozen) {
+                    $state['armyClicks']++;
+                    $state['barClicks']++;
+                }
                 break;
             case 'military_base':
-                $state['armyClicks']++;
-                $state['mbClicks']++;
+                if (!$costsFrozen) {
+                    $state['armyClicks']++;
+                    $state['mbClicks']++;
+                }
                 break;
             case 'kingdom':
-                $state['armyClicks']++;
-                $state['kingClicks']++;
+                if (!$costsFrozen) {
+                    $state['armyClicks']++;
+                    $state['kingClicks']++;
+                }
                 break;
             case 'empire':
-                $state['armyClicks']++;
-                $state['empClicks']++;
+                if (!$costsFrozen) {
+                    $state['armyClicks']++;
+                    $state['empClicks']++;
+                }
                 break;
             case 'train':
-                $state['trainClicks']++;
+                if (!$costsFrozen) {
+                    $state['trainClicks']++;
+                }
                 break;
             case 'farm':
+                if (!$costsFrozen) {
+                    $state['econClicks']++;
+                    $state['farmClicks']++;
+                }
+                break;
             case 'plantation':
+                if (!$costsFrozen) {
+                    $state['econClicks']++;
+                    $state['plantClicks']++;
+                }
+                break;
             case 'colony':
-                $state['econClicks']++;
+                if (!$costsFrozen) {
+                    $state['econClicks']++;
+                    $state['colClicks']++;
+                }
                 break;
             case 'dark_ritual':
+                // Dark ritual always counts (not affected by freeze)
                 $state['darkRituals']++;
                 break;
             case 'separate_costs':
@@ -366,7 +407,15 @@ class GameReplayValidator {
                 $state['mbClicks'] = $state['armyClicks'];
                 $state['kingClicks'] = $state['armyClicks'];
                 $state['empClicks'] = $state['armyClicks'];
+                // Economy buttons
+                $state['farmClicks'] = $state['econClicks'];
+                $state['plantClicks'] = $state['econClicks'];
+                $state['colClicks'] = $state['econClicks'];
                 $state['separateCosts'] = true;
+                break;
+            case 'freeze_costs':
+                // Freeze costs - all click counters stop incrementing after this
+                $state['costsFrozen'] = true;
                 break;
         }
 
@@ -378,46 +427,69 @@ class GameReplayValidator {
     /**
      * Get cost of an action
      */
-    private function getActionCost(string $action, array $state): float {
+    /**
+     * Get cost of an action.
+     * @param bool $beforeAction If true, calculate cost BEFORE this action was applied
+     *                           (i.e., subtract 1 from the relevant counter)
+     */
+    private function getActionCost(string $action, array $state, bool $beforeAction = false): float {
         $trainClicks = $state['trainClicks'];
         $recruitCount = $state['recruitCount'];
         $econClicks = $state['econClicks'];
+        $armyClicks = $state['armyClicks'];
 
         // When separate_costs is active, each army building has its own inflation counter
         // Otherwise, they all share the same armyClicks pool
         $separateCosts = $state['separateCosts'];
 
+        // If beforeAction is true, we need to subtract 1 from the counter that this action incremented
+        // (since state already reflects the post-action increment)
+        $offset = $beforeAction ? 1 : 0;
+
         switch ($action) {
             case 'beg':
                 return 0;
             case 'recruit':
-                return floor(self::RECRUIT_COST * pow(1.02, $recruitCount));
+                $clicks = max(0, $recruitCount - $offset);
+                return floor(self::RECRUIT_COST * pow(1.02, $clicks));
             case 'squad_leader':
-                $clicks = $separateCosts ? $state['slClicks'] : $state['armyClicks'];
+                $clicks = $separateCosts ? $state['slClicks'] : $armyClicks;
+                $clicks = max(0, $clicks - $offset);
                 return floor(self::SQUAD_LEADER_COST * pow(1.04, $clicks));
             case 'barracks':
-                $clicks = $separateCosts ? $state['barClicks'] : $state['armyClicks'];
+                $clicks = $separateCosts ? $state['barClicks'] : $armyClicks;
+                $clicks = max(0, $clicks - $offset);
                 return floor(self::BARRACKS_COST * pow(1.04, $clicks));
             case 'military_base':
-                $clicks = $separateCosts ? $state['mbClicks'] : $state['armyClicks'];
+                $clicks = $separateCosts ? $state['mbClicks'] : $armyClicks;
+                $clicks = max(0, $clicks - $offset);
                 return floor(self::MILITARY_BASE_COST * pow(1.04, $clicks));
             case 'kingdom':
-                $clicks = $separateCosts ? $state['kingClicks'] : $state['armyClicks'];
+                $clicks = $separateCosts ? $state['kingClicks'] : $armyClicks;
+                $clicks = max(0, $clicks - $offset);
                 return floor(self::KINGDOM_COST * pow(1.04, $clicks));
             case 'empire':
-                $clicks = $separateCosts ? $state['empClicks'] : $state['armyClicks'];
+                $clicks = $separateCosts ? $state['empClicks'] : $armyClicks;
+                $clicks = max(0, $clicks - $offset);
                 return floor(self::EMPIRE_COST * pow(1.04, $clicks));
             case 'train':
-                if ($trainClicks >= 111) {
-                    return floor(self::TRAIN_COST * pow(1.02, 111) * pow(1.03, $trainClicks - 111));
+                $clicks = max(0, $trainClicks - $offset);
+                if ($clicks >= 111) {
+                    return floor(self::TRAIN_COST * pow(1.02, 111) * pow(1.03, $clicks - 111));
                 }
-                return floor(self::TRAIN_COST * pow(1.02, $trainClicks));
+                return floor(self::TRAIN_COST * pow(1.02, $clicks));
             case 'farm':
-                return floor(self::FARM_COST * pow(1.02, $econClicks));
+                $clicks = $separateCosts ? $state['farmClicks'] : $econClicks;
+                $clicks = max(0, $clicks - $offset);
+                return floor(self::FARM_COST * pow(1.02, $clicks));
             case 'plantation':
-                return floor(self::PLANTATION_COST * pow(1.02, $econClicks));
+                $clicks = $separateCosts ? $state['plantClicks'] : $econClicks;
+                $clicks = max(0, $clicks - $offset);
+                return floor(self::PLANTATION_COST * pow(1.02, $clicks));
             case 'colony':
-                return floor(self::COLONY_COST * pow(1.02, $econClicks));
+                $clicks = $separateCosts ? $state['colClicks'] : $econClicks;
+                $clicks = max(0, $clicks - $offset);
+                return floor(self::COLONY_COST * pow(1.02, $clicks));
             default:
                 return 0;
         }
