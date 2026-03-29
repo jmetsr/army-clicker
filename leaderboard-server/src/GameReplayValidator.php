@@ -62,7 +62,7 @@ class GameReplayValidator {
         // Initialize replay state
         $state = [
             'coins' => 0,
-            'troops' => 0,
+            'troops' => OrdinalNumber::from(0),  // Track troops via recruit actions
             'ppt' => 1,
             'rp' => 1,
             'armyClicks' => 0,
@@ -112,6 +112,12 @@ class GameReplayValidator {
             // Check magic-related actions
             $magicFlags = $this->checkMagicAction($state, $click);
             foreach ($magicFlags as $flag) {
+                $flags[] = $flag;
+            }
+
+            // Check troop count
+            $troopFlags = $this->checkTroops($state, $click);
+            foreach ($troopFlags as $flag) {
                 $flags[] = $flag;
             }
 
@@ -249,6 +255,29 @@ class GameReplayValidator {
     }
 
     /**
+     * Check if logged troops exceed what's possible from recruiting
+     */
+    private function checkTroops(array $state, array $click): array {
+        $flags = [];
+        $tick = $click['tick'] ?? 0;
+
+        $loggedTroops = $this->toOrdinal($click['troops'] ?? 0);
+        $trackedTroops = $state['troops'];
+
+        // Allow tolerance for starvation (troops can die, reducing count)
+        // But logged troops should never EXCEED tracked troops
+        // Use 10% tolerance + 100 buffer
+        $tolerance = $trackedTroops->multiply(0.1)->add(100);
+        $maxAllowed = $trackedTroops->add($tolerance);
+
+        if ($loggedTroops->gt($maxAllowed)) {
+            $flags[] = "Tick $tick: Logged troops ({$loggedTroops->toString()}) exceeds max possible ({$trackedTroops->toString()})";
+        }
+
+        return $flags;
+    }
+
+    /**
      * Check first click for impossible starting state
      */
     private function checkFirstClick(array $click): array {
@@ -276,6 +305,12 @@ class GameReplayValidator {
             $flags[] = "Tick $tick (first click): Has $magic magic before any dark rituals";
         }
 
+        // Shouldn't have troops before recruiting (game starts with 0 troops)
+        $minTroopThreshold = $this->toOrdinal(100);
+        if ($troops->gt($minTroopThreshold)) {
+            $flags[] = "Tick $tick (first click): Has {$troops->toString()} troops before any recruiting";
+        }
+
         return $flags;
     }
 
@@ -288,6 +323,9 @@ class GameReplayValidator {
         switch ($action) {
             case 'recruit':
                 $state['recruitCount']++;
+                // Add rp troops (rp is logged in the click)
+                $rp = $this->toOrdinal($click['rp'] ?? 1);
+                $state['troops'] = $state['troops']->add($rp);
                 break;
             case 'squad_leader':
                 $state['armyClicks']++;
