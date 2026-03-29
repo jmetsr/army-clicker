@@ -9,6 +9,7 @@
  */
 
 require_once __DIR__ . '/LogParser.php';
+require_once __DIR__ . '/OrdinalNumber.php';
 
 class GameReplayValidator {
     private LogParser $parser;
@@ -83,6 +84,12 @@ class GameReplayValidator {
 
         $prevClick = null;
 
+        // Check first click for impossible starting state
+        $firstClickFlags = $this->checkFirstClick($clicks[0]);
+        foreach ($firstClickFlags as $flag) {
+            $flags[] = $flag;
+        }
+
         foreach ($clicks as $i => $click) {
             $action = $click['action'] ?? '';
             $clickCoins = $click['coins'] ?? 0;
@@ -132,40 +139,52 @@ class GameReplayValidator {
     private function checkTransition(array $state, array $prev, array $curr): array {
         $flags = [];
 
-        $prevCoins = $prev['coins'] ?? 0;
-        $currCoins = $curr['coins'] ?? 0;
-        $prevTroops = $prev['troops'] ?? 0;
-        $prevPpt = $prev['ppt'] ?? 1;
+        $prevCoins = $this->toOrdinal($prev['coins'] ?? 0);
+        $currCoins = $this->toOrdinal($curr['coins'] ?? 0);
         $prevTick = $prev['tick'] ?? 0;
         $currTick = $curr['tick'] ?? 0;
         $prevAction = $prev['action'] ?? '';
 
-        // Use CURRENT lootMult, not previous - click log records state BEFORE action,
-        // so if prev action was upgrade_button, lootMult changed after that click
-        $effectiveLootMult = $curr['lootMult'] ?? 1;
+        // Use CURRENT click's state for post-previous-action values
+        // BUT use max(prev, curr) for troops to handle starvation (troops can desert between clicks)
+        $prevTroops = $this->toOrdinal($prev['troops'] ?? 0);
+        $currTroops = $this->toOrdinal($curr['troops'] ?? 0);
+        $currPpt = $this->toOrdinal($curr['ppt'] ?? 1);
+        $currLootMult = $this->toOrdinal($curr['lootMult'] ?? 1);
+
+        // Use higher troop count - if previous action was recruit, currTroops is higher
+        // If starvation happened, prevTroops is higher. Give benefit of the doubt.
+        $effectiveTroops = $prevTroops->gt($currTroops) ? $prevTroops : $currTroops;
 
         $ticksPassed = max(0, $currTick - $prevTick);
 
         // Passive income: troops × ppt × lootMult per tick
-        $passiveIncome = $prevTroops * $prevPpt * $effectiveLootMult * $ticksPassed;
+        $passiveIncome = $effectiveTroops->multiply($currPpt)->multiply($currLootMult)->multiply($ticksPassed);
 
         // Cost of previous action
-        $actionCost = $this->getActionCost($prevAction, $state);
+        $actionCost = $this->toOrdinal($this->getActionCost($prevAction, $state));
 
         // Beg gives +1
-        $begIncome = ($prevAction === 'beg') ? 1 : 0;
+        $begIncome = $this->toOrdinal(($prevAction === 'beg') ? 1 : 0);
 
-        // Expected coins after previous action
-        $expectedCoins = $prevCoins - $actionCost + $begIncome + $passiveIncome;
+        // Expected coins after previous action: prevCoins - actionCost + begIncome + passiveIncome
+        $expectedCoins = $prevCoins->subtract($actionCost)->add($begIncome)->add($passiveIncome);
 
-        // Allow tolerance (10% or 1000 coins, whichever is larger)
-        $tolerance = max(1000, abs($expectedCoins) * 0.1);
+        // Allow tolerance (10% or 1000, whichever is larger)
+        $tolerance = $expectedCoins->multiply(0.1);
+        $minTolerance = $this->toOrdinal(1000);
+        if ($minTolerance->gt($tolerance)) {
+            $tolerance = $minTolerance;
+        }
 
         // If current coins are WAY higher than expected, flag it
-        if ($currCoins > $expectedCoins + $tolerance) {
-            $excess = $currCoins - $expectedCoins;
-            if ($excess > 10000 && $currCoins > $expectedCoins * 1.5) {
-                $flags[] = "Tick $currTick: Coins jumped from $prevCoins to $currCoins (expected ~" . round($expectedCoins) . ", lootMult=$effectiveLootMult)";
+        $threshold = $expectedCoins->add($tolerance);
+        if ($currCoins->gt($threshold)) {
+            $excess = $currCoins->subtract($expectedCoins);
+            $minExcess = $this->toOrdinal(10000);
+            $ratio = $expectedCoins->multiply(1.5);
+            if ($excess->gt($minExcess) && $currCoins->gt($ratio)) {
+                $flags[] = "Tick $currTick: Coins jumped from {$prevCoins->toString()} to {$currCoins->toString()} (expected ~{$expectedCoins->toString()}, lootMult={$currLootMult->toString()})";
             }
         }
 
@@ -206,20 +225,55 @@ class GameReplayValidator {
     private function checkMagicAction(array &$state, array $click): array {
         $flags = [];
         $action = $click['action'] ?? '';
+        $tick = $click['tick'] ?? 0;
 
-        // Track dark rituals (source of magic)
-        if ($action === 'dark_ritual') {
-            $state['darkRituals']++;
+        // Check logged magic doesn't exceed dark rituals performed
+        // (logged state is BEFORE action, so current dark_ritual hasn't added yet)
+        $loggedMagic = $click['magic'] ?? 0;
+        if ($loggedMagic > $state['darkRituals']) {
+            $flags[] = "Tick $tick: Logged magic ($loggedMagic) exceeds dark rituals performed ({$state['darkRituals']})";
         }
+
+        // Note: darkRituals is incremented in applyAction, not here
 
         // Check lootMult consistency
         $clickLootMult = $click['lootMult'] ?? 1;
         if ($clickLootMult > 1 && $state['darkRituals'] === 0) {
-            $tick = $click['tick'] ?? 0;
             // Only flag if significantly boosted without any dark rituals
             if ($clickLootMult > 10) {
                 $flags[] = "Tick $tick: lootMult=$clickLootMult but no dark rituals performed";
             }
+        }
+
+        return $flags;
+    }
+
+    /**
+     * Check first click for impossible starting state
+     */
+    private function checkFirstClick(array $click): array {
+        $flags = [];
+        $tick = $click['tick'] ?? 0;
+        $coins = $this->toOrdinal($click['coins'] ?? 0);
+        $troops = $this->toOrdinal($click['troops'] ?? 0);
+        $ppt = $this->toOrdinal($click['ppt'] ?? 1);
+        $magic = $click['magic'] ?? 0;
+
+        // Max possible coins at first click:
+        // - Passive income: troops * ppt * ticks (but troops is usually 0 at start)
+        // - Begging: at most ~tick begs = tick coins
+        $maxPassiveIncome = $troops->multiply($ppt)->multiply($tick);
+        $maxBegIncome = $this->toOrdinal($tick); // Can't beg more than once per tick
+        $maxPlausible = $maxPassiveIncome->add($maxBegIncome)->add(100); // Small buffer
+
+        $minThreshold = $this->toOrdinal(1000);
+        if ($coins->gt($maxPlausible) && $coins->gt($minThreshold)) {
+            $flags[] = "Tick $tick (first click): Has {$coins->toString()} coins (max plausible ~{$maxPlausible->toString()})";
+        }
+
+        // Shouldn't have magic before any dark rituals
+        if ($magic > 0) {
+            $flags[] = "Tick $tick (first click): Has $magic magic before any dark rituals";
         }
 
         return $flags;
@@ -332,6 +386,13 @@ class GameReplayValidator {
     }
 
     /**
+     * Convert value to OrdinalNumber
+     */
+    private function toOrdinal($val): OrdinalNumber {
+        return OrdinalNumber::from($val);
+    }
+
+    /**
      * Check final state against last click
      */
     private function checkFinalState(?array $lastClick): array {
@@ -348,37 +409,33 @@ class GameReplayValidator {
 
         usort($snapshots, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
         $finalSnapshot = end($snapshots);
-        $finalCoins = $finalSnapshot['player']['coins'] ?? 0;
+        $finalCoins = $this->toOrdinal($finalSnapshot['player']['coins'] ?? 0);
 
-        if (is_array($finalCoins)) {
-            $finalCoins = LogParser::ordinalToFloat($finalCoins);
-        }
-
-        $lastClickCoins = $lastClick['coins'] ?? 0;
-        $lastClickTroops = $lastClick['troops'] ?? 0;
-        $lastClickPpt = $lastClick['ppt'] ?? 1;
-        $lastClickLootMult = $lastClick['lootMult'] ?? 1;
+        $lastClickCoins = $this->toOrdinal($lastClick['coins'] ?? 0);
+        $lastClickTroops = $this->toOrdinal($lastClick['troops'] ?? 0);
+        $lastClickPpt = $this->toOrdinal($lastClick['ppt'] ?? 1);
+        $lastClickLootMult = $this->toOrdinal($lastClick['lootMult'] ?? 1);
         $lastAction = $lastClick['action'] ?? '';
 
         // Account for last action effect
-        $lastActionEffect = ($lastAction === 'beg') ? 1 : 0;
+        $lastActionEffect = $this->toOrdinal(($lastAction === 'beg') ? 1 : 0);
 
         // If last action was upgrade_button, lootMult increased after the click
         // Click log records state BEFORE action, so we need to account for the increase
         $effectiveLootMult = $lastClickLootMult;
         if ($lastAction === 'upgrade_button') {
-            $effectiveLootMult = $lastClickLootMult * 10; // upgrade_button multiplies by 10
+            $effectiveLootMult = $lastClickLootMult->multiply(10);
         }
 
         // Income per tick with loot multiplier
-        $incomePerTick = $lastClickTroops * $lastClickPpt * $effectiveLootMult;
+        $incomePerTick = $lastClickTroops->multiply($lastClickPpt)->multiply($effectiveLootMult);
 
         // Allow 1000 ticks (~4 minutes) of passive income before submit
-        $maxReasonableIncome = $incomePerTick * 1000;
-        $maxExpected = $lastClickCoins + $lastActionEffect + $maxReasonableIncome;
+        $maxReasonableIncome = $incomePerTick->multiply(1000);
+        $maxExpected = $lastClickCoins->add($lastActionEffect)->add($maxReasonableIncome);
 
-        if ($finalCoins > $maxExpected) {
-            $flags[] = "Final coins ($finalCoins) exceeds max possible ($lastClickCoins + $maxReasonableIncome from ~4min passive income, lootMult=$effectiveLootMult)";
+        if ($finalCoins->gt($maxExpected)) {
+            $flags[] = "Final coins ({$finalCoins->toString()}) exceeds max possible ({$lastClickCoins->toString()} + {$maxReasonableIncome->toString()} from ~4min passive income, lootMult={$effectiveLootMult->toString()})";
         }
 
         return $flags;
