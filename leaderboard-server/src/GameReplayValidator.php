@@ -87,6 +87,17 @@ class GameReplayValidator {
             'colClicks' => 0,
             // Freeze costs magic - when active, click counters stop incrementing
             'costsFrozen' => false,
+            // Training chain tracking for ppt validation
+            'rubyClicks' => 0,
+            'emeraldClicks' => 0,
+            'sapphireClicks' => 0,
+            'sapphireCount' => 0,     // total sapphires owned (clicks * sapphirePower)
+            'emeraldPower' => 1,      // 1 + ruby_count
+            'sapphirePower' => 1,     // boosted by emerald
+            'trainMult' => 1.01,      // base + 0.005 * sapphire_gains
+            'sessionsPerTrain' => 1,  // 1 + sapphire_count
+            'totalSessions' => 0,     // sum of sessions from all train clicks
+            'calculatedPpt' => 0.0,   // log10 of ppt (trainMult^totalSessions)
         ];
 
         $prevClick = null;
@@ -125,6 +136,12 @@ class GameReplayValidator {
             // Check troop count
             $troopFlags = $this->checkTroops($state, $click);
             foreach ($troopFlags as $flag) {
+                $flags[] = $flag;
+            }
+
+            // Check ppt (power per troop)
+            $pptFlags = $this->checkPpt($state, $click);
+            foreach ($pptFlags as $flag) {
                 $flags[] = $flag;
             }
 
@@ -288,6 +305,80 @@ class GameReplayValidator {
     }
 
     /**
+     * Check ppt (power per troop) is plausible given training done
+     */
+    private function checkPpt(array $state, array $click): array {
+        $flags = [];
+        $tick = $click['tick'] ?? 0;
+        $loggedPpt = $click['ppt'] ?? 1;
+
+        // Convert ppt to log10 for comparison
+        $loggedPptLog = 0;
+        if (is_array($loggedPpt)) {
+            // OrdinalNumber serialized as {arrows: N, height: X}
+            // arrows=1 means 10^height, arrows=2 means 10^^height (tetration), etc.
+            $arrows = $loggedPpt['arrows'] ?? 1;
+            $height = $loggedPpt['height'] ?? 0;
+
+            if ($arrows === 1) {
+                // 10^height - log10 is just height
+                $loggedPptLog = $height;
+            } else {
+                // Higher arrow notation (tetration+) - extremely large
+                // For arrows=2, height=3: 10^^3 = 10^10^10 ≈ 10^10000000000
+                // These are astronomically large, but we can still validate
+                // by checking if the training could possibly produce such values
+                $loggedPptLog = PHP_FLOAT_MAX; // Mark as "very large"
+            }
+        } elseif (is_numeric($loggedPpt)) {
+            if ($loggedPpt <= 0) {
+                $flags[] = "Tick $tick: Invalid ppt value ($loggedPpt)";
+                return $flags;
+            }
+            $loggedPptLog = log10($loggedPpt);
+        } else {
+            // Unknown format
+            return $flags;
+        }
+
+        // If no training done, ppt must be 1 (log10 = 0)
+        // Allow small tolerance for floating point
+        if ($state['trainClicks'] === 0 && $loggedPptLog > 0.01) {
+            $flags[] = "Tick $tick: ppt is " . number_format($loggedPpt, 2) . " but no training done (train clicks: 0)";
+            return $flags;
+        }
+
+        // Compare logged ppt (as log10) to calculated ppt (as log10)
+        // calculatedPpt is log10 of the max possible ppt given training done
+        $calculatedPptLog = $state['calculatedPpt'];
+
+        // For very large ppt (arrows > 1), check if training could plausibly reach that
+        // Tetration (arrows=2) requires trainMult^sessions to exceed 10^10^12
+        // This would need log10(trainMult) * sessions > 10^12
+        // With trainMult ~2 and sessions in millions, this is reachable with enough sapphire/emerald/ruby
+        if ($loggedPptLog === PHP_FLOAT_MAX) {
+            // Tetration or higher - check if player has done enough gem training
+            $totalGemClicks = $state['sapphireClicks'] + $state['emeraldClicks'] + $state['rubyClicks'];
+            if ($totalGemClicks < 100) {
+                $flags[] = "Tick $tick: ppt in tetration notation but only $totalGemClicks gem training clicks";
+            }
+            return $flags;
+        }
+
+        // Allow 10% tolerance on the log value (which is generous for exponentials)
+        // Also allow some buffer for rounding/timing differences
+        $tolerance = max(0.5, abs($calculatedPptLog) * 0.1);
+
+        if ($loggedPptLog > $calculatedPptLog + $tolerance) {
+            $loggedPptStr = is_numeric($loggedPpt) ? number_format($loggedPpt, 2) : json_encode($loggedPpt);
+            $maxPptStr = $calculatedPptLog > 20 ? "10^" . number_format($calculatedPptLog, 1) : number_format(pow(10, $calculatedPptLog), 2);
+            $flags[] = "Tick $tick: ppt ($loggedPptStr) exceeds max possible ($maxPptStr) given training";
+        }
+
+        return $flags;
+    }
+
+    /**
      * Check first click for impossible starting state
      */
     private function checkFirstClick(array $click): array {
@@ -376,6 +467,42 @@ class GameReplayValidator {
                 if (!$costsFrozen) {
                     $state['trainClicks']++;
                 }
+                // Calculate ppt: each train click multiplies by trainMult^sessionsPerTrain
+                $sessions = $state['sessionsPerTrain'];
+                $state['totalSessions'] += $sessions;
+                // ppt = trainMult^totalSessions (use log to avoid overflow)
+                $logPpt = $state['totalSessions'] * log10($state['trainMult']);
+                $state['calculatedPpt'] = $logPpt; // Store as log10 for comparison
+                break;
+            case 'ruby':
+                if (!$costsFrozen) {
+                    $state['trainClicks']++;
+                }
+                $state['rubyClicks']++;
+                // Ruby boosts emeraldPower by rubyPower (which is 1)
+                $state['emeraldPower'] += 1;
+                break;
+            case 'emerald':
+                if (!$costsFrozen) {
+                    $state['trainClicks']++;
+                }
+                $state['emeraldClicks']++;
+                // Emerald: gain = emeraldPower, boosts sapphirePower
+                $gain = $state['emeraldPower'];
+                $state['sapphirePower'] += $gain;
+                break;
+            case 'sapphire':
+                if (!$costsFrozen) {
+                    $state['trainClicks']++;
+                }
+                $state['sapphireClicks']++;
+                // Sapphire: gain = sapphirePower (total sapphires gained this click)
+                $gain = $state['sapphirePower'];
+                $state['sapphireCount'] = ($state['sapphireCount'] ?? 0) + $gain;
+                // Boosts trainMult by 0.005 * gain
+                $state['trainMult'] += 0.005 * $gain;
+                // sessionsPerTrain = 1 + total_sapphires_owned
+                $state['sessionsPerTrain'] = 1 + $state['sapphireCount'];
                 break;
             case 'farm':
                 if (!$costsFrozen) {
