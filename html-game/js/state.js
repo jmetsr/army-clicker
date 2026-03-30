@@ -380,14 +380,15 @@ function applyEffect(opts, mult) {
         expVal = ON(mult * logTM);
       }
       // expVal is the exponent; factor = 10^expVal
-      var expNum = expVal instanceof OrdinalNumber ? expVal.toNumber() : expVal;
-      if (expNum > 1e15) {
-        // Layer 2 territory - create tower
-        factor = OrdinalNumber.fromTower([expNum]);
-      } else if (expNum > 308) {
-        factor = OrdinalNumber.fromSci(1, expNum);
+      if (expVal instanceof OrdinalNumber) {
+        // Use exp10() to properly compute 10^(large OrdinalNumber)
+        factor = expVal.exp10();
       } else {
-        factor = Math.pow(10, expNum);
+        if (expVal > 308) {
+          factor = OrdinalNumber.fromSci(1, expVal);
+        } else {
+          factor = Math.pow(10, expVal);
+        }
       }
     } else {
       factor = Math.pow(G.trainMult, mult);
