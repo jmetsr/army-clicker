@@ -315,17 +315,20 @@ function applyEffect(opts, mult) {
   // Add to count - handle OrdinalNumber gain
   if (opts.countId) {
     var oldCount = G.counts[opts.countId] || 0;
-    if (isOrdMult || gain instanceof OrdinalNumber) {
+    if (isOrdMult || gain instanceof OrdinalNumber || oldCount instanceof OrdinalNumber) {
       G.counts[opts.countId] = ON(oldCount).add(gain instanceof OrdinalNumber ? gain : ON(gain));
     } else {
-      G.counts[opts.countId] = oldCount + gain;
+      var newCount = oldCount + gain;
+      // Convert to OrdinalNumber if getting large (before overflow at 10^308)
+      G.counts[opts.countId] = newCount > 1e100 ? ON(newCount) : newCount;
     }
     // Track clicks separately (for separateCosts feature)
     var oldClicks = G._buttonClicks[opts.countId] || 0;
-    if (isOrdMult) {
+    if (isOrdMult || oldClicks instanceof OrdinalNumber) {
       G._buttonClicks[opts.countId] = ON(oldClicks).add(mult);
     } else {
-      G._buttonClicks[opts.countId] = oldClicks + mult;
+      var newClicks = oldClicks + mult;
+      G._buttonClicks[opts.countId] = newClicks > 1e100 ? ON(newClicks) : newClicks;
     }
   }
   // Boost a power variable - handle OrdinalNumber gain
