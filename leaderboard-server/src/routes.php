@@ -259,13 +259,14 @@ function queryLeaderboard(string $category, string $mode, int $limit = 100): arr
         }
 
         $sql = "
-            SELECT id, player_name, game_mode, submitted_at,
+            SELECT MIN(id) as id, player_name, game_mode, MAX(submitted_at) as submitted_at,
                    day_million, day_billion, day_trillion,
                    day_quadrillion, day_quintillion,
                    day_vanquish, day_surrender,
                    coins_year_1, coins_year_2, coins_total
             FROM game_runs
             WHERE $whereClause
+            GROUP BY player_name, game_mode, $category
             ORDER BY $orderBy
             LIMIT $limit
         ";
