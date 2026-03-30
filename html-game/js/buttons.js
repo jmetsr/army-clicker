@@ -206,15 +206,20 @@ function initButtons() {
   });
 
   // DARK RITUAL
+  // Cost = 1e12 * 5^n = 10^(12 + n*log10(5)) - use fromSci to avoid Math.pow overflow
+  function darkRitualCost() {
+    var exponent = 12 + cnt("dark_ritual") * Math.log10(5);
+    return OrdinalNumber.fromSci(1, exponent);
+  }
   def({id:"dark_ritual",name:"\u2620 Dark Ritual",s:"magic",isMagic:false,isRitual:true,
     desc:"Pay coins for 1 magic. WARNING: Helps enemies!",cw:"performed",
     descFn:function(){
-      var cost = ON(1e12).mul(Math.pow(5, cnt("dark_ritual")));
+      var cost = darkRitualCost();
       var warn = G.darkRitualDays.length === 0 ? " \u26a0 EMPOWERS YOUR ENEMIES" : "";
       return"Cost: " + fmt(cost) + " coins \u2192 +1 magic" + warn;
     },
     costFn:function(){
-      return ON(1e12).mul(Math.pow(5, cnt("dark_ritual")));
+      return darkRitualCost();
     },
     showFn:function(){return G.magicOn},
     effectFn:function(){
