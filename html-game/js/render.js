@@ -186,15 +186,15 @@ function updateUI() {
   applyScheme(log);
   document.getElementById("coinCount").textContent = fmt(G.coins);
 
-  // Food display
-  document.getElementById("foodCount").textContent = fmt(G.food);
-  var farmProduction = cnt("farm") * C.farm_production;
+  // Food display (hidden when eternal feast is active)
   if (G.eternalFeast) {
-    document.getElementById("foodSub").textContent = "+" + fmt(farmProduction) + "/day (no consumption)";
-    document.getElementById("foodSub").style.color = "var(--magic)";
+    document.getElementById("foodBox").style.display = "none";
     document.getElementById("economyCol").style.display = "none";
   } else {
+    document.getElementById("foodBox").style.display = "flex";
     document.getElementById("economyCol").style.display = "";
+    document.getElementById("foodCount").textContent = fmt(G.food);
+    var farmProduction = cnt("farm") * C.farm_production;
     var troopConsumption = G.troops.toNumber() * C.food_perTroopDay;
     var foodBalance = farmProduction - troopConsumption;
     var balanceStr = (foodBalance >= 0 ? "+" : "-") + fmt(Math.abs(Math.floor(foodBalance))) + "/day";
