@@ -178,7 +178,17 @@ var COIN_MILESTONES = [
 ];
 
 function checkCoinMilestones(oldCoins, newCoins) {
-  if (!G.milestonesReached) G.milestonesReached = {};
+  // Initialize milestonesReached if needed
+  if (!G.milestonesReached) {
+    G.milestonesReached = {};
+    // Mark milestones already exceeded as reached (for existing games)
+    for (var j = 0; j < COIN_MILESTONES.length; j++) {
+      var existing = COIN_MILESTONES[j];
+      if (oldCoins.gte(existing.threshold)) {
+        G.milestonesReached[existing.name] = true;
+      }
+    }
+  }
 
   for (var i = 0; i < COIN_MILESTONES.length; i++) {
     var m = COIN_MILESTONES[i];

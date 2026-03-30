@@ -221,13 +221,9 @@ class GameReplayValidator {
             $lastClickPpt = OrdinalNumber::from($lastClick['ppt'] ?? 1);
             $lastClickLootMult = OrdinalNumber::from($lastClick['lootMult'] ?? 1);
 
-            // If last click already had coins >= threshold, milestone should have been earlier
+            // Skip validation if last click already had coins >= threshold
+            // (player may have spent coins and re-crossed, or milestone code was added mid-game)
             if ($lastClickCoins->gte($threshold)) {
-                $lastClickDay = (int)floor($lastClickTick / 4);
-                if ($reportedDay > $lastClickDay + 1) {
-                    $flags[] = "Milestone '$name': Reported day $reportedDay but player had " .
-                               $lastClickCoins->toString() . " coins at day $lastClickDay";
-                }
                 continue;
             }
 
