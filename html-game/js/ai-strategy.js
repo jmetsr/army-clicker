@@ -12,9 +12,14 @@ function runAI(clicks) {
 
   // === ACTION COUNTERS (for consolidated logging) ===
   var actionCounts = {};
-  function countAction(action) {
-    actionCounts[action] = (actionCounts[action] || 0) + 1;
+  function countAction(action, count) {
+    actionCounts[action] = (actionCounts[action] || 0) + (count || 1);
   }
+
+  // === BEG OPTIMIZATION ===
+  // If AI has 1M+ coins and begs, it's waiting for something expensive.
+  // Skip remaining iterations and beg for all of them at once.
+  var BEG_SKIP_THRESHOLD = 1000000;
 
   // === TUNING CONSTANTS ===
   var VAL_SL = 5;
@@ -718,6 +723,15 @@ function runAI(clicks) {
   var maxIterations = clicks;
   var iterations = 0;
 
+  // Beg optimization helper - beg for all remaining iterations at once
+  function begForRemaining() {
+    var remaining = maxIterations - iterations;
+    if (remaining > 0) {
+      ai.coins = ai.coins.add(remaining);
+      countAction("beg", remaining);
+    }
+  }
+
   while (iterations < maxIterations) {
     iterations++;
     coins = ai.coins.toNumber();
@@ -736,6 +750,7 @@ function runAI(clicks) {
         ai.coins = ai.coins.add(1);
         countAction("beg");
         logAI("beg");
+        if (coins > BEG_SKIP_THRESHOLD) { begForRemaining(); break; }
       }
       continue;
     }
@@ -765,6 +780,7 @@ function runAI(clicks) {
         ai.coins = ai.coins.add(1);
         countAction("beg");
         logAI("beg");
+        if (coins > BEG_SKIP_THRESHOLD) { begForRemaining(); break; }
         continue;
       }
     }
@@ -949,6 +965,7 @@ function runAI(clicks) {
       ai.coins = ai.coins.add(1);
       countAction("beg");
       logAI("beg");
+      if (coins > BEG_SKIP_THRESHOLD) { begForRemaining(); break; }
       continue;
     }
 
@@ -1022,6 +1039,7 @@ function runAI(clicks) {
         ai.coins = ai.coins.add(1);
         countAction("beg");
         logAI("beg");
+        if (coins > BEG_SKIP_THRESHOLD) { begForRemaining(); break; }
         continue;
       }
 
@@ -1036,6 +1054,7 @@ function runAI(clicks) {
         ai.coins = ai.coins.add(1);
         countAction("beg");
         logAI("beg");
+        if (coins > BEG_SKIP_THRESHOLD) { begForRemaining(); break; }
         continue;
       }
 
@@ -1064,6 +1083,7 @@ function runAI(clicks) {
       ai.coins = ai.coins.add(1);
       countAction("beg");
       logAI("beg");
+      if (coins > BEG_SKIP_THRESHOLD) { begForRemaining(); break; }
       continue;
     }
 
@@ -1098,6 +1118,7 @@ function runAI(clicks) {
       ai.coins = ai.coins.add(1);
       countAction("beg");
       logAI("beg");
+      if (coins > BEG_SKIP_THRESHOLD) { begForRemaining(); break; }
     }
   }
 
