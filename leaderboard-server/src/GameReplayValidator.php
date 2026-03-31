@@ -521,59 +521,82 @@ class GameReplayValidator {
     }
 
     /**
+     * Compute upgrade multiplier from upgradeLevel
+     */
+    private function getUpgradeMult($upgradeLevel): OrdinalNumber {
+        if (is_array($upgradeLevel) && isset($upgradeLevel['arrows'])) {
+            // OrdinalNumber upgrade level - use exp10() to get 10^level
+            return OrdinalNumber::from($upgradeLevel)->exp10();
+        } elseif (is_numeric($upgradeLevel) && $upgradeLevel > 0) {
+            if ($upgradeLevel > 308) {
+                return OrdinalNumber::fromSci(1, $upgradeLevel);
+            } else {
+                return OrdinalNumber::from(pow(10, $upgradeLevel));
+            }
+        }
+        return OrdinalNumber::from(1);
+    }
+
+    /**
      * Apply action effects to state
      */
     private function applyAction(array &$state, array $click): void {
         $action = $click['action'] ?? '';
         $costsFrozen = $state['costsFrozen'];
 
+        // Get upgrade multiplier (10^upgradeLevel) - how many times this click counts
+        $upgradeLevel = $click['upgradeLevel'] ?? 0;
+        $mult = $this->getUpgradeMult($upgradeLevel);
+        $multNum = $mult->toFloat(); // For simple increments
+        if (!is_finite($multNum)) $multNum = 1e308; // Cap for safety
+
         switch ($action) {
             case 'recruit':
                 // Recruit count always increments (affects troop addition)
                 // but cost calculation uses recruitCount which should freeze
                 if (!$costsFrozen) {
-                    $state['recruitCount']++;
+                    $state['recruitCount'] += $multNum;
                 }
-                // Add rp troops (rp is logged in the click)
+                // Add rp * mult troops (rp is logged in the click)
                 $rp = $this->toOrdinal($click['rp'] ?? 1);
-                $state['troops'] = $state['troops']->add($rp);
+                $state['troops'] = $state['troops']->add($rp->multiply($mult));
                 break;
             case 'squad_leader':
                 if (!$costsFrozen) {
-                    $state['armyClicks']++;
-                    $state['slClicks']++;
+                    $state['armyClicks'] += $multNum;
+                    $state['slClicks'] += $multNum;
                 }
                 break;
             case 'barracks':
                 if (!$costsFrozen) {
-                    $state['armyClicks']++;
-                    $state['barClicks']++;
+                    $state['armyClicks'] += $multNum;
+                    $state['barClicks'] += $multNum;
                 }
                 break;
             case 'military_base':
                 if (!$costsFrozen) {
-                    $state['armyClicks']++;
-                    $state['mbClicks']++;
+                    $state['armyClicks'] += $multNum;
+                    $state['mbClicks'] += $multNum;
                 }
                 break;
             case 'kingdom':
                 if (!$costsFrozen) {
-                    $state['armyClicks']++;
-                    $state['kingClicks']++;
+                    $state['armyClicks'] += $multNum;
+                    $state['kingClicks'] += $multNum;
                 }
                 break;
             case 'empire':
                 if (!$costsFrozen) {
-                    $state['armyClicks']++;
-                    $state['empClicks']++;
+                    $state['armyClicks'] += $multNum;
+                    $state['empClicks'] += $multNum;
                 }
                 break;
             case 'train':
                 if (!$costsFrozen) {
-                    $state['trainClicks']++;
+                    $state['trainClicks'] += $multNum;
                 }
-                // Calculate ppt: each train click multiplies by trainMult^sessionsPerTrain
-                $sessions = $state['sessionsPerTrain'];
+                // Calculate ppt: each train click multiplies by trainMult^(sessionsPerTrain * mult)
+                $sessions = $state['sessionsPerTrain'] * $multNum;
                 $state['totalSessions'] += $sessions;
                 // ppt = trainMult^totalSessions (use log to avoid overflow)
                 $logPpt = $state['totalSessions'] * log10($state['trainMult']);
@@ -581,28 +604,28 @@ class GameReplayValidator {
                 break;
             case 'ruby':
                 if (!$costsFrozen) {
-                    $state['trainClicks']++;
+                    $state['trainClicks'] += $multNum;
                 }
-                $state['rubyClicks']++;
-                // Ruby boosts emeraldPower by rubyPower (which is 1)
-                $state['emeraldPower'] += 1;
+                $state['rubyClicks'] += $multNum;
+                // Ruby boosts emeraldPower by rubyPower * mult (rubyPower is 1)
+                $state['emeraldPower'] += $multNum;
                 break;
             case 'emerald':
                 if (!$costsFrozen) {
-                    $state['trainClicks']++;
+                    $state['trainClicks'] += $multNum;
                 }
-                $state['emeraldClicks']++;
-                // Emerald: gain = emeraldPower, boosts sapphirePower
-                $gain = $state['emeraldPower'];
+                $state['emeraldClicks'] += $multNum;
+                // Emerald: gain = emeraldPower * mult, boosts sapphirePower
+                $gain = $state['emeraldPower'] * $multNum;
                 $state['sapphirePower'] += $gain;
                 break;
             case 'sapphire':
                 if (!$costsFrozen) {
-                    $state['trainClicks']++;
+                    $state['trainClicks'] += $multNum;
                 }
-                $state['sapphireClicks']++;
-                // Sapphire: gain = sapphirePower (total sapphires gained this click)
-                $gain = $state['sapphirePower'];
+                $state['sapphireClicks'] += $multNum;
+                // Sapphire: gain = sapphirePower * mult (total sapphires gained this click)
+                $gain = $state['sapphirePower'] * $multNum;
                 $state['sapphireCount'] = ($state['sapphireCount'] ?? 0) + $gain;
                 // Boosts trainMult by 0.005 * gain
                 $state['trainMult'] += 0.005 * $gain;
@@ -611,20 +634,20 @@ class GameReplayValidator {
                 break;
             case 'farm':
                 if (!$costsFrozen) {
-                    $state['econClicks']++;
-                    $state['farmClicks']++;
+                    $state['econClicks'] += $multNum;
+                    $state['farmClicks'] += $multNum;
                 }
                 break;
             case 'plantation':
                 if (!$costsFrozen) {
-                    $state['econClicks']++;
-                    $state['plantClicks']++;
+                    $state['econClicks'] += $multNum;
+                    $state['plantClicks'] += $multNum;
                 }
                 break;
             case 'colony':
                 if (!$costsFrozen) {
-                    $state['econClicks']++;
-                    $state['colClicks']++;
+                    $state['econClicks'] += $multNum;
+                    $state['colClicks'] += $multNum;
                 }
                 break;
             case 'dark_ritual':

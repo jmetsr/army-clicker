@@ -92,14 +92,20 @@ function logClick(action) {
     var m = getUpgradeMultRef('loot');
     lootMult = (typeof m === 'number') ? m : (m && m.toNumber ? m.toNumber() : 1);
   }
+  // Get upgrade level for this action (for validator to compute multiplier)
+  var upgradeLevel = G.upgradeLevels ? (G.upgradeLevels[action] || 0) : 0;
+  if (upgradeLevel instanceof OrdinalNumber) {
+    upgradeLevel = serializeON(upgradeLevel);
+  }
   G.clickLog.push({
     t: elapsed,
     tick: G._totalTicks || 0,  // Global tick counter (increments 4x per day)
     action: action,
+    upgradeLevel: upgradeLevel,  // For validator to compute mult = 10^level
     coins: serializeON(G.coins),
     troops: serializeON(G.troops),
-    ppt: G.ppt,
-    rp: G.rp,
+    ppt: typeof G.ppt === 'number' ? G.ppt : serializeON(G.ppt),
+    rp: typeof G.rp === 'number' ? G.rp : serializeON(G.rp),
     sl: cnt("squad_leader"),
     bar: cnt("barracks"),
     mb: cnt("military_base"),
