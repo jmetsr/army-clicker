@@ -363,9 +363,11 @@ function applyEffect(opts, mult) {
   if (opts.trainMult) {
     var factor;
     var tmIsOrd = G.trainMult instanceof OrdinalNumber;
+    // Use logarithm path for large mult values to avoid overflow
+    var needsLogPath = isOrdMult || tmIsOrd || mult > 1000;
 
-    if (isOrdMult || tmIsOrd) {
-      // For OrdinalNumber mult or trainMult, compute trainMult^mult using logarithms
+    if (needsLogPath) {
+      // For OrdinalNumber or large mult/trainMult, compute trainMult^mult using logarithms
       // trainMult^mult = 10^(mult * log10(trainMult))
       var logTM;
       if (tmIsOrd) {
