@@ -107,7 +107,6 @@ var G = {
   costsFrozen: false,               // Whether all costs are frozen
   separateCosts: false,             // Whether each button has separate cost (no tier sharing)
   eternalFeast: false,              // Whether troops need food (magic ability)
-  autoUpgraders: {},                // Which buttons have auto-upgraders
 
   // Timer
   startTime: Date.now(),            // When game started

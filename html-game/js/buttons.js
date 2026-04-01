@@ -4,11 +4,9 @@
 
 // Modal references (set by events.js)
 var openUpgradeModal = null;
-var openAutoUpgraderModal = null;
 
-function setModalFunctions(upgradeFn, autoUpgraderFn) {
+function setModalFunctions(upgradeFn) {
   openUpgradeModal = upgradeFn;
-  openAutoUpgraderModal = autoUpgraderFn;
 }
 
 // BUTTONS array - all game buttons
@@ -452,13 +450,4 @@ function initButtons() {
       G.starvationStreak=0;
       log("\ud83c\udf56 The Eternal Feast begins. Your armies shall never hunger again.","magic-msg");
     }});
-
-  // Auto-upgrader
-  def({id:"auto_upgrader",name:"\u26a1 Auto-Upgrader",s:"magic",isMagic:true,
-    desc:"Auto-upgrade a button each click (requires 3 upgrades first)",cw:"installed",
-    descFn:function(){return"Pick a button \u2192 auto-upgrades when clicked [10 magic]"},
-    costFn:function(){return 0},
-    displayCost:10,
-    showFn:function(){return G.magicOn && Object.keys(G.upgradeLevels).some(function(k){var v=G.upgradeLevels[k];return v instanceof OrdinalNumber?v.gte(3):v>=3})},
-    effectFn:function(){openAutoUpgraderModal()}});
 }

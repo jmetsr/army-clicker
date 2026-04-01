@@ -4,7 +4,7 @@
 
 // Set up circular dependencies
 setGetUpgradeMult(getUpgradeMult);
-setModalFunctions(openUpgradeModal, openAutoUpgraderModal);
+setModalFunctions(openUpgradeModal);
 setRunAI(runAI);
 setUpdateUI(updateUI);
 setCheckFlavorEvents(checkFlavorEvents);
@@ -19,7 +19,6 @@ function init() {
 
   // Build UI
   buildButtons();
-  createMainAutoUpgraders();
 
   // Set up event listeners
   setupEventListeners();
@@ -42,7 +41,6 @@ window.exportLog = exportLog;
 window.getGameLog = getGameLog;
 window.clearLog = clearLog;
 window.updateUI = updateUI;
-window.updateMainAutoUpgraders = updateMainAutoUpgraders;
 
 // AI simulation
 window.simAI = function(days, clicks) {

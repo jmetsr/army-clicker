@@ -71,96 +71,9 @@ function buildButtons() {
 
     row.appendChild(el);
 
-    // Auto-upgrader button
-    var autoBtn = document.createElement("button");
-    autoBtn.className = "game-btn auto-upgrade-btn";
-    autoBtn.id = "auto_" + btn.id;
-    autoBtn.style.display = "none";
-    autoBtn.innerHTML = '<span class="btn-name">\u26a1 Auto-Upgrade</span><div class="btn-cost">1 Googol</div>';
-    autoBtn.addEventListener("click", function() {
-      if (G.coins.gte(googol())) {
-        G.coins = G.coins.sub(googol());
-        var autoMult = getUpgradeMult('auto_' + btn.id);
-        var oldLvl = G.upgradeLevels[btn.id] || 0;
-        // Add levels - handle OrdinalNumber autoMult
-        if (autoMult instanceof OrdinalNumber) {
-          var newLvl = autoMult.add(ON(oldLvl));
-          G.upgradeLevels[btn.id] = newLvl.layer === 0 ? newLvl.value : newLvl;
-        } else {
-          G.upgradeLevels[btn.id] = oldLvl instanceof OrdinalNumber ? oldLvl.add(autoMult) : oldLvl + autoMult;
-        }
-        var autoMultGt1 = autoMult instanceof OrdinalNumber ? autoMult.gt(1) : autoMult > 1;
-        var multStr = autoMult instanceof OrdinalNumber ? autoMult.format() : autoMult;
-        log("\u26a1 " + btn.name + " upgraded to " + fmtMult(G.upgradeLevels[btn.id]) + "x!" + (autoMultGt1 ? " (+" + multStr + " levels)" : ""), "magic-msg");
-        updateUI();
-      }
-    });
-    row.appendChild(autoBtn);
-
-    // Auto² button
-    var auto2Btn = document.createElement("button");
-    auto2Btn.className = "game-btn auto-upgrade-btn";
-    auto2Btn.id = "auto2_" + btn.id;
-    auto2Btn.style.display = "none";
-    auto2Btn.innerHTML = '<span class="btn-name">\u26a1\u00b2</span><div class="btn-cost">1 Googol</div>';
-    auto2Btn.addEventListener("click", function() {
-      if (G.coins.gte(googol())) {
-        G.coins = G.coins.sub(googol());
-        var auto2Mult = getUpgradeMult('auto_auto_' + btn.id);
-        var oldLvl = G.upgradeLevels['auto_' + btn.id] || 0;
-        // Add levels - handle OrdinalNumber auto2Mult
-        if (auto2Mult instanceof OrdinalNumber) {
-          var newLvl = auto2Mult.add(ON(oldLvl));
-          G.upgradeLevels['auto_' + btn.id] = newLvl.layer === 0 ? newLvl.value : newLvl;
-        } else {
-          G.upgradeLevels['auto_' + btn.id] = oldLvl instanceof OrdinalNumber ? oldLvl.add(auto2Mult) : oldLvl + auto2Mult;
-        }
-        var auto2MultGt1 = auto2Mult instanceof OrdinalNumber ? auto2Mult.gt(1) : auto2Mult > 1;
-        var multStr = auto2Mult instanceof OrdinalNumber ? auto2Mult.format() : auto2Mult;
-        log("\u26a1\u00b2 Auto-" + btn.name + " upgraded to " + fmtMult(G.upgradeLevels['auto_' + btn.id]) + "x!" + (auto2MultGt1 ? " (+" + multStr + " levels)" : ""), "magic-msg");
-        updateUI();
-      }
-    });
-    row.appendChild(auto2Btn);
-
     c.appendChild(row);
-    btnEls[btn.id] = { row: row, el: el, autoBtn: autoBtn, auto2Btn: auto2Btn, autoTiers: {} };
+    btnEls[btn.id] = { row: row, el: el };
   });
-}
-
-// Create auto-tier button dynamically
-function ensureAutoTierButton(btnId, tier) {
-  var r = btnEls[btnId];
-  if (!r) return;
-
-  var tierId = 'auto' + tier + '_' + btnId;
-  if (r.autoTiers[tier]) return;
-
-  var superscripts = ['', '\u00b9', '\u00b2', '\u00b3', '\u2074', '\u2075', '\u2076', '\u2077', '\u2078', '\u2079'];
-  var sup = tier < 10 ? superscripts[tier] : '^' + tier;
-
-  var autoBtn = document.createElement("button");
-  autoBtn.className = "game-btn auto-upgrade-btn";
-  autoBtn.id = tierId;
-  autoBtn.style.display = "none";
-  autoBtn.innerHTML = '<span class="btn-name">\u26a1' + sup + '</span><div class="btn-cost">1 Googol</div>';
-
-  var targetId = btnId;
-  for (var i = 1; i < tier; i++) targetId = 'auto_' + targetId;
-  var nextTierId = 'auto_' + targetId;
-
-  autoBtn.addEventListener("click", function() {
-    if (G.coins.gte(googol())) {
-      G.coins = G.coins.sub(googol());
-      var tierMult = getUpgradeMult(nextTierId);
-      G.upgradeLevels[targetId] = (G.upgradeLevels[targetId] || 0) + tierMult;
-      log("\u26a1" + sup + " upgraded to " + fmtMult(G.upgradeLevels[targetId]) + "x!" + (tierMult > 1 ? " (+" + tierMult + " levels)" : ""), "magic-msg");
-      updateUI();
-    }
-  });
-
-  r.row.appendChild(autoBtn);
-  r.autoTiers[tier] = autoBtn;
 }
 
 // UPDATE UI
@@ -453,70 +366,6 @@ function updateUI() {
     var c = cnt(btn.id);
     var hasCount = c instanceof OrdinalNumber ? c.gt(0) : c > 0;
     document.getElementById("cnt_" + btn.id).textContent = hasCount ? fmt(c) + " " + (btn.cw || "") : "";
-
-    // Auto-upgrader buttons
-    if (!btn.isMagic) {
-      var superscripts = ['', '\u00b9', '\u00b2', '\u00b3', '\u2074', '\u2075', '\u2076', '\u2077', '\u2078', '\u2079'];
-      for (var tier = 1; tier <= 9; tier++) {
-        var checkKey = btn.id;
-        for (var t = 1; t < tier; t++) checkKey = 'auto_' + checkKey;
-
-        var isInstalled = G.autoUpgraders[checkKey];
-        if (!isInstalled) break;
-
-        if (tier === 1 && r.autoBtn) {
-          r.autoBtn.style.display = "inline-block";
-          r.autoBtn.disabled = !G.coins.gte(googol());
-          var autoLvl = G.upgradeLevels['auto_' + btn.id] || 0;
-          var lvl = G.upgradeLevels[btn.id] || 0;
-          var autoLvlIsOrd = autoLvl instanceof OrdinalNumber;
-          var lvlIsOrd = lvl instanceof OrdinalNumber;
-          var autoLvlGt300 = autoLvlIsOrd ? autoLvl.gt(300) : autoLvl > 300;
-          var autoLvlGt50 = autoLvlIsOrd ? autoLvl.gt(50) : autoLvl > 50;
-          var autoLvlGt0 = autoLvlIsOrd ? autoLvl.gt(0) : autoLvl > 0;
-          var autoLvlStr = autoLvlIsOrd ? autoLvl.format() : autoLvl;
-          var lvlStr = lvlIsOrd ? lvl.format() : lvl;
-          var addLvls = autoLvlGt300 ? "10^" + autoLvlStr : (autoLvlIsOrd ? autoLvl.exp10().format() : Math.pow(10, autoLvl));
-          var nextLvl, nextMult;
-          if (autoLvlGt50) {
-            nextMult = "10^(" + lvlStr + "+" + addLvls + ")";
-          } else {
-            var pow10auto = autoLvlIsOrd ? autoLvl.exp10() : Math.pow(10, autoLvl);
-            if (lvlIsOrd || pow10auto instanceof OrdinalNumber) {
-              nextLvl = ON(lvl).add(pow10auto);
-            } else {
-              nextLvl = lvl + pow10auto;
-            }
-            nextMult = fmtMult(nextLvl instanceof OrdinalNumber ? nextLvl.toNumber() : nextLvl);
-          }
-          var levelInfo = autoLvlGt0 ? ' (+' + addLvls + ')' : '';
-          r.autoBtn.innerHTML = '<span class="btn-name">\u26a1 Upgrade (' + nextMult + 'x)' + levelInfo + '</span><div class="btn-cost">1 Googol</div>';
-        } else if (tier === 2 && r.auto2Btn) {
-          r.auto2Btn.style.display = "inline-block";
-          r.auto2Btn.disabled = !G.coins.gte(googol());
-          var auto2Lvl = G.upgradeLevels['auto_' + btn.id] || 0;
-          var auto2NextLvl = auto2Lvl instanceof OrdinalNumber ? auto2Lvl.add(1) : auto2Lvl + 1;
-          var auto2NextMult = fmtMult(auto2NextLvl instanceof OrdinalNumber ? auto2NextLvl.toNumber() : auto2NextLvl);
-          r.auto2Btn.innerHTML = '<span class="btn-name">\u26a1\u00b2 (' + auto2NextMult + 'x)</span><div class="btn-cost">1 Googol</div>';
-        } else if (tier >= 3) {
-          ensureAutoTierButton(btn.id, tier);
-          var tierBtn = r.autoTiers[tier];
-          if (tierBtn) {
-            tierBtn.style.display = "inline-block";
-            tierBtn.disabled = !G.coins.gte(googol());
-            var sup = tier < 10 ? superscripts[tier] : '^' + tier;
-            var tierTargetId = btn.id;
-            for (var tt = 1; tt < tier; tt++) tierTargetId = 'auto_' + tierTargetId;
-            var tierLvl = G.upgradeLevels[tierTargetId] || 0;
-            var tierNextLvl = tierLvl instanceof OrdinalNumber ? tierLvl.add(1) : tierLvl + 1;
-            var tierNextMult = fmtMult(tierNextLvl instanceof OrdinalNumber ? tierNextLvl.toNumber() : tierNextLvl);
-            tierBtn.innerHTML = '<span class="btn-name">\u26a1' + sup + ' (' + tierNextMult + 'x)</span><div class="btn-cost">1 Googol</div>';
-          }
-        }
-      }
-      if (!G.autoUpgraders[btn.id] && r.autoBtn) r.autoBtn.style.display = "none";
-      if (!G.autoUpgraders['auto_' + btn.id] && r.auto2Btn) r.auto2Btn.style.display = "none";
-    }
   });
 
   // Update log count
@@ -527,9 +376,6 @@ function updateUI() {
   if (lbBtn && G.gameStarted) {
     lbBtn.style.display = "inline";
   }
-
-  // Update main auto-upgraders (recruit & loot)
-  updateMainAutoUpgraders();
 }
 
 // Pre-sort time events
