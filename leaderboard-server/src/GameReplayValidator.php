@@ -227,6 +227,15 @@ class GameReplayValidator {
                 continue;
             }
 
+            // Check milestone event's reported coins - JS has a 0.01 log tolerance bug
+            // that can trigger milestones when coins are ~97% of threshold.
+            // Accept if reported coins are >= 95% of threshold.
+            $milestoneCoins = OrdinalNumber::from($event['coins'] ?? 0);
+            $minAcceptable = $threshold->multiply(OrdinalNumber::from(0.95));
+            if ($milestoneCoins->gte($minAcceptable)) {
+                continue;  // Close enough - likely triggered by JS comparison tolerance
+            }
+
             // Calculate passive income per tick
             $incomePerTick = $lastClickTroops->multiply($lastClickPpt)->multiply($lastClickLootMult);
 
