@@ -89,8 +89,6 @@ class BasicValidator {
         usort($snapshots, fn($a, $b) => ($a['day'] ?? 0) <=> ($b['day'] ?? 0));
 
         $prevDay = -1;
-        $gapCount = 0;
-        $maxGap = 0;
 
         foreach ($snapshots as $snap) {
             $day = $snap['day'] ?? 0;
@@ -100,21 +98,7 @@ class BasicValidator {
                 $result->addFlag("Days go backwards: day $prevDay followed by day $day");
             }
 
-            // Check for large gaps (snapshots should be every 10 days)
-            if ($prevDay >= 0) {
-                $gap = $day - $prevDay;
-                if ($gap > 20) { // More than 2 snapshot intervals
-                    $gapCount++;
-                    $maxGap = max($maxGap, $gap);
-                }
-            }
-
             $prevDay = $day;
-        }
-
-        // Flag if too many gaps (might indicate log tampering)
-        if ($gapCount > 5) {
-            $result->addFlag("Suspicious gaps in day sequence: $gapCount gaps, max gap of $maxGap days");
         }
     }
 

@@ -161,7 +161,7 @@ class GameReplayValidator {
         }
 
         // Check final state
-        $finalFlags = $this->checkFinalState($prevClick);
+        $finalFlags = $this->checkFinalState($prevClick, $state);
         $flags = array_merge($flags, $finalFlags);
 
         // Verify milestone events
@@ -800,7 +800,7 @@ class GameReplayValidator {
     /**
      * Check final state against last click
      */
-    private function checkFinalState(?array $lastClick): array {
+    private function checkFinalState(?array $lastClick, array $state): array {
         if ($lastClick === null) {
             return [];
         }
@@ -818,9 +818,17 @@ class GameReplayValidator {
 
         $lastClickCoins = $this->toOrdinal($lastClick['coins'] ?? 0);
         $lastClickTroops = $this->toOrdinal($lastClick['troops'] ?? 0);
-        $lastClickPpt = $this->toOrdinal($lastClick['ppt'] ?? 1);
         $lastClickLootMult = $this->toOrdinal($lastClick['lootMult'] ?? 1);
         $lastAction = $lastClick['action'] ?? '';
+
+        // Use validator's calculated ppt (post-action) instead of logged ppt (pre-action)
+        // This accounts for the effect of the last action (e.g., train increases ppt)
+        $calculatedLogPpt = $state['calculatedPpt'] ?? 0;
+        if ($calculatedLogPpt > 308) {
+            $effectivePpt = OrdinalNumber::from(['arrows' => 1, 'height' => $calculatedLogPpt]);
+        } else {
+            $effectivePpt = OrdinalNumber::from(pow(10, $calculatedLogPpt));
+        }
 
         // Account for last action effect
         $lastActionEffect = $this->toOrdinal(($lastAction === 'beg') ? 1 : 0);
@@ -833,14 +841,14 @@ class GameReplayValidator {
         }
 
         // Income per tick with loot multiplier
-        $incomePerTick = $lastClickTroops->multiply($lastClickPpt)->multiply($effectiveLootMult);
+        $incomePerTick = $lastClickTroops->multiply($effectivePpt)->multiply($effectiveLootMult);
 
         // Allow 1000 ticks (~4 minutes) of passive income before submit
         $maxReasonableIncome = $incomePerTick->multiply(1000);
         $maxExpected = $lastClickCoins->add($lastActionEffect)->add($maxReasonableIncome);
 
         if ($finalCoins->gt($maxExpected)) {
-            $flags[] = "Final coins ({$finalCoins->toString()}) exceeds max possible ({$lastClickCoins->toString()} + {$maxReasonableIncome->toString()} from ~4min passive income, lootMult={$effectiveLootMult->toString()})";
+            $flags[] = "Final coins ({$finalCoins->toString()}) exceeds max possible ({$lastClickCoins->toString()} + {$maxReasonableIncome->toString()} from ~4min passive income, ppt=10^{$calculatedLogPpt}, lootMult={$effectiveLootMult->toString()})";
         }
 
         return $flags;
