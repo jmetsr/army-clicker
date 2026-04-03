@@ -88,9 +88,9 @@ class OrdinalNumber {
     }
 
     // Height is a number, arrows > 0
-    // Only normalize when height is HUGE (>= 1e12)
-    // This keeps 10^100 as {arrows:1, height:100} which is readable
-    // But 10^(1e15) becomes {arrows:2, height:15}
+    // When height >= 1e12, we need to nest the height as an OrdinalNumber
+    // 10^(1e15) should become {arrows:1, height:{arrows:1, height:15}}
+    // NOT {arrows:2, height:15} which would be 10↑↑15 (much larger!)
     // FIX: Guard against Infinity/NaN to prevent infinite loop
     if (!isFinite(this.height) || isNaN(this.height)) {
       // Cap at a very large but finite value
@@ -98,9 +98,11 @@ class OrdinalNumber {
       this.height = 1e11;
       return this;
     }
-    while (this.height >= 1e12) {
-      this.arrows += 1;
-      this.height = Math.log10(this.height);
+    if (this.height >= 1e12) {
+      // Convert height to nested OrdinalNumber
+      // 10^(big) where big >= 1e12 becomes 10^(10^log10(big))
+      this.height = new OrdinalNumber({ arrows: 1, height: Math.log10(this.height) });
+      this.height.normalize();
     }
 
     // Denormalize if height too small (< 1) and we can reduce arrows

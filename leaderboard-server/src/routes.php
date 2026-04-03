@@ -141,15 +141,13 @@ function handleSubmitRun(): void {
                 day_million, day_billion, day_trillion,
                 day_quadrillion, day_quintillion,
                 day_vanquish, day_surrender,
-                coins_year_1, coins_year_2, coins_total,
-                game_log
+                coins_year_1, coins_year_2, coins_total
             ) VALUES (
                 :player_name, :game_mode, :cheated, :cheat_reason,
                 :day_million, :day_billion, :day_trillion,
                 :day_quadrillion, :day_quintillion,
                 :day_vanquish, :day_surrender,
-                :coins_year_1, :coins_year_2, :coins_total,
-                :game_log
+                :coins_year_1, :coins_year_2, :coins_total
             )
         ");
 
@@ -167,8 +165,7 @@ function handleSubmitRun(): void {
             ':day_surrender' => $milestones['daySurrender'],
             ':coins_year_1' => $milestones['coinsAtYear1'],
             ':coins_year_2' => $milestones['coinsAtYear2'],
-            ':coins_total' => $milestones['finalCoins'],
-            ':game_log' => json_encode($gameLog)
+            ':coins_total' => $milestones['finalCoins']
         ]);
 
         $runId = (int)$db->lastInsertId();

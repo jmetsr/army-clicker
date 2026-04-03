@@ -66,12 +66,12 @@ var WORDS = [
 
 // TROOP NAMES by power per troop threshold
 var TROOP_NAMES = [
-  [1e1000,"Chuck Norrises"],
-  [1e100,"Inter Dymensional Beings"],
-  [1e26,"Death Stars"],
-  [1e23,"Celestial Forces"],
-  [1e20,"Elder Gods"],
-  [4.5e16,"Titans"],
+  [1e1000000,"Chuck Norrises"],
+  [1e100000,"Elder Gods"],
+  [1e10000,"Inter Dymensional Beings"],
+  [1e1000,"Celestial Forces"],
+  [1e100,"Death Stars"],
+  [1e37,"Titans"],
   [1e14,"Fallen Angels"],
   [5e11,"Demon Lords"],
   [2e10,"Balrogs"],
@@ -125,7 +125,13 @@ var TROOP_ICONS = {
   "Archdemons": "icons/archdemon.png",
   "Balrogs": "icons/Balrog.png",
   "Demon Lords": "icons/Demon Lord.png",
-  "Fallen Angels": "icons/Fallen Angels.png"
+  "Fallen Angels": "icons/Fallen Angels.png",
+  "Titans": "icons/Titian.png",
+  "Death Stars": "icons/Death Star.png",
+  "Celestial Forces": "icons/Celestial Force.png",
+  "Inter Dymensional Beings": "icons/Inter Dymensional Being.png",
+  "Elder Gods": "icons/Elder God.png",
+  "Chuck Norrises": "icons/Chuck Norris.png"
 };
 
 // GROUP NAMES by troop count

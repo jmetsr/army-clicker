@@ -310,7 +310,9 @@ for (const [aName, bName] of nestedPairs) {
 // ================================================================
 section("Promotion Thresholds");
 
-// When height >= 1e12, should promote to next arrow level
+// When height >= 1e12 and arrows >= 1, should create nested height, NOT promote arrows
+// 10^(1e12) = 10^(10^12) should be {arrows:1, height:{arrows:1, height:12}}
+// NOT {arrows:2, height:12} which would be 10↑↑12 (much larger!)
 const nearPromotion = ON({arrows: 1, height: 1e11});
 const atPromotion = ON({arrows: 1, height: 1e12});
 const pastPromotion = ON({arrows: 1, height: 1e15});
@@ -320,8 +322,11 @@ console.log(`  At promotion (1e12): ${atPromotion.normalize().format()} arrows=$
 console.log(`  Past promotion (1e15): ${pastPromotion.normalize().format()} arrows=${pastPromotion.normalize().arrows}`);
 
 test("1e11 height stays at arrows=1", nearPromotion.normalize().arrows === 1);
-test("1e12 height promotes to arrows=2", atPromotion.normalize().arrows === 2);
-test("1e15 height promotes to arrows=2", pastPromotion.normalize().arrows === 2);
+// Fixed: 1e12 and 1e15 heights should create nested structure, stay at arrows=1
+test("1e12 height stays at arrows=1 (nested)", atPromotion.normalize().arrows === 1);
+test("1e15 height stays at arrows=1 (nested)", pastPromotion.normalize().arrows === 1);
+test("1e12 height becomes nested", atPromotion.normalize().height instanceof OrdinalNumber);
+test("1e15 height becomes nested", pastPromotion.normalize().height instanceof OrdinalNumber);
 
 // ================================================================
 // TEST: exp10() - critical bug fix for train calculation

@@ -428,21 +428,29 @@ class GameReplayValidator {
 
         // Convert ppt to log10 for comparison
         $loggedPptLog = 0;
+        $loggedPptStr = '';
         if (is_array($loggedPpt)) {
             // OrdinalNumber serialized as {arrows: N, height: X}
             // arrows=1 means 10^height, arrows=2 means 10^^height (tetration), etc.
             $arrows = $loggedPpt['arrows'] ?? 1;
             $height = $loggedPpt['height'] ?? 0;
 
-            if ($arrows === 1) {
+            // Height can be nested (OrdinalNumber) after exp10 fix
+            if (is_array($height)) {
+                // Nested height means very large value
+                $loggedPptLog = PHP_FLOAT_MAX;
+                $loggedPptStr = "10^(nested)";
+            } elseif ($arrows === 1) {
                 // 10^height - log10 is just height
                 $loggedPptLog = $height;
+                $loggedPptStr = "10^" . number_format($height, 2);
             } else {
                 // Higher arrow notation (tetration+) - extremely large
                 // For arrows=2, height=3: 10^^3 = 10^10^10 ≈ 10^10000000000
                 // These are astronomically large, but we can still validate
                 // by checking if the training could possibly produce such values
                 $loggedPptLog = PHP_FLOAT_MAX; // Mark as "very large"
+                $loggedPptStr = "10" . str_repeat("↑", $arrows) . $height;
             }
         } elseif (is_numeric($loggedPpt)) {
             if ($loggedPpt <= 0) {
@@ -450,6 +458,7 @@ class GameReplayValidator {
                 return $flags;
             }
             $loggedPptLog = log10($loggedPpt);
+            $loggedPptStr = number_format($loggedPpt, 2);
         } else {
             // Unknown format
             return $flags;
@@ -458,7 +467,7 @@ class GameReplayValidator {
         // If no training done, ppt must be 1 (log10 = 0)
         // Allow small tolerance for floating point
         if ($state['trainClicks'] === 0 && $loggedPptLog > 0.01) {
-            $flags[] = "Tick $tick: ppt is " . number_format($loggedPpt, 2) . " but no training done (train clicks: 0)";
+            $flags[] = "Tick $tick: ppt is " . $loggedPptStr . " but no training done (train clicks: 0)";
             return $flags;
         }
 

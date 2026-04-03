@@ -34,10 +34,13 @@ $n2 = new OrdinalNumber(1e15);
 if (test("arrows=1 for 1e15", 1, $n2->arrows)) $passed++; else $failed++;
 if (test("height≈15 for 1e15", true, abs($n2->height - 15) < 0.01)) $passed++; else $failed++;
 
-// Test very large -> normalized
+// Test very large -> nested (NOT promoted to arrows=2!)
+// 10^(1e15) should be {arrows:1, height:{arrows:1, height:15}}, not {arrows:2, height:15}
 $n3 = new OrdinalNumber(['arrows' => 1, 'height' => 1e15]);
-if (test("1e15 exponent promotes to arrows=2", 2, $n3->arrows)) $passed++; else $failed++;
-if (test("height≈15 after promotion", true, abs($n3->height - 15) < 0.01)) $passed++; else $failed++;
+if (test("1e15 exponent stays at arrows=1", 1, $n3->arrows)) $passed++; else $failed++;
+if (test("1e15 exponent has nested height", true, $n3->height instanceof OrdinalNumber)) $passed++; else $failed++;
+if (test("nested inner arrows=1", 1, $n3->height->arrows)) $passed++; else $failed++;
+if (test("nested inner height≈15", true, abs($n3->height->height - 15) < 0.01)) $passed++; else $failed++;
 
 echo "\n=== Nested Heights ===\n";
 

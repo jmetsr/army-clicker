@@ -153,14 +153,16 @@ class OrdinalNumber {
             return $this;
         }
 
-        // Promote if height is huge
-        while ($this->height >= self::PROMOTION_THRESHOLD) {
-            $this->arrows += 1;
-            $this->height = log10($this->height);
+        // When height >= threshold, create nested OrdinalNumber instead of promoting arrows
+        // 10^(1e15) should become {arrows:1, height:{arrows:1, height:15}}
+        // NOT {arrows:2, height:15} which would be 10↑↑15 (much larger!)
+        if ($this->height >= self::PROMOTION_THRESHOLD) {
+            $this->height = new OrdinalNumber(['arrows' => 1, 'height' => log10($this->height)]);
+            $this->height->normalize();
         }
 
-        // Denormalize if height too small
-        while ($this->height < 1 && $this->arrows > 0 && !($this->height instanceof OrdinalNumber)) {
+        // Denormalize if height too small (only for numeric heights)
+        while (!($this->height instanceof OrdinalNumber) && $this->height < 1 && $this->arrows > 0) {
             $this->arrows -= 1;
             $this->height = pow(10, $this->height);
         }
