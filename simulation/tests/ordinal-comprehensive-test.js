@@ -4,7 +4,7 @@
 // Also tests: accuracy vs speed tradeoff
 // ================================================================
 
-const { OrdinalNumber } = require('./ordinal-recursive.js');
+const { OrdinalNumber } = require('../ordinal-recursive.js');
 const ON = (v) => new OrdinalNumber(v);
 
 let passed = 0;
@@ -324,6 +324,57 @@ test("1e12 height promotes to arrows=2", atPromotion.normalize().arrows === 2);
 test("1e15 height promotes to arrows=2", pastPromotion.normalize().arrows === 2);
 
 // ================================================================
+// TEST: exp10() - critical bug fix for train calculation
+// ================================================================
+section("exp10() Bug Fix - 10^(10^h) should NOT equal 10↑↑h");
+
+// The bug: exp10({arrows:1, height:h}) was returning {arrows:2, height:h}
+// But 10^(10^h) is MUCH smaller than 10↑↑h
+
+// Test 1: exp10 on plain small number
+const exp_plain = ON(5).exp10();
+test("10^5 = 100000", Math.abs(exp_plain.toNumber() - 100000) < 1);
+
+// Test 2: exp10 on plain large number (>= 308)
+const exp_large = ON(500).exp10();
+test("10^500 has arrows=1", exp_large.arrows === 1);
+test("10^500 height=500", exp_large.height === 500);
+
+// Test 3: exp10 on arrows=1 - THE CRITICAL FIX
+const exp_sci = ON({arrows: 1, height: 100}).exp10();
+test("10^(10^100) has arrows=1 (outer)", exp_sci.arrows === 1);
+test("10^(10^100) height is nested OrdinalNumber", exp_sci.height instanceof OrdinalNumber);
+test("inner has arrows=1", exp_sci.height.arrows === 1);
+test("inner height=100", exp_sci.height.height === 100);
+
+// Test 4: exp10 on arrows=2
+const exp_tet = ON({arrows: 2, height: 5}).exp10();
+test("10^(10^^5) has arrows=1 (outer)", exp_tet.arrows === 1);
+test("10^(10^^5) height is nested", exp_tet.height instanceof OrdinalNumber);
+test("inner has arrows=2", exp_tet.height.arrows === 2);
+test("inner height=5", exp_tet.height.height === 5);
+
+// Test 5: Verify 10^(10^13) < 10↑↑13 (the actual bug manifestation)
+const factor = ON({arrows: 1, height: 13}).exp10();
+const tetration = ON({arrows: 2, height: 13});
+test("10^(10^13) < 10↑↑13", factor.lt(tetration));
+test("exp10 creates nested structure, not tetration",
+    factor.arrows === 1 && factor.height instanceof OrdinalNumber);
+
+// Test 6: Chained exp10 should build nested structures, not jump arrow counts
+let chained = ON(5);
+for (let i = 0; i < 5; i++) {
+  chained = chained.exp10();
+}
+console.log(`  5 chained exp10: ${chained.format()}`);
+// After 5 exp10 calls starting from 5:
+// exp10(5) = 10^5 = 100000
+// exp10(100000) = 10^100000 = {arrows:1, height:100000}
+// exp10({arrows:1, height:100000}) = {arrows:1, height:{arrows:1, height:100000}}
+// ...and so on, building deeper nesting
+test("5 chained exp10 has arrows=1 (nested, not 5)", chained.arrows === 1);
+
+// ================================================================
 // TEST: Chained operations (game-like scenarios)
 // ================================================================
 section("Chained Operations (Game Scenarios)");
@@ -340,6 +391,7 @@ if (cost) {
 }
 
 // Simulate: start small, repeatedly call exp10
+// With the fix, this builds nested structures, not high arrow counts
 let power = ON(2);
 for (let i = 0; i < 20; i++) {
   power = timedOp(`chain exp10 ${i}`, () => power.exp10());
@@ -348,7 +400,8 @@ for (let i = 0; i < 20; i++) {
 if (power) {
   console.log(`  After 20 exp10 calls: ${power.format()}`);
   test("Chained exp10 produces valid result", isValid(power));
-  test("Should have many arrows", power.arrows >= 5);
+  // After fix: chained exp10 creates nested heights, so arrows stays 1
+  test("Chained exp10 has arrows=1 (deeply nested)", power.arrows === 1);
 }
 
 // ================================================================

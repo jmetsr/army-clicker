@@ -70,21 +70,49 @@ if (testCmp("10^^2 == 10^10", 0, $e, $f)) $passed++; else $failed++;
 
 echo "\n=== exp10() ===\n";
 
-// exp10 on plain number
+// exp10 on plain number < 308
 $g = new OrdinalNumber(5);
 $g10 = $g->exp10();
 if (test("10^5 = 100000", true, abs($g10->toFloat() - 100000) < 1)) $passed++; else $failed++;
 
-// exp10 on arrows=1
+// exp10 on plain number >= 308 (becomes arrows=1)
+$g2 = new OrdinalNumber(500);
+$g210 = $g2->exp10();
+if (test("10^500 has arrows=1", 1, $g210->arrows)) $passed++; else $failed++;
+if (test("10^500 height=500", 500.0, $g210->height)) $passed++; else $failed++;
+
+// exp10 on arrows=1: 10^(10^h) should use NESTED height, not increment arrows
+// This is the critical bug fix test!
 $h = new OrdinalNumber(['arrows' => 1, 'height' => 100]);
 $h10 = $h->exp10();
-if (test("10^(10^100) has arrows=2", 2, $h10->arrows)) $passed++; else $failed++;
-if (test("height=100 preserved", 100.0, $h10->height)) $passed++; else $failed++;
+if (test("10^(10^100) has arrows=1 (outer)", 1, $h10->arrows)) $passed++; else $failed++;
+if (test("10^(10^100) height is nested OrdinalNumber", true, $h10->height instanceof OrdinalNumber)) $passed++; else $failed++;
+if (test("inner has arrows=1", 1, $h10->height->arrows)) $passed++; else $failed++;
+if (test("inner height=100", 100.0, $h10->height->height)) $passed++; else $failed++;
 
-// exp10 on arrows=2
+// exp10 on arrows=2: same pattern - should nest, not increment
 $i = new OrdinalNumber(['arrows' => 2, 'height' => 5]);
 $i10 = $i->exp10();
-if (test("10^(10^^5) has arrows=3", 3, $i10->arrows)) $passed++; else $failed++;
+if (test("10^(10^^5) has arrows=1 (outer)", 1, $i10->arrows)) $passed++; else $failed++;
+if (test("10^(10^^5) height is nested", true, $i10->height instanceof OrdinalNumber)) $passed++; else $failed++;
+if (test("inner has arrows=2", 2, $i10->height->arrows)) $passed++; else $failed++;
+if (test("inner height=5", 5.0, $i10->height->height)) $passed++; else $failed++;
+
+echo "\n=== exp10() bug fix: 10^(10^h) ≠ 10↑↑h ===\n";
+
+// The key test: 10^(10^13) should NOT equal 10↑↑13
+// 10^(10^13) = 10^10000000000000 ≈ {arrows:1, height:1e13}
+// 10↑↑13 = power tower of 13 tens, astronomically larger
+$exp_val = new OrdinalNumber(['arrows' => 1, 'height' => 13]);
+$factor = $exp_val->exp10();  // Should be 10^(10^13)
+$tetration = new OrdinalNumber(['arrows' => 2, 'height' => 13]);  // 10↑↑13
+
+// factor should be MUCH smaller than tetration
+if (testCmp("10^(10^13) < 10↑↑13", -1, $factor, $tetration)) $passed++; else $failed++;
+
+// Verify the structure is correct
+if (test("exp10 result is nested, not tetration", true,
+    $factor->arrows === 1 && $factor->height instanceof OrdinalNumber)) $passed++; else $failed++;
 
 echo "\n=== Arithmetic ===\n";
 

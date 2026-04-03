@@ -325,24 +325,28 @@ class OrdinalNumber {
      * Matches JS exp10() method
      */
     public function exp10(): OrdinalNumber {
-        $result = new OrdinalNumber($this);
+        $n = new OrdinalNumber($this);
 
-        if ($result->arrows === 0 && !($result->height instanceof OrdinalNumber)) {
+        if ($n->arrows === 0 && !($n->height instanceof OrdinalNumber)) {
             // 10^n where n is a plain number
-            if ($result->height < 308) {
-                return new OrdinalNumber(pow(10, $result->height));
+            if ($n->height < 308) {
+                return new OrdinalNumber(pow(10, $n->height));
             } else {
-                // 10^(big number) - becomes arrows=1
+                // 10^(big number) - becomes arrows=1, height is the exponent
                 $r = new OrdinalNumber();
                 $r->arrows = 1;
-                $r->height = $result->height;
+                $r->height = $n->height;
                 return $r->normalize();
             }
         }
 
-        // 10^(10↑^k h) = 10↑^(k+1) with height adjustment
-        $result->arrows += 1;
-        return $result->normalize();
+        // For arrows >= 1: 10^(this) where this = 10↑^k(h)
+        // Result is 10^(10↑^k(h)) which is {arrows: 1, height: this}
+        // Use nested OrdinalNumber for the height
+        $r = new OrdinalNumber();
+        $r->arrows = 1;
+        $r->height = $n;
+        return $r->normalize();
     }
 
     /**

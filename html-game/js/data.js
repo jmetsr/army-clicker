@@ -67,8 +67,8 @@ var WORDS = [
 // TROOP NAMES by power per troop threshold
 var TROOP_NAMES = [
   [1e1000,"Chuck Norrises"],
-  [1e100,"Ultra Macro Agentic Galaxies"],
-  [1e26,"Dyson Sphere Powered Planet Sized Tornadoes"],
+  [1e100,"Inter Dymensional Beings"],
+  [1e26,"Death Stars"],
   [1e23,"Celestial Forces"],
   [1e20,"Elder Gods"],
   [4.5e16,"Titans"],

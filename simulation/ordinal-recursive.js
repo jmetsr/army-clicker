@@ -564,24 +564,23 @@ class OrdinalNumber {
   // ================================================================
 
   exp10() {
-    const result = new OrdinalNumber(this);
+    const n = new OrdinalNumber(this);
 
-    if (result.arrows === 0) {
+    if (n.arrows === 0) {
       // 10^n where n is a plain number
-      if (result.height < 308) {
-        const val = Math.pow(10, result.height);
+      if (n.height < 308) {
+        const val = Math.pow(10, n.height);
         return new OrdinalNumber(val);
       } else {
-        // 10^(big number) - becomes arrows=1
-        return new OrdinalNumber({arrows: 1, height: result.height}).normalize();
+        // 10^(big number) - becomes arrows=1, height is the exponent
+        return new OrdinalNumber({arrows: 1, height: n.height}).normalize();
       }
     }
 
-    // 10^(10^h) = 10^^2 with height adjustment
-    // More generally: 10^(10↑^k h)
-    // This increases the tower by 1
-    result.arrows += 1;
-    return result.normalize();
+    // For arrows >= 1: 10^(this) where this = 10↑^k(h)
+    // Result is 10^(10↑^k(h)) which is {arrows: 1, height: this}
+    // Use nested OrdinalNumber for the height
+    return new OrdinalNumber({arrows: 1, height: n}).normalize();
   }
 
   // ================================================================

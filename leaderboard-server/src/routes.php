@@ -242,20 +242,25 @@ function queryLeaderboard(string $category, string $mode, int $limit = 100): arr
         if (in_array($category, $speedCategories)) {
             $orderBy = "$category ASC";
         } else {
-            // Coin values stored as scientific notation (e.g., "1.5e15") or arrow notation ("10^15")
-            // Sort by: tier (arrow > caret > scientific) then exponent then mantissa
+            // Coin values stored as scientific notation (e.g., "1.5e15") or arrow notation ("10^15", "10^^13")
+            // Sort by: arrow count (more arrows = bigger), then height/exponent
+            // 10^^13 > 10^1000000 > 10^100 > 1e100
             $orderBy = "
                 CASE
-                    WHEN $category LIKE '%↑%' THEN 3
-                    WHEN $category LIKE '10^%' THEN 2
-                    ELSE 1
+                    WHEN $category LIKE '10^^^^%' THEN 4
+                    WHEN $category LIKE '10^^^%' THEN 3
+                    WHEN $category LIKE '10^^%' THEN 2
+                    WHEN $category LIKE '10^%' THEN 1
+                    ELSE 0
                 END DESC,
                 CASE
-                    WHEN $category LIKE '%e%' THEN CAST(SUBSTRING_INDEX($category, 'e', -1) AS SIGNED)
-                    WHEN $category LIKE '10^%' THEN CAST(SUBSTRING($category, 4) AS SIGNED)
-                    ELSE LENGTH($category)
-                END DESC,
-                CAST($category AS DOUBLE) DESC";
+                    WHEN $category LIKE '10^^^^%' THEN CAST(SUBSTRING($category, 7) AS DOUBLE)
+                    WHEN $category LIKE '10^^^%' THEN CAST(SUBSTRING($category, 6) AS DOUBLE)
+                    WHEN $category LIKE '10^^%' THEN CAST(SUBSTRING($category, 5) AS DOUBLE)
+                    WHEN $category LIKE '10^%' THEN CAST(SUBSTRING($category, 4) AS DOUBLE)
+                    WHEN $category LIKE '%e%' THEN CAST(SUBSTRING_INDEX($category, 'e', -1) AS DOUBLE)
+                    ELSE CAST($category AS DOUBLE)
+                END DESC";
         }
 
         $sql = "

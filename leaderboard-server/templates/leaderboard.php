@@ -7,13 +7,19 @@
 function formatCoins($value) {
     // Handle OrdinalNumber notation (10^X, 10^^X, etc.)
     if (is_string($value) && preg_match('/^10(\^+)(.+)$/', $value, $matches)) {
-        $arrows = $matches[1];  // ^ or ^^ or ^^^
+        $carets = $matches[1];  // ^ or ^^ or ^^^
         $exponent = $matches[2];
+        // Single ^ stays as ^, multiple ^^ become ↑↑
+        if (strlen($carets) === 1) {
+            $symbol = '^';
+        } else {
+            $symbol = str_repeat('↑', strlen($carets));
+        }
         // Add commas to the exponent if it's a plain number
         if (is_numeric($exponent)) {
             $exponent = number_format((float)$exponent);
         }
-        return "10" . $arrows . $exponent;
+        return "10" . $symbol . $exponent;
     }
 
     // Parse numeric value
