@@ -346,6 +346,67 @@ function getConditionEvents(G, tpFn, cntFn, ePctFn) {
     {cond:function(){return Math.random()<0.02}, msg:"The quartermaster complains.", random:true},
     {cond:function(){return Math.random()<0.02}, msg:"Vultures circle overhead.", random:true},
     {cond:function(){return Math.random()<0.02}, msg:"A soldier prays to forgotten gods.", random:true},
-    {cond:function(){return Math.random()<0.02}, msg:"The treasury needs counting.", random:true}
+    {cond:function(){return Math.random()<0.02}, msg:"The treasury needs counting.", random:true},
+
+    // Troop-specific random events (based on current troop type)
+    // Thugs
+    {cond:function(){return getTN()==="Thugs" && Math.random()<0.02}, msg:"A thug flashes a crude tattoo.", random:true},
+    {cond:function(){return getTN()==="Thugs" && Math.random()<0.02}, msg:"Someone mutters about 'the old neighborhood.'", random:true},
+    {cond:function(){return getTN()==="Thugs" && Math.random()<0.02}, msg:"A thug picks a fight over dice.", random:true},
+
+    // Soldiers
+    {cond:function(){return getTN().indexOf("Soldier")>=0 && Math.random()<0.02}, msg:"A soldier polishes his boots obsessively.", random:true},
+    {cond:function(){return getTN().indexOf("Soldier")>=0 && Math.random()<0.02}, msg:"The soldiers march in perfect formation.", random:true},
+
+    // Knights
+    {cond:function(){return getTN().indexOf("Knight")>=0 && Math.random()<0.02}, msg:"A knight speaks of chivalry and honor.", random:true},
+    {cond:function(){return getTN().indexOf("Knight")>=0 && Math.random()<0.02}, msg:"The horses grow restless before battle.", random:true},
+
+    // Orcs
+    {cond:function(){return getTN().indexOf("Orc")>=0 && Math.random()<0.02}, msg:"An orc sharpens his tusks.", random:true},
+    {cond:function(){return getTN().indexOf("Orc")>=0 && Math.random()<0.02}, msg:"The orcs argue in their guttural tongue.", random:true},
+
+    // Giants
+    {cond:function(){return getTN().indexOf("Giant")>=0 && Math.random()<0.02}, msg:"The ground trembles with each step.", random:true},
+    {cond:function(){return getTN().indexOf("Giant")>=0 && Math.random()<0.02}, msg:"A giant accidentally crushes a cart.", random:true},
+
+    // Dragons
+    {cond:function(){return getTN().indexOf("Dragon")>=0 && Math.random()<0.02}, msg:"Smoke curls from a dragon's nostrils.", random:true},
+    {cond:function(){return getTN().indexOf("Dragon")>=0 && Math.random()<0.02}, msg:"The dragons circle lazily overhead.", random:true},
+    {cond:function(){return getTN().indexOf("Dragon")>=0 && Math.random()<0.02}, msg:"A dragon hoards gold in its nest.", random:true},
+
+    // Demons
+    {cond:function(){return getTN().indexOf("demon")>=0 && Math.random()<0.02}, msg:"The air smells of brimstone.", random:true},
+    {cond:function(){return getTN().indexOf("demon")>=0 && Math.random()<0.02}, msg:"Shadows writhe unnaturally.", random:true},
+    {cond:function(){return getTN().indexOf("Balrog")>=0 && Math.random()<0.02}, msg:"A balrog's whip cracks through dimensions.", random:true},
+
+    // Fallen Angels
+    {cond:function(){return getTN()==="Fallen Angels" && Math.random()<0.02}, msg:"A fallen angel weeps tears of fire.", random:true},
+    {cond:function(){return getTN()==="Fallen Angels" && Math.random()<0.02}, msg:"Black feathers drift through the air.", random:true},
+
+    // Titans
+    {cond:function(){return getTN()==="Titans" && Math.random()<0.02}, msg:"A titan speaks of the old gods.", random:true},
+    {cond:function(){return getTN()==="Titans" && Math.random()<0.02}, msg:"Mountains bow before your titans.", random:true},
+
+    // Death Stars
+    {cond:function(){return getTN()==="Death Stars" && Math.random()<0.02}, msg:"A planet trembles in your shadow.", random:true},
+    {cond:function(){return getTN()==="Death Stars" && Math.random()<0.02}, msg:"The targeting computer locks on.", random:true},
+
+    // Celestial Forces
+    {cond:function(){return getTN()==="Celestial Forces" && Math.random()<0.02}, msg:"Stars rearrange themselves in tribute.", random:true},
+    {cond:function(){return getTN()==="Celestial Forces" && Math.random()<0.02}, msg:"Galaxies whisper your name.", random:true},
+
+    // Elder Gods
+    {cond:function(){return getTN()==="Elder Gods" && Math.random()<0.02}, msg:"Sanity is optional in their presence.", random:true},
+    {cond:function(){return getTN()==="Elder Gods" && Math.random()<0.02}, msg:"Time flows backwards momentarily.", random:true},
+
+    // Inter Dymensional Beings
+    {cond:function(){return getTN()==="Inter Dymensional Beings" && Math.random()<0.02}, msg:"Reality folds in on itself.", random:true},
+    {cond:function(){return getTN()==="Inter Dymensional Beings" && Math.random()<0.02}, msg:"They exist in seventeen dimensions simultaneously.", random:true},
+
+    // Chuck Norrises
+    {cond:function(){return getTN()==="Chuck Norrises" && Math.random()<0.02}, msg:"Chuck Norris doesn't do pushups. He pushes the Earth down.", random:true},
+    {cond:function(){return getTN()==="Chuck Norrises" && Math.random()<0.02}, msg:"Death once had a near-Chuck experience.", random:true},
+    {cond:function(){return getTN()==="Chuck Norrises" && Math.random()<0.02}, msg:"Chuck Norris can divide by zero.", random:true}
   ];
 }
