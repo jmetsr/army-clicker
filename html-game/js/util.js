@@ -42,10 +42,20 @@ function fmtPct(n) {
 
 // Get troop name based on power per troop
 function getTN(pptOverride) {
-  var ppt = pptOverride !== undefined ? pptOverride : (typeof G.ppt === 'number' ? G.ppt : G.ppt.toNumber());
-  if (typeof ppt !== 'number') ppt = ppt.toNumber ? ppt.toNumber() : Number(ppt);
+  var ppt = pptOverride !== undefined ? pptOverride : G.ppt;
+  // Convert to OrdinalNumber for consistent comparison
+  if (!(ppt instanceof OrdinalNumber)) {
+    ppt = new OrdinalNumber(ppt);
+  }
   for (var i = 0; i < TROOP_NAMES.length; i++) {
-    if (ppt >= TROOP_NAMES[i][0]) return TROOP_NAMES[i][1];
+    var threshold = TROOP_NAMES[i][0];
+    // Convert threshold to OrdinalNumber if it's an object with arrows/height
+    if (threshold && typeof threshold === 'object' && !(threshold instanceof OrdinalNumber)) {
+      threshold = new OrdinalNumber(threshold);
+    } else if (typeof threshold === 'number') {
+      threshold = new OrdinalNumber(threshold);
+    }
+    if (ppt.gte(threshold)) return TROOP_NAMES[i][1];
   }
   return "Thugs";
 }
