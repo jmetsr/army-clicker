@@ -350,9 +350,15 @@ function getConditionEvents(G, tpFn, cntFn, ePctFn) {
 
     // Troop-specific random events (based on current troop type)
     // Thugs
-    {cond:function(){return getTN()==="Thugs" && Math.random()<0.02}, msg:"A thug flashes a crude tattoo.", random:true},
-    {cond:function(){return getTN()==="Thugs" && Math.random()<0.02}, msg:"Someone mutters about 'the old neighborhood.'", random:true},
-    {cond:function(){return getTN()==="Thugs" && Math.random()<0.02}, msg:"A thug picks a fight over dice.", random:true},
+    {cond:function(){return getTN().startsWith("Thug")  && Math.random()<0.02}, msg:"A thug flashes a crude tattoo.", random:true},
+    {cond:function(){return getTN().startsWith("Thug") && Math.random()<0.02}, msg:"Someone mutters about 'the old neighborhood.'", random:true},
+    {cond:function(){return getTN().startsWith("Thug") && Math.random()<0.02}, msg:"A thug picks a fight over dice.", random:true},
+    {cond:function(){return getTN().startsWith("Thug") && Math.random()<0.02}, msg:"Bars are running out of drink for your thugs.", random:true},
+    {cond:function(){return getTN().startsWith("Thug") && Math.random()<0.02}, msg:"The local Governor is upset with the mess your thugs are making.", random:true},
+    {cond:function(){return getTN().startsWith("Thug") && Math.random()<0.02}, msg:"Residents are afraid to go out at night lest your thugs loot them.", random:true},
+    {cond:function(){return getTN().startsWith("Thug") && Math.random()<0.02}, msg:"Noblemen are afraid of getting looted in the market so they send their servants instead.", random:true},
+    {cond:function(){return getTN().startsWith("Thug") && Math.random()<0.02}, msg:"Your band of thugs starts to gain a somewhat cult-like reputation.", random:true},
+    {cond:function(){return getTN().startsWith("Thug") && Math.random()<0.02}, msg:"Your thugs are found drunk on bar steps in the morning", random:true},
 
     // Soldiers
     {cond:function(){return getTN().indexOf("Soldier")>=0 && Math.random()<0.02}, msg:"A soldier polishes his boots obsessively.", random:true},
