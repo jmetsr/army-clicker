@@ -413,13 +413,16 @@ function checkFlavorEvents() {
     _condEventsCache = getConditionEvents(G, tp, cnt, function() { return Math.min(G.ltMagic, C.entropy_max); });
   }
 
+  // Cache troop name once per event check cycle (avoid calling getTN() for every event)
+  var _cachedTroopName = getTN();
+
   var startIdx = Math.floor(Math.random() * _condEventsCache.length);
   for (var i = 0; i < 5; i++) {
     var idx = (startIdx + i) % _condEventsCache.length;
     var ev = _condEventsCache[idx];
     var key = ev.msg.substring(0, 30);
     if (G._shownEvents.has(key) && !ev.random) continue;
-    if (ev.cond()) {
+    if (ev.cond(_cachedTroopName)) {
       log(ev.msg);
       if (!ev.random) G._shownEvents.add(key);
       G._lastEventTime = now;
