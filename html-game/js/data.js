@@ -363,8 +363,18 @@ function getConditionEvents(G, tpFn, cntFn, ePctFn) {
     // Soldiers
     {cond:function(){return getTN().indexOf("Soldier")>=0 && Math.random()<0.02}, msg:"A soldier polishes his boots obsessively.", random:true},
     {cond:function(){return getTN().indexOf("Soldier")>=0 && Math.random()<0.02}, msg:"The soldiers march in perfect formation.", random:true},
+    {cond:function(){return getTN().indexOf("Soldier")>=0 && Math.random()<0.02}, msg:"Your Thugs now show true discipline, like trained soldiers.", random:true},
+    {cond:function(){return getTN().indexOf("Soldier")>=0 && Math.random()<0.02}, msg:"The local governor cedes control of his province to you.", random:true},
+    {cond:function(){return getTN().indexOf("Soldier")>=0 && Math.random()<0.02}, msg:"Your soldiers now patrol the streets.", random:true},
 
     // Knights
+    {cond:function(){return getTN().indexOf("Pikemen")>=0 && Math.random()<0.02}, msg:"Your Pikemen train in the Tercio formation.", random:true},
+
+    {cond:function(){return getTN().indexOf("Archers")>=0 && Math.random()<0.02}, msg:"Arrows rain down upon your enemies.", random:true},
+    {cond:function(){return getTN().indexOf("Archers")>=0 && Math.random()<0.02}, msg:"The sky is blackened from the arrows of your archers", random:true},
+    {cond:function(){return getTN().indexOf("Archers")>=0 && Math.random()<0.02}, msg:"Your archers can hit a target 1000 yards away", random:true},
+    {cond:function(){return getTN().indexOf("Archers")>=0 && Math.random()<0.02}, msg:"Your archers can hit a target 10,000 yards away", random:true},
+
     {cond:function(){return getTN().indexOf("Knight")>=0 && Math.random()<0.02}, msg:"A knight speaks of chivalry and honor.", random:true},
     {cond:function(){return getTN().indexOf("Knight")>=0 && Math.random()<0.02}, msg:"The horses grow restless before battle.", random:true},
 
