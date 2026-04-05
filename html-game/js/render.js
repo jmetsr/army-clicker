@@ -416,17 +416,43 @@ function checkFlavorEvents() {
   // Cache troop name once per event check cycle (avoid calling getTN() for every event)
   var _cachedTroopName = getTN();
 
+  // Check milestone condition events (from getConditionEvents) - up to 5
   var startIdx = Math.floor(Math.random() * _condEventsCache.length);
   for (var i = 0; i < 5; i++) {
     var idx = (startIdx + i) % _condEventsCache.length;
     var ev = _condEventsCache[idx];
     var key = ev.msg.substring(0, 30);
-    if (G._shownEvents.has(key) && !ev.random) continue;
+    if (G._shownEvents.has(key)) continue;
     if (ev.cond(_cachedTroopName)) {
       log(ev.msg);
-      if (!ev.random) G._shownEvents.add(key);
+      G._shownEvents.add(key);
       G._lastEventTime = now;
       return;
+    }
+  }
+
+  // Handle random events from FLAVOR_EVENTS with single-roll selection
+  // 1. Filter to random events whose condition passes (troop type check, etc.)
+  var eligible = [];
+  for (var i = 0; i < FLAVOR_EVENTS.length; i++) {
+    var ev = FLAVOR_EVENTS[i];
+    if (ev.random && ev.cond(_cachedTroopName)) {
+      eligible.push(ev);
+    }
+  }
+
+  // 2. Single roll to pick one (or none)
+  if (eligible.length > 0) {
+    var roll = Math.random();
+    var threshold = 0;
+    for (var i = 0; i < eligible.length; i++) {
+      var chance = eligible[i].chance || 0.02; // Default 2% if not specified
+      threshold += chance;
+      if (roll < threshold) {
+        log(eligible[i].msg);
+        G._lastEventTime = now;
+        return;
+      }
     }
   }
 }
