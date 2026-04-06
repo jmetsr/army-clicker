@@ -397,14 +397,13 @@ function checkFlavorEvents() {
 
   var elapsed = G.day;
 
-  // Check time events
+  // Check time events (don't block random events)
   if (_nextTimeEvent < TIME_EVENTS.length) {
     var ev = TIME_EVENTS[_nextTimeEvent];
     if (elapsed >= ev.t) {
       log(ev.msg);
-      G._lastEventTime = now;
       _nextTimeEvent++;
-      return;
+      // Don't return - let random events also have a chance
     }
   }
 
@@ -431,11 +430,12 @@ function checkFlavorEvents() {
     }
   }
 
-  // Handle random events from FLAVOR_EVENTS with single-roll selection
+  // Handle random events with single-roll selection
+  // Random events are in _condEventsCache (from getConditionEvents), not FLAVOR_EVENTS
   // 1. Filter to random events whose condition passes (troop type check, etc.)
   var eligible = [];
-  for (var i = 0; i < FLAVOR_EVENTS.length; i++) {
-    var ev = FLAVOR_EVENTS[i];
+  for (var i = 0; i < _condEventsCache.length; i++) {
+    var ev = _condEventsCache[i];
     if (ev.random && ev.cond(_cachedTroopName)) {
       eligible.push(ev);
     }
