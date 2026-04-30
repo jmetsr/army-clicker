@@ -227,7 +227,7 @@ function formatCoins($value) {
 <body>
     <div class="container">
         <header>
-            <h1><a href="/leaderboards">Army Clicker Leaderboard</a></h1>
+            <h1><a href="<?= LB_BASE ?>/leaderboards">Army Clicker Leaderboard</a></h1>
             <div class="subtitle">Compete for glory across multiple categories</div>
         </header>
 
@@ -316,8 +316,8 @@ function formatCoins($value) {
         </div>
 
         <footer>
-            <a href="/">Home</a> |
-            <a href="/leaderboards">Leaderboards</a>
+            <a href="<?= LB_BASE ?: '/' ?>">Home</a> |
+            <a href="<?= LB_BASE ?>/leaderboards">Leaderboards</a>
             <br><br>
             Army Clicker Leaderboard Server
         </footer>

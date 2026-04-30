@@ -1,0 +1,6 @@
+leaderboard-server/src/config.php
+leaderboard-server/src/config.production.php
+leaderboard-server/debug.log
+leaderboard-server/logs/
+node_modules/
+.DS_Store

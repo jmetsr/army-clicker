@@ -1,0 +1,21 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/$USER/public_html
+    - export APPPATH=/home/$USER/leaderboard-app
+
+    # Game (static) → public_html/
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -R html-game/. $DEPLOYPATH/
+
+    # Leaderboard front controller → public_html/leaderboard/
+    - /bin/mkdir -p $DEPLOYPATH/leaderboard
+    - /bin/cp -R deploy/leaderboard/. $DEPLOYPATH/leaderboard/
+
+    # Leaderboard PHP source → ~/leaderboard-app/ (outside web root)
+    # config.php is gitignored, so it's never overwritten by deploys
+    - /bin/mkdir -p $APPPATH/src $APPPATH/templates $APPPATH/logs
+    - /bin/cp leaderboard-server/src/*.php $APPPATH/src/
+    - /bin/rm -f $APPPATH/src/config.example.php
+    - /bin/cp leaderboard-server/templates/*.php $APPPATH/templates/
+    - /bin/chmod 755 $APPPATH/logs

@@ -232,7 +232,11 @@ function setupEventListeners() {
     };
 
     // Submit to leaderboard server
-    var apiUrl = window.LEADERBOARD_API_URL || 'http://leaderboard.localhost/api/submit-run';
+    var apiUrl = window.LEADERBOARD_API_URL || (
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '')
+        ? 'http://leaderboard.localhost/api/submit-run'
+        : '/leaderboard/api/submit-run'
+    );
 
     fetch(apiUrl, {
       method: 'POST',

@@ -18,6 +18,10 @@ require_once __DIR__ . '/../src/config.php';
 require_once __DIR__ . '/../src/db.php';
 require_once __DIR__ . '/../src/routes.php';
 
+// URL prefix templates use for internal links. Empty in dev (mounted at /),
+// set to '/leaderboard' in production.
+if (!defined('LB_BASE')) define('LB_BASE', '');
+
 // Simple router
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];

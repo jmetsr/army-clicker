@@ -59,9 +59,9 @@
     <div class="container">
         <h1>Army Clicker Leaderboard</h1>
         <p class="subtitle">Track your progress. Compete for glory.</p>
-        <a href="/leaderboards" class="btn">View Leaderboards</a>
+        <a href="<?= LB_BASE ?>/leaderboards" class="btn">View Leaderboards</a>
         <div class="api-info">
-            API: <code>POST /api/submit-run</code> | <code>GET /api/leaderboard</code>
+            API: <code>POST <?= LB_BASE ?>/api/submit-run</code> | <code>GET <?= LB_BASE ?>/api/leaderboard</code>
         </div>
     </div>
 </body>

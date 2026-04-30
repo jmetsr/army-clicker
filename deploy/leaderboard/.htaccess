@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteBase /leaderboard/
+
+# Send every request under /leaderboard/ to the front controller,
+# unless the request is for an existing file
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^.*$ index.php [L,QSA]
